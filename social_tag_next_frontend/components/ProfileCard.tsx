@@ -1,5 +1,5 @@
 import React from 'react'
-import { Twitter, Facebook, Linkedin, Github, Music, ExternalLink } from 'lucide-react'
+import { Twitter, Facebook, Linkedin, Github, ExternalLink } from 'lucide-react'
 import { Card, CardContent } from "@/components/ui/card"
 import SpotifyIcon from '@/components/SpotifyIcon' 
 import { Button } from "@/components/ui/button"
@@ -54,11 +54,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   nfd,
 }) => {
   const socialIcons = [
-    { platform: 'twitter', icon: Twitter, data: twitter, field: 'username' },
-    { platform: 'facebook', icon: Facebook, data: facebook, field: 'name' },
-    { platform: 'linkedin', icon: Linkedin, data: linkedin, field: 'name' },
-    { platform: 'github', icon: Github, data: github, field: 'username' },
-    { platform: 'spotify', icon: SpotifyIcon, data: spotify, field: 'username' },
+    { platform: 'twitter', icon: Twitter, data: twitter, field: 'username', url: (username: string) => `https://twitter.com/${username}` },
+    { platform: 'facebook', icon: Facebook, data: facebook, field: 'name', url: (name: string) => `https://facebook.com/${name}` },
+    { platform: 'linkedin', icon: Linkedin, data: linkedin, field: 'name', url: (name: string) => `https://linkedin.com/in/${name}` },
+    { platform: 'github', icon: Github, data: github, field: 'username', url: (username: string) => `https://github.com/${username}` },
+    { platform: 'spotify', icon: SpotifyIcon, data: spotify, field: 'username', url: (username: string) => `https://open.spotify.com/user/${username}` },
   ]
 
   const truncateBio = (text: string | undefined, wordLimit: number) => {
@@ -214,12 +214,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         )}
         <div className="flex justify-center space-x-6 mt-auto">
           <TooltipProvider>
-            {socialIcons.map(({ platform, icon: Icon, data, field }) => (
+            {socialIcons.map(({ platform, icon: Icon, data, field, url }) => (
               <Tooltip key={platform}>
                 <TooltipTrigger asChild>
                   <div className="relative">
                     <a
-                      href={data ? `https://${platform}.com/${data[field as keyof typeof data]}` : '#'}
+                      href={data ? url(data[field as keyof typeof data] as string) : '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`text-gray-300 hover:text-white transition-colors transform hover:scale-110 ${!data ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -247,7 +247,6 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
       </CardContent>
       <style jsx>{`
         .bg-graph-texture {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-.bg-graph-texture {
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         .shimmer-effect {

@@ -54,11 +54,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   nfd,
 }) => {
   const socialIcons = [
-    { platform: 'twitter', icon: Twitter, data: twitter, field: 'username' },
-    { platform: 'facebook', icon: Facebook, data: facebook, field: 'name' },
-    { platform: 'linkedin', icon: Linkedin, data: linkedin, field: 'name' },
-    { platform: 'github', icon: Github, data: github, field: 'username' },
-    { platform: 'spotify', icon: SpotifyIcon, data: spotify, field: 'username' },
+    { platform: 'twitter', icon: Twitter, data: twitter, field: 'username', url: (username: string) => `https://twitter.com/${username}` },
+    { platform: 'facebook', icon: Facebook, data: facebook, field: 'name', url: (name: string) => `https://facebook.com/${name}` },
+    { platform: 'linkedin', icon: Linkedin, data: linkedin, field: 'name', url: (name: string) => `https://linkedin.com/in/${name}` },
+    { platform: 'github', icon: Github, data: github, field: 'username', url: (username: string) => `https://github.com/${username}` },
+    { platform: 'spotify', icon: SpotifyIcon, data: spotify, field: 'username', url: (username: string) => `https://open.spotify.com/user/${username}` },
   ]
 
   const truncateBio = (text: string | undefined, wordLimit: number) => {
@@ -212,15 +212,15 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         <div className="flex-grow"></div>
         <div className="flex justify-center space-x-6 mt-auto">
           <TooltipProvider>
-            {socialIcons.map(({ platform, icon: Icon, data, field }) => (
+            {socialIcons.map(({ platform, icon: Icon, data, field, url }) => (
               <Tooltip key={platform}>
                 <TooltipTrigger asChild>
                   <div className="relative">
                     <a
-                      href={data ? `https://${platform}.com/${data[field as keyof typeof data]}` : '#'}
+                      href={data ? url(data[field as keyof typeof data] as string) : '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`text-white/70 hover:text-white transition-colors transform hover:scale-110 ${!data ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`text-gray-300 hover:text-white transition-colors transform hover:scale-110 ${!data ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <Icon size={36} />
                     </a>
