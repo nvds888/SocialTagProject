@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { Shield, CheckCircle, Lock, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram } from 'lucide-react'
+import React, { useState, useRef } from 'react'
+import { Shield, CheckCircle, Lock, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, Trophy } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -14,10 +14,10 @@ const FeatureIcon = ({ Icon }: { Icon: React.ElementType }) => (
   </div>
 )
 
+
 export default function LandingPage() {
   const [showPopup, setShowPopup] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
   const featuresRef = useRef<HTMLElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
   const testimonialsRef = useRef<HTMLElement>(null)
@@ -37,93 +37,8 @@ export default function LandingPage() {
   const openLeaderboard = () => setShowLeaderboard(true)
   const closeLeaderboard = () => setShowLeaderboard(false)
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-
-    const blocks: { x: number; y: number; width: number; height: number; color: string }[] = []
-    const blockSize = 50
-    const blockGap = 10
-    const chainLength = Math.floor(canvas.width / (blockSize + blockGap))
-
-    // Light retro colors
-    const retroColors = [
-      '#FFB3BA', // Light Pink
-      '#BAFFC9', // Light Mint
-      '#BAE1FF', // Light Blue
-      '#FFFFBA', // Light Yellow
-      '#FFD9BA'  // Light Peach
-    ]
-
-    for (let i = 0; i < chainLength; i++) {
-      blocks.push({
-        x: i * (blockSize + blockGap),
-        y: canvas.height + blockSize,
-        width: blockSize,
-        height: blockSize,
-        color: retroColors[i % retroColors.length]
-      })
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      blocks.forEach((block, index) => {
-        if (block.y > canvas.height / 2 + Math.sin(index * 0.2) * 70) {
-          block.y -= 1
-        }
-
-        ctx.fillStyle = block.color
-        ctx.fillRect(block.x, block.y, block.width, block.height)
-
-        if (index > 0) {
-          ctx.beginPath()
-          ctx.moveTo(blocks[index - 1].x + blockSize / 2, blocks[index - 1].y + blockSize / 2)
-          ctx.lineTo(block.x + blockSize / 2, block.y + blockSize / 2)
-          ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
-          ctx.stroke()
-        }
-      })
-
-      requestAnimationFrame(animate)
-    }
-
-    animate()
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-
-      // Recalculate block positions on resize
-      const newChainLength = Math.floor(canvas.width / (blockSize + blockGap))
-      blocks.length = 0
-      for (let i = 0; i < newChainLength; i++) {
-        blocks.push({
-          x: i * (blockSize + blockGap),
-          y: canvas.height + blockSize,
-          width: blockSize,
-          height: blockSize,
-          color: retroColors[i % retroColors.length]
-        })
-      }
-    }
-
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
-
   return (
     <div className="landing-container min-h-screen bg-white text-black relative overflow-hidden">
-      <canvas ref={canvasRef} className="absolute inset-0 z-0"></canvas>
       <div className="relative z-10">
         <header className="landing-header flex justify-between items-center p-6 bg-white bg-opacity-90">
           <h1 className="logo text-4xl font-bold text-black">SocialTag</h1>
@@ -137,25 +52,48 @@ export default function LandingPage() {
           <div className="header-buttons flex space-x-4">
             <button 
               onClick={openLeaderboard} 
-              className="nav-button bg-black text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors"
+              className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors"
             >
+              <Trophy size={18} className="mr-2" />
               Leaderboard
             </button>
-            <Link href="/dashboard" className="nav-button bg-black text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors">
+            <Link href="/dashboard" className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors">
               Dashboard
             </Link>
           </div>
         </header>
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
-            <motion.h2 
-              className="hero-title text-5xl font-bold mb-6 text-black"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              Authentic You.<br />One Tag, Zero Imposters.
-            </motion.h2>
+          <h2 className="hero-title text-5xl font-bold mb-6 text-black">
+          Authentic <span className="relative">
+            You
+            <motion.span
+              className="absolute bottom-0 left-0 w-full h-2 bg-purple-500"
+              initial={{ width: 0 }}
+              animate={{ width: ['0%', '100%', '100%'] }}
+              transition={{
+                duration: 2,
+                times: [0, 0.2, 0.8, 0.8001],
+                repeat: Infinity,
+                repeatDelay: 1
+              }}
+            />
+          </span>.<br />
+          One Tag, <span className="relative">
+            Zero Imposters
+            <motion.span
+              className="absolute bottom-0 left-0 w-full h-2 bg-purple-500"
+              initial={{ width: 0 }}
+              animate={{ width: ['0%', '0%', '100%', '100%'] }}
+              transition={{
+                duration: 2,
+                times: [0, 0.2, 0.4, 0.8, 0.8001],
+                repeat: Infinity,
+                repeatDelay: 1
+              }}
+            />
+          </span>.
+            </h2>
             <motion.p 
               className="hero-subtitle text-xl mb-8 max-w-2xl mx-auto text-gray-600"
               initial={{ opacity: 0, y: 20 }}
@@ -190,7 +128,7 @@ export default function LandingPage() {
             <h2 className="section-title text-3xl font-bold text-center mb-12 text-black">Key Features</h2>
             <div className="feature-cards grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               <motion.div 
-                className="feature-card bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-gray-200"
+                className="feature-card bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={Shield} />
@@ -198,7 +136,7 @@ export default function LandingPage() {
                 <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic.</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-gray-200"
+                className="feature-card bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={CheckCircle} />
@@ -206,7 +144,7 @@ export default function LandingPage() {
                 <p className="text-gray-600">Easily tag all your social media accounts together and verify them in one simple process, no blockchain wallet or expertise required.</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-gray-200"
+                className="feature-card bg-gradient-to-br from-yellow-50 to-yellow-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-yellow-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={Lock} />
@@ -313,7 +251,7 @@ export default function LandingPage() {
           >
             <h3 className="text-2xl font-bold mb-6 text-center">Login or Create Profile</h3>
             <button
-              className="twitter-auth-button bg-blue-100 text-black w-full px-4 py-3 rounded-full flex items-center justify-center text-lg font-semibold hover:bg-opacity-90 transition-colors"
+              className="twitter-auth-button bg-white text-black w-full px-4 py-3 rounded-full flex items-center justify-center text-lg font-semibold hover:bg-opacity-90 transition-colors"
               onClick={handleTwitterAuth}
             >
               <Twitter size={24} className="mr-2" />
@@ -329,18 +267,18 @@ export default function LandingPage() {
         </div>
       )}
 
-      <Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
+      <Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} /><Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
 
-      <style jsx>{`
-        .bounce {
-          animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-10px); }
-          60% { transform: translateY(-5px); }
-        }
-      `}</style>
-    </div>
-  )
+<style jsx>{`
+  .bounce {
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+`}</style>
+</div>
+)
 }

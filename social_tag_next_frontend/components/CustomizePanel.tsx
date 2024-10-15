@@ -644,7 +644,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                     >
                       <div className="mt-4 p-4 bg-blue-300 rounded-lg text-white">
                         <h3 className="text-xl font-bold mb-2">My Balance</h3>
-                        <p className="text-3xl font-extrabold">{rewardPoints} points</p>
+                        <p className="text-3xl font-extrabold">${rewardPoints} points</p>
                       </div>
                       <div className="flex-1 md:ml-4 mt-4">
                         <h4 className="text-lg font-semibold mb-2">Dissecting the Reward Points calculation:</h4>
