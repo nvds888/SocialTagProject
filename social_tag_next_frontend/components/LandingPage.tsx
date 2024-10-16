@@ -47,10 +47,10 @@ export default function LandingPage() {
               className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors flex items-center"
             >
               <Trophy size={18} className="mr-2" />
-              Leaderboard
+              <strong>Leaderboard</strong>
             </button>
             <Link href="/dashboard" className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors">
-              My Dashboard
+              <strong>My Dashboard</strong>
             </Link>
           </div>
         </header>
@@ -101,7 +101,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.4 }}
             >
-              Create Your Profile
+              Sign Up or Sign In
             </motion.button>
             <div className="social-icons flex justify-center space-x-4">
               <Twitter size={24} className="text-black" />
@@ -124,8 +124,8 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={CheckCircle} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Secure Identity</h3>
-                <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise of wallet required to get started!</p>
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Ensure Authenticity</h3>
+                <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started!</p>
               </motion.div>
               <motion.div 
                 className="feature-card bg-gradient-to-br from-blue-100 to-blue-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
@@ -140,7 +140,7 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={User} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Customize Your Profile</h3>
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Customize Your 'Tag'</h3>
                 <p className="text-gray-600">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
               </motion.div>
             </div>
@@ -228,7 +228,7 @@ export default function LandingPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <h3 className="text-2xl font-bold mb-6 text-center">Login or Create Profile</h3>
+            <h3 className="text-2xl font-bold mb-6 text-center">Sign Up or Sign In</h3>
             <button
               className="twitter-auth-button bg-white text-black w-full px-4 py-3 rounded-full flex items-center justify-center text-lg font-semibold hover:bg-opacity-90 transition-colors"
               onClick={handleTwitterAuth}

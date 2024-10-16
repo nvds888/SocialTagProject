@@ -28,15 +28,16 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ user, onSettingsUpdate })
       localStorage.removeItem(`userSettings_${user.twitter.username}`)
       localStorage.removeItem(`theme_${user.twitter.username}`)
       localStorage.removeItem(`cardStyle_${user.twitter.username}`)
-      localStorage.removeItem(`profileNFT_${user.twitter.username}`) // Remove NFT data
+      localStorage.removeItem(`profileNFT_${user.twitter.username}`)
+      localStorage.removeItem(`nfd_${user.twitter.username}`) // Remove NFD data
     }
     localStorage.removeItem('lastLoginDate')
     localStorage.removeItem('userPreferences')
     
-    // Remove any other NFT-related items
+    // Remove any other NFT and NFD-related items
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.startsWith('NFT_') || key.includes('profileNFT'))) {
+      if (key && (key.startsWith('NFT_') || key.includes('profileNFT') || key.includes('nfd_'))) {
         localStorage.removeItem(key);
       }
     }
@@ -100,7 +101,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ user, onSettingsUpdate })
               className="bg-white p-6 rounded-lg max-w-sm w-full"
             >
               <h3 className="text-xl font-bold mb-4 text-black">Are you sure?</h3>
-              <p className="mb-6 text-gray-700">This action cannot be undone. This will permanently delete your account and remove your data from our servers and your local device, including all purchased items.</p>
+              <p className="mb-6 text-gray-700">This action cannot be undone. This will permanently delete your account and remove your data from our servers and your local device, including all purchased items, NFTs, and NFDs.</p>
               <div className="flex justify-end space-x-4">
                 <Button
                   variant="outline"

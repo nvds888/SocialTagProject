@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import Confetti from 'react-confetti'
-import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, Trophy, RefreshCw } from 'lucide-react'
+import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, Trophy, RefreshCw, DollarSign, SquareStack } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -273,7 +273,7 @@ export default function Dashboard() {
             <div className="flex items-center text-gray-700">
               <Hash size={16} className="mr-2" />
               <a 
-                href={`https://testnet.explorer.perawallet.app/tx/${verification.algorandTransactionId}`} 
+                href={`https://explorer.perawallet.app/tx/${verification.algorandTransactionId}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
@@ -376,17 +376,23 @@ export default function Dashboard() {
             className="dashboard-card bg-purple-300 rounded-lg p-6 shadow-lg max-w-2xl mx-auto"
           >
             {user?.twitter?.username && (
-              <div className="profile-operator mb-6 bg-black p-4 rounded-lg relative overflow-hidden">
-                <LavaEffect />
-                <div className="relative z-10">
-                  <h2 className="text-xl font-bold mb-2 text-white">Profile Operator</h2>
-                  <div className="flex items-center">
-                    <User size={20} className="mr-2 text-white" />
-                    <span className="text-lg text-white">@{user.twitter.username}</span>
+            <div className="profile-operator mb-6 bg-black p-4 rounded-lg relative overflow-hidden">
+              <LavaEffect />
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-2">
+                  <h2 className="text-xl font-bold text-white">Profile Operator</h2>
+                  <div className="flex items-center bg-yellow-300 px-3 py-1 rounded-full">
+                    <DollarSign size={16} className="mr-1 text-black" />
+                    <span className="text-sm font-semibold text-black">{user.rewardPoints}</span>
                   </div>
                 </div>
+                <div className="flex items-center">
+                  <User size={20} className="mr-2 text-white" />
+                  <span className="text-lg text-white">@{user.twitter.username}</span>
+                </div>
               </div>
-            )} 
+            </div>
+          )}
             <div className="social-cards grid gap-1 mb-6">
               <SocialCard
                 platform="X"
@@ -451,13 +457,13 @@ export default function Dashboard() {
                 className="verification-success mt-6 p-4 rounded-lg relative overflow-hidden bg-white-100"
               >
                 <div className="success-message flex items-center mb-4 relative z-4">
-                  <CheckCircle size={26} className="text-green-500 mr-2" />
+                  <SquareStack size={30} className="text-green-500 mr-2" />
                   <span className="text-black text-xl font-bold">Profile successfully verified!</span>
                 </div>
                 <div className="action-buttons flex space-x-4 relative z-10">
                   <motion.button
                     onClick={handleOpenProfile}
-                    className="flex-1 bg-transparent backdrop-filter backdrop-blur-sm bg-opacity-20 border border-white text-black px-4 py-2 rounded-l-lg flex items-center justify-center hover:bg-white hover:bg-opacity-30 transition-colors"
+                    className="flex-1 bg-transparent backdrop-filter backdrop-blur-sm bg-opacity-80 border border-white text-black px-4 py-2 rounded-l-lg flex items-center justify-center hover:bg-white hover:bg-opacity-30 transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >

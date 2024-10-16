@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Info, ChevronDown, ChevronUp, X, ExternalLink } from 'lucide-react'
+import { Info, ChevronDown, ChevronUp, X, ExternalLink, DollarSign, CheckCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Tooltip,
@@ -654,20 +654,41 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-4 p-4 bg-blue-300 rounded-lg text-white">
-                      <h3 className="text-xl font-bold mb-2">My Balance</h3>
-                        <p className="text-3xl font-extrabold">${rewardPoints} points</p>
-                      </div>
-                      <div className="flex-1 md:ml-4 mt-4">
-                        <h4 className="text-lg font-semibold mb-2">Dissecting the Reward Points calculation:</h4>
-                        <ul className="list-disc list-inside">
-                          <li>Verification Hash: +100 points</li>
-                          <li>For each account included in verification: +25 points</li>
-                          <li>Card styles or theme purchases: +50 points</li>
-                          <li>Unique profile views: +15 points</li>
-                          <li>Add a NFT and/or NFD to your profile: +75 points</li>
-                        </ul>
-                      </div>
+                      <div className="mt-4 p-6 bg-yellow-300 rounded-lg text-black shadow-md">
+  <div className="flex items-center justify-between mb-4">
+    <h3 className="text-2xl font-bold">My Balance</h3>
+    <div className="flex items-center">
+      <DollarSign size={24} className="mr-2 text-black" />
+      <span className="text-3xl font-extrabold">{rewardPoints}</span>
+    </div>
+  </div>
+  
+  <div className="bg-yellow-200 p-4 rounded-lg">
+    <h4 className="text-lg font-semibold mb-2">How to Earn Reward Points:</h4>
+    <ul className="space-y-2">
+      <li className="flex items-center">
+        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <span>Verification Hash: <strong>+100 points</strong></span>
+      </li>
+      <li className="flex items-center">
+        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <span>Each account in verification: <strong>+25 points</strong></span>
+      </li>
+      <li className="flex items-center">
+        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <span>Card Style or Background purchases: <strong>+50 points</strong></span>
+      </li>
+      <li className="flex items-center">
+        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <span>Unique profile views (we use cookies): <strong>+15 points</strong></span>
+      </li>
+      <li className="flex items-center">
+        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <span>Add NFT or NFD to profile: <strong>+75 points</strong></span>
+      </li>
+    </ul>
+  </div>
+</div>
                     </motion.div>
                   )}
                 </AnimatePresence>
