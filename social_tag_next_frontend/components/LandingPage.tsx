@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Shield, CheckCircle, Lock, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, Trophy } from 'lucide-react'
+import { Shield, CheckCircle, Lock, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, Trophy, User, Coins } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -38,14 +38,9 @@ export default function LandingPage() {
   return (
     <div className="landing-container min-h-screen bg-white text-black relative overflow-hidden">
       <div className="relative z-10">
-        <header className="landing-header flex justify-between items-center p-6 bg-white bg-opacity-90">
+        <header className="landing-header flex justify-between items-center p-4 bg-white bg-opacity-90">
           <h1 className="logo text-4xl font-bold text-black">SocialTag</h1>
-          <nav className="header-nav flex-grow">
-            <ul className="flex justify-center space-x-6">
-              <li><button onClick={() => scrollToSection(featuresRef)} className="text-black hover:text-gray-600 transition-colors">Features</button></li>
-              <li><button onClick={() => scrollToSection(aboutRef)} className="text-black hover:text-gray-600 transition-colors">About</button></li>
-            </ul>
-          </nav>
+
           <div className="header-buttons flex space-x-4">
             <button 
               onClick={openLeaderboard} 
@@ -55,7 +50,7 @@ export default function LandingPage() {
               Leaderboard
             </button>
             <Link href="/dashboard" className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors">
-              Dashboard
+              My Dashboard
             </Link>
           </div>
         </header>
@@ -65,7 +60,7 @@ export default function LandingPage() {
               Authentic <span className="relative">
                 You
                 <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-500"
+                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-400"
                   initial={{ width: 0 }}
                   animate={{ width: ['0%', '100%', '100%'] }}
                   transition={{
@@ -79,7 +74,7 @@ export default function LandingPage() {
               One Tag, <span className="relative">
                 Zero Imposters
                 <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-500"
+                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-400"
                   initial={{ width: 0 }}
                   animate={{ width: ['0%', '0%', '100%', '100%'] }}
                   transition={{
@@ -100,7 +95,7 @@ export default function LandingPage() {
               Step into a world where authenticity reigns. With Social Tag, your social media presence is protected by a single, blockchain-verified identity.
             </motion.p>
             <motion.button
-              className="create-profile-button bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
+              className="create-profile-button bg-purple-400 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
               onClick={handleCreateProfileClick}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -125,28 +120,28 @@ export default function LandingPage() {
             <h2 className="section-title text-3xl font-bold text-center mb-12 text-black">Key Features</h2>
             <div className="feature-cards grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
               <motion.div 
-                className="feature-card bg-gradient-to-br from-purple-50 to-purple-100 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
-              >
-                <FeatureIcon Icon={Shield} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Secure Identity</h3>
-                <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic.</p>
-              </motion.div>
-              <motion.div 
-                className="feature-card bg-gradient-to-br from-blue-50 to-blue-100 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
+                className="feature-card bg-gradient-to-br from-purple-100 to-purple-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={CheckCircle} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Effortless Verification</h3>
-                <p className="text-gray-600">Easily tag all your social media accounts together and verify them in one simple process, no blockchain wallet or expertise required.</p>
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Secure Identity</h3>
+                <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise of wallet required to get started!</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-gradient-to-br from-yellow-50 to-yellow-100 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-yellow-200"
+                className="feature-card bg-gradient-to-br from-blue-100 to-blue-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
-                <FeatureIcon Icon={Lock} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Privacy Control</h3>
-                <p className="text-gray-600">Take control of your data. Choose what information to share, verify or delete, with full transparency and control.</p>
+                <FeatureIcon Icon={Coins} />
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Rewards</h3>
+                <p className="text-gray-600">Earn reward points for account verification, purchasing items, and much more. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
+              </motion.div>
+              <motion.div 
+                className="feature-card bg-gradient-to-br from-blue-100 to-purple-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
+              >
+                <FeatureIcon Icon={User} />
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Customize Your Profile</h3>
+                <p className="text-gray-600">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
               </motion.div>
             </div>
           </section>

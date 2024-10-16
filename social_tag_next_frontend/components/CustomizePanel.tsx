@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Info, ChevronDown, ChevronUp, X } from 'lucide-react'
+import { Info, ChevronDown, ChevronUp, X, ExternalLink } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Tooltip,
@@ -392,7 +392,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white p-6 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
           >
             {showConfetti && <Confetti />}
             <div className="flex justify-between items-center mb-4">
@@ -605,6 +605,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
       </Button>
       <Button onClick={handleCreateNFT} className="w-full">
+      <ExternalLink size={16} className="mr-2" />
         Create NFT
       </Button>
       <Button onClick={handleFetchNFDs} disabled={isLoadingNFDs} className="w-full">
