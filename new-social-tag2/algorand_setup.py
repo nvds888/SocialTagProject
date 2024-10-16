@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import pkg_resources
+import traceback
 
 def check_and_install_packages():
     required_packages = ['py-algorand-sdk', 'pyteal', 'python-dotenv']
@@ -34,14 +35,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Load environment variables
-ALGOD_ADDRESS = "https://testnet-api.algonode.cloud"
+ALGOD_ADDRESS = "https://mainnet-api.algonode.cloud"
 ALGOD_TOKEN = ""  # Not required for AlgoNode
 MNEMONIC = os.getenv("ALGORAND_MNEMONIC")
 
 if not MNEMONIC:
     print("ALGORAND_MNEMONIC environment variable is not set.")
     print("Please create a .env file in the same directory as this script with the following content:")
-    print('ALGORAND_MNEMONIC="your twelve or twenty-five word mnemonic here"')
+    print('ALGORAND_MNEMONIC="your twenty-five word mnemonic here"')
     sys.exit(1)
 
 # Create Algod client
@@ -92,6 +93,17 @@ def create_app():
 
 if __name__ == "__main__":
     try:
+        print(f"Connecting to Algod at {ALGOD_ADDRESS}")
+        print(f"Using account address: {address}")
+        
+        # Test connection
+        try:
+            algod_client.status()
+            print("Successfully connected to the Algorand node")
+        except Exception as e:
+            print(f"Failed to connect to Algorand node: {str(e)}")
+            raise
+
         app_id = create_app()
         print(f"Created Algorand app with ID: {app_id}")
         print("Please save this app_id in your environment variables as ALGORAND_APP_ID")
@@ -102,5 +114,7 @@ if __name__ == "__main__":
         print(f"Added ALGORAND_APP_ID={app_id} to .env file")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        print("Please ensure you have sufficient Algos in your testnet account to create the application.")
-        print("You can get testnet Algos from the Algorand testnet faucet: https://bank.testnet.algorand.network/")
+        print("Detailed error information:")
+        print(traceback.format_exc())
+        print("Please ensure you have sufficient Algos in your account to create the application.")
+        print("If you're using mainnet, make sure your account has enough real Algos.")
