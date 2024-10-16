@@ -14,13 +14,11 @@ const FeatureIcon = ({ Icon }: { Icon: React.ElementType }) => (
   </div>
 )
 
-
 export default function LandingPage() {
   const [showPopup, setShowPopup] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const featuresRef = useRef<HTMLElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
-  const testimonialsRef = useRef<HTMLElement>(null)
 
   const handleCreateProfileClick = () => {
     setShowPopup(true)
@@ -42,17 +40,16 @@ export default function LandingPage() {
       <div className="relative z-10">
         <header className="landing-header flex justify-between items-center p-6 bg-white bg-opacity-90">
           <h1 className="logo text-4xl font-bold text-black">SocialTag</h1>
-          <nav className="header-nav">
-            <ul className="flex space-x-6">
+          <nav className="header-nav flex-grow">
+            <ul className="flex justify-center space-x-6">
               <li><button onClick={() => scrollToSection(featuresRef)} className="text-black hover:text-gray-600 transition-colors">Features</button></li>
               <li><button onClick={() => scrollToSection(aboutRef)} className="text-black hover:text-gray-600 transition-colors">About</button></li>
-              <li><button onClick={() => scrollToSection(testimonialsRef)} className="text-black hover:text-gray-600 transition-colors">Testimonials</button></li>
             </ul>
           </nav>
           <div className="header-buttons flex space-x-4">
             <button 
               onClick={openLeaderboard} 
-              className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors"
+              className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors flex items-center"
             >
               <Trophy size={18} className="mr-2" />
               Leaderboard
@@ -64,35 +61,35 @@ export default function LandingPage() {
         </header>
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
-          <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-          Authentic <span className="relative">
-            You
-            <motion.span
-              className="absolute bottom-0 left-0 w-full h-2 bg-purple-500"
-              initial={{ width: 0 }}
-              animate={{ width: ['0%', '100%', '100%'] }}
-              transition={{
-                duration: 2,
-                times: [0, 0.2, 0.8, 0.8001],
-                repeat: Infinity,
-                repeatDelay: 1
-              }}
-            />
-          </span>.<br />
-          One Tag, <span className="relative">
-            Zero Imposters
-            <motion.span
-              className="absolute bottom-0 left-0 w-full h-2 bg-purple-500"
-              initial={{ width: 0 }}
-              animate={{ width: ['0%', '0%', '100%', '100%'] }}
-              transition={{
-                duration: 2,
-                times: [0, 0.2, 0.4, 0.8, 0.8001],
-                repeat: Infinity,
-                repeatDelay: 1
-              }}
-            />
-          </span>.
+            <h2 className="hero-title text-5xl font-bold mb-6 text-black">
+              Authentic <span className="relative">
+                You
+                <motion.span
+                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: ['0%', '100%', '100%'] }}
+                  transition={{
+                    duration: 2,
+                    times: [0, 0.2, 0.8, 0.8001],
+                    repeat: Infinity,
+                    repeatDelay: 1
+                  }}
+                />
+              </span>.<br />
+              One Tag, <span className="relative">
+                Zero Imposters
+                <motion.span
+                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: ['0%', '0%', '100%', '100%'] }}
+                  transition={{
+                    duration: 2,
+                    times: [0, 0.2, 0.4, 0.8, 0.8001],
+                    repeat: Infinity,
+                    repeatDelay: 1
+                  }}
+                />
+              </span>.
             </h2>
             <motion.p 
               className="hero-subtitle text-xl mb-8 max-w-2xl mx-auto text-gray-600"
@@ -114,7 +111,7 @@ export default function LandingPage() {
             <div className="social-icons flex justify-center space-x-4">
               <Twitter size={24} className="text-black" />
               <Github size={24} className="text-black" />
-              <SpotifyIcon size={24} className="text-black" />
+              <SpotifyIcon size={24} />
               <Linkedin size={24} className="text-black" />
               <Facebook size={24} className="text-black" />
               <Instagram size={24} className="text-black" />
@@ -126,9 +123,9 @@ export default function LandingPage() {
           </div>
           <section ref={featuresRef} className="features-section mb-20 px-4">
             <h2 className="section-title text-3xl font-bold text-center mb-12 text-black">Key Features</h2>
-            <div className="feature-cards grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="feature-cards grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
               <motion.div 
-                className="feature-card bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
+                className="feature-card bg-gradient-to-br from-purple-50 to-purple-100 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={Shield} />
@@ -136,7 +133,7 @@ export default function LandingPage() {
                 <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic.</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
+                className="feature-card bg-gradient-to-br from-blue-50 to-blue-100 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={CheckCircle} />
@@ -144,7 +141,7 @@ export default function LandingPage() {
                 <p className="text-gray-600">Easily tag all your social media accounts together and verify them in one simple process, no blockchain wallet or expertise required.</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-gradient-to-br from-yellow-50 to-yellow-100 p-8 rounded-xl text-left transition-all duration-300 shadow-lg border border-yellow-200"
+                className="feature-card bg-gradient-to-br from-yellow-50 to-yellow-100 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-yellow-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={Lock} />
@@ -175,19 +172,6 @@ export default function LandingPage() {
                   height={300} 
                   className="rounded-lg shadow-lg"
                 />
-              </div>
-            </div>
-          </section>
-          <section ref={testimonialsRef} className="testimonials-section mb-20 px-4">
-            <h2 className="section-title text-3xl font-bold text-center mb-12 text-black">What Our Users Say</h2>
-            <div className="testimonials-grid grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-              <div className="testimonial bg-white p-6 rounded-lg shadow-lg">
-                <p className="text-gray-600 mb-4">"SocialTag has revolutionized how I manage my online presence. It's simple, secure, and gives me peace of mind."</p>
-                <p className="font-semibold">- Sarah J., Influencer</p>
-              </div>
-              <div className="testimonial bg-white p-6 rounded-lg shadow-lg">
-                <p className="text-gray-600 mb-4">"As a business owner, verifying my identity across platforms is crucial. SocialTag makes it effortless."</p>
-                <p className="font-semibold">- Michael R., Entrepreneur</p>
               </div>
             </div>
           </section>
@@ -267,18 +251,18 @@ export default function LandingPage() {
         </div>
       )}
 
-      <Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} /><Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
+      <Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
 
-<style jsx>{`
-  .bounce {
-    animation: bounce 2s infinite;
-  }
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
-  }
-`}</style>
-</div>
-)
+      <style jsx>{`
+        .bounce {
+          animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-10px); }
+          60% { transform: translateY(-5px); }
+        }
+      `}</style>
+    </div>
+  )
 }

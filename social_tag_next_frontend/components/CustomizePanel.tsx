@@ -299,6 +299,10 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     setShowNFDModal(false)
   }
 
+  const handleCreateNFT = () => {
+    window.open('https://www.wen.tools/simple-mint', '_blank');
+  };
+
   const fetchRewardPoints = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/user/reward-points`, { withCredentials: true })
@@ -587,38 +591,45 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
                             className="w-full bg-white text-black rounded-md px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent"
-                            rows={3}
+                            rows={2}
                             maxLength={250}
                           />
                         </div>
                         <div>
-                          <Label className="text-lg font-medium text-black mb-2 block">
-                            Profile NFT & NFDomains
-                          </Label>
-                          <div className="flex space-x-4">
-                            <div className="flex-1 space-y-2">
-                              <Button onClick={handleFetchNFTs} disabled={isLoadingNFTs} className="w-full">
-                                {isLoadingNFTs ? 'Loading NFTs...' : 'Select NFT as Profile Image'}
-                              </Button>
-                              {selectedNFT && (
-                                <div className="flex items-center space-x-2">
-                                  <img src={selectedNFT.image} alt={selectedNFT.name} className="w-10 h-10 rounded-full object-cover" />
-                                  <span className="text-sm text-black">{selectedNFT.name}</span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1 space-y-2">
-                              <Button onClick={handleFetchNFDs} disabled={isLoadingNFDs} className="w-full">
-                                {isLoadingNFDs ? 'Loading NFDs...' : 'Select NFD'}
-                              </Button>
-                              {selectedNFD && (
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-sm text-black">{selectedNFD.name}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+  <Label className="text-lg font-medium text-black mb-2 block">
+    Profile NFT & NFDomains
+  </Label>
+  <div className="space-y-4">
+    <div className="grid grid-cols-3 gap-4">
+      <Button onClick={handleFetchNFTs} disabled={isLoadingNFTs} className="w-full">
+        {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
+      </Button>
+      <Button onClick={handleCreateNFT} className="w-full">
+        Create NFT
+      </Button>
+      <Button onClick={handleFetchNFDs} disabled={isLoadingNFDs} className="w-full">
+        {isLoadingNFDs ? 'Loading...' : 'Select NFD'}
+      </Button>
+    </div>
+    <div className="flex space-x-4">
+      <div className="w-2/3">
+        {selectedNFT && (
+          <div className="flex items-center space-x-2">
+            <img src={selectedNFT.image} alt={selectedNFT.name} className="w-10 h-10 rounded-full object-cover" />
+            <span className="text-sm text-black">{selectedNFT.name}</span>
+          </div>
+        )}
+      </div>
+      <div className="w-1/3">
+        {selectedNFD && (
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-black">{selectedNFD.name}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
                       </div>
                     </motion.div>
                   )}
@@ -643,7 +654,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       className="overflow-hidden"
                     >
                       <div className="mt-4 p-4 bg-blue-300 rounded-lg text-white">
-                        <h3 className="text-xl font-bold mb-2">My Balance</h3>
+                      <h3 className="text-xl font-bold mb-2">My Balance</h3>
                         <p className="text-3xl font-extrabold">${rewardPoints} points</p>
                       </div>
                       <div className="flex-1 md:ml-4 mt-4">
