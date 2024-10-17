@@ -29,8 +29,9 @@ const AbstractDataFlow: React.FC = () => {
     }
 
     function drawDataFlow(time: number) {
-      ctx.fillStyle = 'rgba(0, 20, 40, 0.1)'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      if (ctx) {  // Add this null check
+        ctx.fillStyle = 'rgba(0, 20, 40, 0.1)'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       dataPoints.forEach((point, index) => {
         ctx.beginPath()
