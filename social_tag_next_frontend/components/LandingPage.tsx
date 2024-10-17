@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Shield, CheckCircle, Lock, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, Trophy, User, Coins } from 'lucide-react'
+import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, Trophy, User, Coins } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -26,10 +26,6 @@ export default function LandingPage() {
 
   const handleTwitterAuth = () => {
     window.location.href = 'http://localhost:5000/auth/twitter'
-  }
-
-  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const openLeaderboard = () => setShowLeaderboard(true)

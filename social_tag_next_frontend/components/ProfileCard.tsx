@@ -1,5 +1,5 @@
 import React from 'react'
-import { Twitter, Facebook, Linkedin, Github, ExternalLink } from 'lucide-react'
+import { Twitter, Facebook, Linkedin, Github } from 'lucide-react'
 import { Card, CardContent } from "@/components/ui/card"
 import SpotifyIcon from '@/components/SpotifyIcon' 
 import { Button } from "@/components/ui/button"

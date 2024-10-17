@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import Confetti from 'react-confetti'
-import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, Trophy, RefreshCw, DollarSign, SquareStack } from 'lucide-react'
+import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, Trophy, RefreshCw, SquareStack } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -18,7 +18,6 @@ import SpotifyIcon from '@/components/SpotifyIcon'
 import LavaEffect from '@/components/LavaEffect'
 import VerificationDialog from '@/components/VerificationDialog'
 import ReVerificationDialog from '@/components/ReVerificationDialog'
-import NotificationMessage from '@/components/NotificationMessage'
 import Leaderboard from '@/components/Leaderboard'
 
 axios.defaults.withCredentials = true
@@ -87,14 +86,12 @@ export default function Dashboard() {
   const [verifying, setVerifying] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isVerified, setIsVerified] = useState(false)
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const [connectedAccount, setConnectedAccount] = useState<string | null>(null)
   const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false)
   const [isVerificationDialogOpen, setIsVerificationDialogOpen] = useState(false)
   const [isReVerificationDialogOpen, setIsReVerificationDialogOpen] = useState(false)
-  const [showNotification, setShowNotification] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
 

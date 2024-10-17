@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Info, ChevronDown, ChevronUp, X, ExternalLink, DollarSign, CheckCircle } from 'lucide-react'
+import { Info, ChevronDown, ChevronUp, ExternalLink, CheckCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Tooltip,
