@@ -36,6 +36,7 @@ const BubbleTeaPartyBackground: React.FC = () => {
     }
 
     function drawStraw(x: number, y: number) {
+      if (!ctx) return
       ctx.beginPath()
       ctx.moveTo(x, y)
       ctx.lineTo(x, y - 200)
@@ -45,6 +46,7 @@ const BubbleTeaPartyBackground: React.FC = () => {
     }
 
     function animate() {
+      if (!ctx || !canvas) return
       ctx.fillStyle = 'rgba(255, 228, 196, 0.3)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

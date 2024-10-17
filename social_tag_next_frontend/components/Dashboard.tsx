@@ -71,6 +71,13 @@ interface User {
   verifications: Verification[];
   theme?: string;
   rewardPoints: number;
+  cardStyle?: string; // Add this line
+  bio?: string;
+  purchasedItems?: any[]; // Add this line, adjust the type as needed
+  profileImage?: string;
+  profileViews?: number;
+  nfd?: any; // Add this line, adjust the type as needed
+  profileNFT?: any; // Add this line, adjust the type as needed
 }
 
 interface Verification {
@@ -125,6 +132,11 @@ export default function Dashboard() {
     }
   }, [fetchUser, searchParams])
 
+  const handleDisconnectWalletClick = useCallback(() => {
+    peraWallet.disconnect();
+    setConnectedAccount(null);
+  }, []);
+
   useEffect(() => {
     peraWallet.reconnectSession().then((accounts) => {
       peraWallet.connector?.on("disconnect", handleDisconnectWalletClick);
@@ -135,9 +147,9 @@ export default function Dashboard() {
     }).catch(e => console.log(e));
 
     return () => {
-      peraWallet.connector?.off("disconnect", handleDisconnectWalletClick);
+      peraWallet.connector?.off("disconnect");
     };
-  }, []);
+  }, [handleDisconnectWalletClick]);
 
   const handleConnect = (platform: string) => {
     window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
@@ -154,7 +166,6 @@ export default function Dashboard() {
       const response = await axios.post(`${API_BASE_URL}/api/verify`)
       console.log('Verification response:', response.data)
       setIsVerified(true)
-      setShowNotification(true)
       setShowConfetti(true)
       setTimeout(() => setShowConfetti(false), 5000)
       fetchUser()
@@ -180,7 +191,6 @@ export default function Dashboard() {
       const response = await axios.post(`${API_BASE_URL}/api/re-verify`)
       if (response.data.success) {
         setIsVerified(false)
-        setShowNotification(true)
         fetchUser()
         toast({
           title: "Re-verification Successful",
@@ -240,11 +250,6 @@ export default function Dashboard() {
       }
     }
   }
-
-  const handleDisconnectWalletClick = useCallback(() => {
-    peraWallet.disconnect();
-    setConnectedAccount(null);
-  }, []);
 
   const handleOpenLeaderboard = () => {
     setShowLeaderboard(true)
@@ -360,7 +365,7 @@ export default function Dashboard() {
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-80 bg-white border-none text-black shadow-lg">
-                <SettingsPanel user={user} onSettingsUpdate={fetchUser} />
+                {user && <SettingsPanel user={user} onSettingsUpdate={fetchUser} />}
               </PopoverContent>
             </Popover>
           </nav>
@@ -428,7 +433,7 @@ export default function Dashboard() {
               />
               <SocialCard
                 platform="Spotify"
-                icon={<SpotifyIcon size={24} className="text-black" />}
+                icon={<SpotifyIcon size={24} />}
                 isConnected={isSpotifyConnected}
                 onConnect={() => handleConnect('spotify')}
                 username={user?.spotify?.username}
@@ -501,7 +506,17 @@ export default function Dashboard() {
       <CustomizePanel
         isOpen={isCustomizePanelOpen}
         onClose={() => setIsCustomizePanelOpen(false)}
-        user={user}
+        user={user ? {
+          twitter: user.twitter,
+          theme: user.theme,
+          cardStyle: user.cardStyle,
+          bio: user.bio,
+          purchasedItems: user.purchasedItems,
+          profileImage: user.profileImage,
+          profileViews: user.profileViews,
+          nfd: user.nfd,
+          profileNFT: user.profileNFT
+        } : {}}
         onSettingsUpdate={fetchUser}
         connectedWalletAddress={connectedAccount}
       />

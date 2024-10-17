@@ -23,6 +23,7 @@ const TropicalIslandBackground: React.FC = () => {
     }
 
     function drawSun() {
+      if (!ctx || !canvas) return
       const gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height * 0.8, 0, canvas.width / 2, canvas.height * 0.8, canvas.height * 0.5)
       gradient.addColorStop(0, 'rgba(255, 255, 0, 1)')
       gradient.addColorStop(1, 'rgba(255, 165, 0, 0)')
@@ -33,6 +34,7 @@ const TropicalIslandBackground: React.FC = () => {
     }
 
     function drawPalmTree(x: number, y: number, height: number) {
+      if (!ctx) return
       ctx.fillStyle = '#8B4513'
       ctx.beginPath()
       ctx.moveTo(x, y)
@@ -50,6 +52,7 @@ const TropicalIslandBackground: React.FC = () => {
     }
 
     function animate() {
+      if (!ctx || !canvas) return
       ctx.fillStyle = '#87CEEB'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

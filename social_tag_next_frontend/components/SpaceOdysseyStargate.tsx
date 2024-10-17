@@ -31,6 +31,7 @@ export default function SpaceOdysseyStargateBackground() {
     }
 
     function drawStars(time: number) {
+      if (!ctx || !canvas) return
       stars.forEach(star => {
         const x = (star.x / star.z) * 1000 + centerX
         const y = (star.y / star.z) * 1000 + centerY
@@ -54,6 +55,7 @@ export default function SpaceOdysseyStargateBackground() {
     }
 
     function drawStargate(time: number) {
+      if (!ctx || !canvas) return
       const radius = Math.min(canvas.width, canvas.height) * 0.4
       const thickness = radius * 0.1
 
@@ -74,6 +76,7 @@ export default function SpaceOdysseyStargateBackground() {
     }
 
     function drawMonolith() {
+      if (!ctx || !canvas) return
       const width = Math.min(canvas.width, canvas.height) * 0.1
       const height = width * 4
 
@@ -91,6 +94,7 @@ export default function SpaceOdysseyStargateBackground() {
     }
 
     function animate(time: number) {
+      if (!ctx || !canvas) return
       ctx.fillStyle = 'rgba(0, 0, 20, 0.1)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

@@ -61,6 +61,7 @@ export default function NeonCitySkylineBackground() {
     }
 
     function drawRain() {
+      if (!ctx || !canvas) return;
       ctx.strokeStyle = 'rgba(174, 194, 224, 0.5)'
       ctx.lineWidth = 1
       for (let i = 0; i < 100; i++) {
@@ -74,6 +75,7 @@ export default function NeonCitySkylineBackground() {
     }
 
     function animate() {
+      if (!ctx || !canvas) return;
       ctx.fillStyle = 'rgba(0, 0, 10, 0.3)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

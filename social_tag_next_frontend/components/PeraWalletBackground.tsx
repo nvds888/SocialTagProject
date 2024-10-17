@@ -37,6 +37,7 @@ const PeraWalletBackground: React.FC = () => {
     }
 
     function drawPeraLogo(x: number, y: number, size: number, rotation: number) {
+      if (!ctx) return
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(rotation)
@@ -65,6 +66,7 @@ const PeraWalletBackground: React.FC = () => {
     }
 
     function drawPeraWalletText() {
+      if (!ctx || !canvas) return
       ctx.font = 'bold 24px Arial'
       ctx.fillStyle = '#000000'
       ctx.textAlign = 'right'
@@ -73,6 +75,7 @@ const PeraWalletBackground: React.FC = () => {
     }
 
     function animate() {
+      if (!ctx || !canvas) return
       ctx.fillStyle = peraYellow
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

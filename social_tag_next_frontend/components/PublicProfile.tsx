@@ -77,7 +77,8 @@ export default function PublicProfile() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { username } = useParams()
+  const params = useParams()
+  const username = params?.username as string
 
   useEffect(() => {
     const fetchUser = async () => {

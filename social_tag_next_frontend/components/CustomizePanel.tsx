@@ -47,6 +47,7 @@ interface CustomizePanelProps {
     profileImage?: string;
     profileViews?: number;
     nfd?: string;
+    profileNFT?: NFT;
   };
   onSettingsUpdate: () => void;
   connectedWalletAddress: string | null;
@@ -55,16 +56,36 @@ interface CustomizePanelProps {
 interface NFT {
   id: string;
   name: string;
-  image: string;
-  assetId: string;
+  url?: string;
+  'metadata-hash'?: string;
+  reserve?: string;
+  image?: string;
+  assetId?: string;
 }
 
 interface NFD {
   id: string;
   name: string;
+  assetId?: string; // Add this line
 }
 
-const themes = [
+interface ThemeItem {
+  name: string;
+  component: React.FC<any>;
+  premium: boolean;
+  specialEdition?: boolean;
+  requiredPoints?: number;
+}
+
+interface CardStyleItem {
+  name: string;
+  component: React.FC<any>;
+  premium: boolean;
+  specialEdition?: boolean;
+  requiredPoints?: number;
+}
+
+const themes: ThemeItem[] = [
   { name: 'SocialTag', component: SocialTagBackground, premium: false },
   { name: 'ArcticIce', component: ArcticIceBackground, premium: false },
   { name: 'TropicalIsland', component: TropicalIslandBackground, premium: false },
@@ -80,7 +101,7 @@ const themes = [
   { name: 'SustainableCoffee', component: SustainableCoffeeBackground, premium: false, specialEdition: true, requiredPoints: 700 },
 ]
 
-const cardStyles = [
+const cardStyles: CardStyleItem[] = [
   { name: 'Default', component: DefaultCard, premium: false },
   { name: 'Frosted Glass', component: FrostedGlassCard, premium: true },
   { name: 'Holographic', component: HolographicCard, premium: true },
@@ -150,7 +171,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     }
 
     if (user.profileImage) {
-      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage })
+      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage, assetId: 'current' })
     }
   }, [user])
 

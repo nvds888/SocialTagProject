@@ -19,6 +19,7 @@ const RetroWaveGrid: React.FC = () => {
     const perspectiveOffset = canvas.height / 2
 
     function drawGrid(time: number) {
+      if (!ctx || !canvas) return
       ctx.fillStyle = 'rgba(0, 0, 50, 0.3)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

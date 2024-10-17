@@ -40,6 +40,7 @@ const AlienLandscapeBackground: React.FC = () => {
     }
 
     function drawAlienPlant(plant: typeof alienPlants[0], time: number) {
+      if (!ctx) return
       ctx.beginPath()
       ctx.moveTo(plant.x, plant.y)
       for (let i = 0; i < plant.height; i += 10) {
@@ -53,6 +54,7 @@ const AlienLandscapeBackground: React.FC = () => {
     }
 
     function animate(time: number) {
+      if (!ctx || !canvas) return
       ctx.fillStyle = 'rgba(50, 0, 50, 0.1)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

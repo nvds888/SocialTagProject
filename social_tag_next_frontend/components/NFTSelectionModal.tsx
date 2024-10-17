@@ -7,9 +7,11 @@ import axios from 'axios'
 interface NFT {
   id: string;
   name: string;
-  url: string;
+  url?: string;
   'metadata-hash'?: string;
   reserve?: string;
+  image?: string;
+  assetId?: string;
 }
 
 interface NFTSelectionModalProps {
@@ -32,6 +34,8 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   const [resolvedNFTs, setResolvedNFTs] = useState<(NFT & { image: string })[]>([]);
 
   const getImageUrl = async (nft: NFT): Promise<string> => {
+    if (!nft.url) return '/placeholder-nft.png';
+
     if (nft.url.startsWith('template-ipfs://')) {
       try {
         const response = await axios.get(`https://ipfs.io/ipfs/${nft.reserve}`);

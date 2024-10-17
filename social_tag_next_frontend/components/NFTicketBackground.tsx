@@ -34,6 +34,7 @@ const NFTicketBackground: React.FC = () => {
     }
 
     function drawAirplane(x: number, y: number, size: number, direction: number) {
+      if (!ctx) return
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(direction)
@@ -49,6 +50,7 @@ const NFTicketBackground: React.FC = () => {
     }
 
     function drawTravelXLogo() {
+      if (!ctx || !canvas) return
       ctx.font = 'bold 24px Arial'
       ctx.fillStyle = '#FFFFFF'
       ctx.textAlign = 'right'
@@ -57,6 +59,7 @@ const NFTicketBackground: React.FC = () => {
     }
 
     function animate() {
+      if (!ctx || !canvas) return
       ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

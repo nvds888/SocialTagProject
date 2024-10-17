@@ -25,6 +25,7 @@ const ArcticIceBackground: React.FC = () => {
     }
 
     function animate() {
+      if (!ctx || !canvas) return
       ctx.fillStyle = 'rgba(200, 230, 255, 0.3)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

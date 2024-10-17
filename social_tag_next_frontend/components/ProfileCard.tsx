@@ -29,6 +29,7 @@ interface ProfileCardProps {
   spotify?: { username: string }
   algorandTransactionId?: string
   isVerified: boolean
+  profileViews: number;
   rewardPoints: number
   nfd?: {
     name: string;
