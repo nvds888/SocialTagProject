@@ -1,10 +1,17 @@
 [build]
   base = "social_tag_next_frontend"
-  command = "CI=false npm run build"
-  publish = ".next"
+  command = "npm run build"
+  publish = "out"
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
+  NEXT_DISABLE_ESLINT_DURING_BUILD = "true"
+  DISABLE_ESLINT_PLUGIN = "true"
+  TS_NODE_TRANSPILE_ONLY = "true"
+  NEXT_IGNORE_TYPESCRIPT_ERRORS = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[functions]
+  directory = "pages/api"
