@@ -99,7 +99,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         <div className="mb-4 flex items-center justify-between">
           {twitter && twitter.username && (
             <div className="flex items-center">
-              <p className="text-gray-400 text-lg font-mono">@{twitter.username}</p>
+              <p className="text-blue-400 text-lg font-mono">@{twitter.username}</p>
               <div className="flex items-center ml-2">
                 {isVerified && (
                   <TooltipProvider>

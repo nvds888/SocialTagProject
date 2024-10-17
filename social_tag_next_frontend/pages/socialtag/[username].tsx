@@ -17,6 +17,7 @@ import SpaceOdysseyStargate from '../../components/SpaceOdysseyStargate'
 import RetroWaveBackground from '../../components/RetroWaveBackground'
 import ElectricPlasma from '../../components/ElectricPlasma'
 import AbstractDataFlow from '../../components/AbstractDataFlow'
+import PeraWalletBackground from '../../components/PeraWalletBackground'
 import NFTicketBackground from '../../components/NFTicketBackground'
 import SustainableCoffeeBackground from '../../components/SustainableCoffeeBackground'
 
@@ -165,7 +166,8 @@ export default function PublicProfilePage() {
     ElectricPlasma: ElectricPlasma,
     AbstractDataFlow: AbstractDataFlow,
     NFTicket: NFTicketBackground,
-    SustainableCoffee: SustainableCoffeeBackground
+    SustainableCoffee: SustainableCoffeeBackground,
+    PeraWallet: PeraWalletBackground
   }[profile.theme] || SocialTagBackground
 
   const isVerified = isProfileVerified(profile)

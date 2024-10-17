@@ -25,6 +25,7 @@ import ElectricPlasma from '@/components/ElectricPlasma'
 import AbstractDataFlow from '@/components/AbstractDataFlow'
 import NFTicketBackground from '@/components/NFTicketBackground'
 import SustainableCoffeeBackground from '@/components/SustainableCoffeeBackground'
+import PeraWalletBackground from '@/components/PeraWalletBackground'
 import DefaultCard from '@/components/ProfileCard'
 import FrostedGlassCard from '@/components/frosted-glass-card'
 import HolographicCard from '@/components/holographic-card'
@@ -74,8 +75,9 @@ const themes = [
   { name: 'RetroWave', component: RetroWaveBackground, premium: true },
   { name: 'ElectricPlasma', component: ElectricPlasma, premium: true },
   { name: 'AbstractDataFlow', component: AbstractDataFlow, premium: true },
-  { name: 'NFTicket', component: NFTicketBackground, premium: false, specialEdition: true, requiredPoints: 300 },
-  { name: 'SustainableCoffee', component: SustainableCoffeeBackground, premium: false, specialEdition: true, requiredPoints: 500 },
+  { name: 'PeraWallet', component: PeraWalletBackground, premium: false, specialEdition: true, requiredPoints: 300 },
+  { name: 'NFTicket', component: NFTicketBackground, premium: false, specialEdition: true, requiredPoints: 500 },
+  { name: 'SustainableCoffee', component: SustainableCoffeeBackground, premium: false, specialEdition: true, requiredPoints: 700 },
 ]
 
 const cardStyles = [
@@ -435,7 +437,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                             >
                               <span className="block truncate pr-6">{c.name}</span>
                               {c.premium && !purchasedItems.includes(c.name) && (
-                                <span className="absolute top-1 right-1 text-xs bg-green-500 text-black px-2 py-1 rounded-full font-semibold shadow-sm">Buy Now</span>
+                                <span className="absolute top-1 right-1 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Buy Now</span>
                               )}
                             </Button>
                             <TooltipProvider delayDuration={0}>
@@ -505,10 +507,10 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                             >
                               <span className="block truncate pr-6">{t.name}</span>
                               {t.premium && !purchasedItems.includes(t.name) && (
-                                <span className="absolute top-1 right-1 text-xs bg-green-500 text-black px-2 py-1 rounded-full font-semibold shadow-sm">Buy Now</span>
+                                <span className="absolute top-1 right-1 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Buy Now</span>
                               )}
                               {t.specialEdition && (
-                                <span className="absolute top-1 right-1 text-xs bg-purple-500 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
+                                <span className="absolute top-1 right-1 text-xs bg-yellow-400 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
                               )}
                             </Button>
                             <TooltipProvider delayDuration={0}>
@@ -654,17 +656,20 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-4 p-6 bg-yellow-300 rounded-lg text-black shadow-md">
+                      <div className="mt-4 p-6 bg-yellow-400 rounded-lg text-black shadow-md">
   <div className="flex items-center justify-between mb-4">
-    <h3 className="text-2xl font-bold">My Balance</h3>
+    <h3 className="text-2xl font-semibold">My Balance:</h3>
     <div className="flex items-center">
-      <DollarSign size={24} className="mr-2 text-black" />
-      <span className="text-3xl font-extrabold">{rewardPoints}</span>
-    </div>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 mr-2 text-black">
+    <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
+    <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
+  </svg>
+  <span className="text-3xl font-bold">{rewardPoints}</span>
+</div>
   </div>
   
   <div className="bg-yellow-200 p-4 rounded-lg">
-    <h4 className="text-lg font-semibold mb-2">How to Earn Reward Points:</h4>
+    <h4 className="text-lg font-semibold mb-2">How to Earn Reward Points?</h4>
     <ul className="space-y-2">
       <li className="flex items-center">
         <CheckCircle size={16} className="mr-2 text-green-600" />
@@ -742,7 +747,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                 <div className="bg-white p-6 rounded-lg max-w-md w-full">
                   <h3 className="text-xl font-bold mb-4 text-black">Confirm Purchase</h3>
                   <p className="text-gray-700 mb-4">
-                    Are you sure you want to purchase the {selectedItem.name} {selectedItem.type} for $1?
+                    Are you sure you want to purchase the {selectedItem.name} {selectedItem.type} for 1 USDC?
                   </p>
                   <div className="flex justify-end space-x-4">
                     <Button variant="outline" onClick={() => setShowPurchaseModal(false)}>Cancel</Button>
