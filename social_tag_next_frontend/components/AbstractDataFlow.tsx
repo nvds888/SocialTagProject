@@ -80,7 +80,7 @@ const AbstractDataFlow: React.FC = () => {
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [])
+  }}, [])
 
   return <canvas ref={canvasRef} className="fixed inset-0 z-0" />
 }
