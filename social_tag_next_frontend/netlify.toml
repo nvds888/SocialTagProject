@@ -1,6 +1,6 @@
 [build]
   base = "social_tag_next_frontend"
-  command = "next build"
+  command = "npm run build"
   publish = "out"
 
 [build.environment]
