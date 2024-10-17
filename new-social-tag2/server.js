@@ -12,9 +12,15 @@ const themePurchaseRoutes = require('./themePurchaseRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB:', err));
+mongoose.connect(process.env.MONGODB_URI, { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true,
+  // If you're using Mongoose 6.0 or later, you don't need these options:
+  // useCreateIndex: true,
+  // useFindAndModify: false
+})
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch(err => console.error('Could not connect to MongoDB Atlas:', err));
 
 app.use(cors({
   origin: 'http://localhost:3000',
@@ -33,13 +39,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/theme', themePurchaseRoutes);
-
-// Pera Wallet routes
 app.use('/api/pera', peraWalletRoutes);
-
 app.use('/api/leaderboard', apiRoutes);
-
-// Existing routes
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/peraWalletRoutes', peraWalletRoutes);
