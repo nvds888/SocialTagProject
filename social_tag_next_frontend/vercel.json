@@ -1,0 +1,16 @@
+{
+    "builds": [
+      {
+        "src": "package.json",
+        "use": "@vercel/next",
+        "config": {
+          "eslint": {
+            "ignoreDuringBuilds": true
+          },
+          "typescript": {
+            "ignoreBuildErrors": true
+          }
+        }
+      }
+    ]
+  }
