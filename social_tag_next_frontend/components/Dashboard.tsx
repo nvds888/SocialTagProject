@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import axios from 'axios'
@@ -19,7 +19,8 @@ import LavaEffect from '@/components/LavaEffect'
 import VerificationDialog from '@/components/VerificationDialog'
 import ReVerificationDialog from '@/components/ReVerificationDialog'
 import Leaderboard from '@/components/Leaderboard'
-import { NFT, Verification } from '@/types/User';
+import { NFT, Verification } from '@/types/User'
+import SearchParamsHandler from './SearchParamsHandler';
 
 axios.defaults.withCredentials = true
 
@@ -81,6 +82,7 @@ const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, on
   </motion.div>
 )
 
+
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -111,6 +113,12 @@ export default function Dashboard() {
       setLoading(false)
     }
   }, [])
+
+  const handleAuthStatusChange = useCallback((authStatus: string | null, platform: string | null) => {
+    if (authStatus === 'success' && platform) {
+      fetchUser();
+    }
+  }, [fetchUser]);
 
   useEffect(() => {
     fetchUser()
@@ -307,6 +315,9 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 text-black relative">
+      <Suspense fallback={null}>
+        <SearchParamsHandler onAuthStatusChange={handleAuthStatusChange} />
+      </Suspense>
       {showConfetti && <Confetti />}
       <div className="relative z-10">
         <header className="flex justify-between items-center p-6 bg-white shadow-md">
