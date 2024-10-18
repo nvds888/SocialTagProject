@@ -136,7 +136,7 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={User} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Customize Your 'Tag'</h3>
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Customize Your &apos;Tag&apos;</h3>
                 <p className="text-gray-600">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
               </motion.div>
             </div>
@@ -152,7 +152,7 @@ export default function LandingPage() {
                 We aim to create a unique solution that ensures authenticity by leveraging the APIs of major social platforms, while optimizing for data integrity and transparency through the use of public blockchain technology.
                 </p>
                 <p className="text-gray-600">
-                With SocialTag, we're not just verifying identities—we're creating a foundation for trusted online interactions. By empowering users to take control of their digital presence, we're paving the way for a more secure and authentic internet.
+                With SocialTag, we&apos;re not just verifying identities—we&apos;re creating a foundation for trusted online interactions. By empowering users to take control of their digital presence, we&apos;re paving the way for a more secure and authentic internet.
                 </p>
               </div>
               <div className="about-image md:w-1/2">

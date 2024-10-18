@@ -11,7 +11,13 @@ export const Dialog: React.FC<DialogProps> = ({ open, onOpenChange, children }) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div className="bg-grey-800 rounded-lg max-w-md w-full p-6">
+      <div className="bg-grey-800 rounded-lg max-w-md w-full p-6 relative">
+        <button
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-200"
+          onClick={() => onOpenChange(false)}
+        >
+          ×
+        </button>
         {children}
       </div>
     </div>

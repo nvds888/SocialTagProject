@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -32,23 +32,14 @@ import HolographicCard from '@/components/holographic-card'
 import Confetti from 'react-confetti'
 import NFTSelectionModal from '@/components/NFTSelectionModal'
 import NFDSelectionModal from '@/components/NFDSelectionModal'
+import { User } from '@/types/User';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
 interface CustomizePanelProps {
   isOpen: boolean;
   onClose: () => void;
-  user: {
-    twitter?: { username: string };
-    theme?: string;
-    cardStyle?: string;
-    bio?: string;
-    purchasedItems?: string[];
-    profileImage?: string;
-    profileViews?: number;
-    nfd?: string;
-    profileNFT?: NFT;
-  };
+  user: User;
   onSettingsUpdate: () => void;
   connectedWalletAddress: string | null;
 }
@@ -69,9 +60,18 @@ interface NFD {
   assetId?: string; // Add this line
 }
 
+
+
+interface ComponentProps {
+  user?: User;
+  theme?: string;
+  cardStyle?: string;
+  // Add any other common props here
+}
+
 interface ThemeItem {
   name: string;
-  component: React.FC<any>;
+  component: React.FC<ComponentProps>;
   premium: boolean;
   specialEdition?: boolean;
   requiredPoints?: number;
@@ -79,10 +79,15 @@ interface ThemeItem {
 
 interface CardStyleItem {
   name: string;
-  component: React.FC<any>;
+  component: React.FC<ComponentProps>;
   premium: boolean;
   specialEdition?: boolean;
   requiredPoints?: number;
+}
+
+// Define a new interface that extends ComponentProps
+interface ProfileCardProps extends ComponentProps {
+  // Add any additional props specific to ProfileCard here
 }
 
 const themes: ThemeItem[] = [
@@ -102,9 +107,9 @@ const themes: ThemeItem[] = [
 ]
 
 const cardStyles: CardStyleItem[] = [
-  { name: 'Default', component: DefaultCard, premium: false },
-  { name: 'Frosted Glass', component: FrostedGlassCard, premium: true },
-  { name: 'Holographic', component: HolographicCard, premium: true },
+  { name: 'Default', component: DefaultCard as React.FC<ProfileCardProps>, premium: false },
+  { name: 'Frosted Glass', component: FrostedGlassCard as React.FC<ProfileCardProps>, premium: true },
+  { name: 'Holographic', component: HolographicCard as React.FC<ProfileCardProps>, premium: true },
 ]
 
 const CustomizePanel: React.FC<CustomizePanelProps> = ({ 
@@ -326,7 +331,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     window.open('https://www.wen.tools/simple-mint', '_blank');
   };
 
-  const fetchRewardPoints = async () => {
+  const fetchRewardPoints = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/user/reward-points`, { withCredentials: true })
       setRewardPoints(response.data.rewardPoints)
@@ -338,13 +343,13 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         variant: "destructive",
       })
     }
-  }
+  }, [toast]); // Added 'toast' to the dependency array
 
   useEffect(() => {
     if (isOpen) {
       fetchRewardPoints()
     }
-  }, [isOpen])
+  }, [isOpen, fetchRewardPoints])
 
   const handleSaveSettings = async () => {
     setSaving(true)
@@ -637,12 +642,26 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     </div>
     <div className="flex space-x-4">
       <div className="w-2/3">
-        {selectedNFT && (
-          <div className="flex items-center space-x-2">
-            <img src={selectedNFT.image} alt={selectedNFT.name} className="w-10 h-10 rounded-full object-cover" />
-            <span className="text-sm text-black">{selectedNFT.name}</span>
-          </div>
-        )}
+      {selectedNFT && selectedNFT.image && (
+  <div className="flex items-center space-x-2">
+    <svg width="40" height="40" viewBox="0 0 40 40">
+      <defs>
+        <clipPath id="circle-clip">
+          <circle cx="20" cy="20" r="20" />
+        </clipPath>
+      </defs>
+      <image 
+        href={selectedNFT.image} 
+        xlinkHref={selectedNFT.image}
+        width="40" 
+        height="40" 
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#circle-clip)"
+      />
+    </svg>
+    <span className="text-sm text-black">{selectedNFT.name || 'Unnamed NFT'}</span>
+  </div>
+)}
       </div>
       <div className="w-1/3">
         {selectedNFD && (

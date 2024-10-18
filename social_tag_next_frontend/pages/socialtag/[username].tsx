@@ -72,79 +72,79 @@ export default function PublicProfilePage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true)
+        const url = `${API_BASE_URL}/api/public-profile/${username}`;
+        console.log('Fetching profile from:', url);
+        const response = await axios.get(url)
+        const fetchedProfile = response.data
+
+        // Check if the profile is verified
+        if (!fetchedProfile.isVerified) {
+          setError('This profile is not verified')
+          setLoading(false)
+          return
+        }
+
+        // Apply cached theme and card style
+        if (fetchedProfile.twitter?.username) {
+          const cachedTheme = localStorage.getItem(`theme_${fetchedProfile.twitter.username}`)
+          const cachedCardStyle = localStorage.getItem(`cardStyle_${fetchedProfile.twitter.username}`)
+
+          if (cachedTheme) {
+            fetchedProfile.theme = cachedTheme
+          }
+          if (cachedCardStyle) {
+            fetchedProfile.cardStyle = cachedCardStyle
+          }
+        }
+
+        // Extract algorandTransactionId from the latest verification
+        if (fetchedProfile.verifications && fetchedProfile.verifications.length > 0) {
+          const latestVerification = fetchedProfile.verifications[fetchedProfile.verifications.length - 1]
+          fetchedProfile.algorandTransactionId = latestVerification.algorandTransactionId
+        }
+
+        setProfile(fetchedProfile)
+        console.log('Fetched profile:', fetchedProfile)
+      } catch (err) {
+        console.error('Error fetching profile:', err)
+        setError('Failed to load profile')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const incrementViewCount = async () => {
+      if (typeof username === 'string') {
+        const cookieName = `viewed_${username}`
+        const viewedCookie = Cookies.get(cookieName)
+        if (!viewedCookie) {
+          try {
+            const response = await axios.post(`${API_BASE_URL}/api/increment-view/${username}`)
+            // Set cookie with 12-hour expiration
+            Cookies.set(cookieName, 'true', { expires: 0.5 }) // 0.5 days = 12 hours
+            
+            // Update the profile with the new view count
+            setProfile(prevProfile => {
+              if (prevProfile) {
+                return { ...prevProfile, profileViews: response.data.views }
+              }
+              return prevProfile
+            })
+          } catch (error) {
+            console.error('Error incrementing view count:', error)
+          }
+        }
+      }
+    }
+
     if (username) {
       fetchProfile()
       incrementViewCount()
     }
-  }, [username])
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true)
-      const url = `${API_BASE_URL}/api/public-profile/${username}`;
-      console.log('Fetching profile from:', url);
-      const response = await axios.get(url)
-      const fetchedProfile = response.data
-
-      // Check if the profile is verified
-      if (!fetchedProfile.isVerified) {
-        setError('This profile is not verified')
-        setLoading(false)
-        return
-      }
-
-      // Apply cached theme and card style
-      if (fetchedProfile.twitter?.username) {
-        const cachedTheme = localStorage.getItem(`theme_${fetchedProfile.twitter.username}`)
-        const cachedCardStyle = localStorage.getItem(`cardStyle_${fetchedProfile.twitter.username}`)
-
-        if (cachedTheme) {
-          fetchedProfile.theme = cachedTheme
-        }
-        if (cachedCardStyle) {
-          fetchedProfile.cardStyle = cachedCardStyle
-        }
-      }
-
-      // Extract algorandTransactionId from the latest verification
-      if (fetchedProfile.verifications && fetchedProfile.verifications.length > 0) {
-        const latestVerification = fetchedProfile.verifications[fetchedProfile.verifications.length - 1]
-        fetchedProfile.algorandTransactionId = latestVerification.algorandTransactionId
-      }
-
-      setProfile(fetchedProfile)
-      console.log('Fetched profile:', fetchedProfile)
-    } catch (err) {
-      console.error('Error fetching profile:', err)
-      setError('Failed to load profile')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const incrementViewCount = async () => {
-    if (typeof username === 'string') {
-      const cookieName = `viewed_${username}`
-      const viewedCookie = Cookies.get(cookieName)
-      if (!viewedCookie) {
-        try {
-          const response = await axios.post(`${API_BASE_URL}/api/increment-view/${username}`)
-          // Set cookie with 12-hour expiration
-          Cookies.set(cookieName, 'true', { expires: 0.5 }) // 0.5 days = 12 hours
-          
-          // Update the profile with the new view count
-          setProfile(prevProfile => {
-            if (prevProfile) {
-              return { ...prevProfile, profileViews: response.data.views }
-            }
-            return prevProfile
-          })
-        } catch (error) {
-          console.error('Error incrementing view count:', error)
-        }
-      }
-    }
-  }
+  }, [username]) // Removed incrementViewCount from dependencies
 
   const isProfileVerified = (profile: PublicProfile | null): boolean => {
     return !!profile?.algorandTransactionId
@@ -194,7 +194,6 @@ export default function PublicProfilePage() {
           linkedin={profile.linkedin}
           github={profile.github}
           spotify={profile.spotify}
-          dribbble={profile.dribbble}
           isVerified={isVerified}
           algorandTransactionId={profile.algorandTransactionId}
           profileViews={profile.profileViews}

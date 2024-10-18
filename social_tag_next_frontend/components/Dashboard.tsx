@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import Confetti from 'react-confetti'
 import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, Trophy, RefreshCw, SquareStack } from 'lucide-react'
@@ -19,6 +19,7 @@ import LavaEffect from '@/components/LavaEffect'
 import VerificationDialog from '@/components/VerificationDialog'
 import ReVerificationDialog from '@/components/ReVerificationDialog'
 import Leaderboard from '@/components/Leaderboard'
+import { NFT, Verification } from '@/types/User';
 
 axios.defaults.withCredentials = true
 
@@ -33,6 +34,24 @@ interface SocialCardProps {
   onConnect: () => void;
   username?: string;
   isVerified: boolean;
+}
+
+interface User {
+  twitter?: { username: string };
+  facebook?: { name: string };
+  linkedin?: { name: string };
+  github?: { username: string };
+  spotify?: { id: string; username: string };
+  theme?: string;
+  cardStyle?: string;
+  bio?: string;
+  purchasedItems?: string[];
+  profileImage?: string;
+  profileViews?: number;
+  nfd?: string;
+  profileNFT?: NFT;
+  rewardPoints: number;
+  verifications?: Verification[];
 }
 
 const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, onConnect, username, isVerified }) => (
@@ -61,31 +80,6 @@ const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, on
     )}
   </motion.div>
 )
-
-interface User {
-  twitter?: { username: string };
-  facebook?: { name: string };
-  linkedin?: { name: string };
-  github?: { username: string };
-  spotify?: { id: string; username: string };
-  verifications: Verification[];
-  theme?: string;
-  rewardPoints: number;
-  cardStyle?: string; // Add this line
-  bio?: string;
-  purchasedItems?: any[]; // Add this line, adjust the type as needed
-  profileImage?: string;
-  profileViews?: number;
-  nfd?: any; // Add this line, adjust the type as needed
-  profileNFT?: any; // Add this line, adjust the type as needed
-}
-
-interface Verification {
-  timestamp: string;
-  algorandTransactionId?: string;
-  isPermanentafy?: boolean;
-  assetId?: number;
-}
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
@@ -504,22 +498,12 @@ export default function Dashboard() {
         </main>
       </div>
       <CustomizePanel
-        isOpen={isCustomizePanelOpen}
-        onClose={() => setIsCustomizePanelOpen(false)}
-        user={user ? {
-          twitter: user.twitter,
-          theme: user.theme,
-          cardStyle: user.cardStyle,
-          bio: user.bio,
-          purchasedItems: user.purchasedItems,
-          profileImage: user.profileImage,
-          profileViews: user.profileViews,
-          nfd: user.nfd,
-          profileNFT: user.profileNFT
-        } : {}}
-        onSettingsUpdate={fetchUser}
-        connectedWalletAddress={connectedAccount}
-      />
+    isOpen={isCustomizePanelOpen}
+    onClose={() => setIsCustomizePanelOpen(false)}
+    user={user as User}
+    onSettingsUpdate={fetchUser}
+    connectedWalletAddress={connectedAccount}
+  />
       <VerificationDialog
         isOpen={isVerificationDialogOpen}
         onClose={() => setIsVerificationDialogOpen(false)}
