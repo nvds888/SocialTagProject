@@ -30,7 +30,7 @@ export default function SpaceOdysseyStargateBackground() {
       })
     }
 
-    function drawStars(time: number) {
+    function drawStars() { // Removed 'time' parameter
       if (!ctx || !canvas) return
       stars.forEach(star => {
         const x = (star.x / star.z) * 1000 + centerX
@@ -98,7 +98,7 @@ export default function SpaceOdysseyStargateBackground() {
       ctx.fillStyle = 'rgba(0, 0, 20, 0.1)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      drawStars(time)
+      drawStars()
       drawStargate(time)
       drawMonolith()
 

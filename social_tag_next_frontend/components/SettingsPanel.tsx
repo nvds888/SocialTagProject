@@ -51,6 +51,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ user, onSettingsUpdate })
     try {
       await axios.delete(`${API_BASE_URL}/api/user`)
       clearUserCache()
+      onSettingsUpdate() // Call onSettingsUpdate after successful deletion
       router.push('/')
     } catch (error) {
       console.error('Error deleting user data:', error)
