@@ -98,7 +98,14 @@ export default function Dashboard(props: DashboardProps) {
   const [isReVerificationDialogOpen, setIsReVerificationDialogOpen] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+
   const router = useRouter()
+
+  useEffect(() => {
+    if (router.isReady) {
+      // setRouterQuery(router.query);
+    }
+  }, [router.isReady, router.query]);
 
   const fetchUser = useCallback(async () => {
     try {
