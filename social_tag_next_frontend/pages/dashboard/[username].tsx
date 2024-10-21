@@ -1,37 +1,34 @@
 import { GetServerSideProps } from 'next';
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
 // Dynamically import the Dashboard component with SSR disabled
 const DashboardComponent = dynamic(() => import('../../components/Dashboard'), {
   ssr: false,
 });
 
-// Wrapper component
-function DashboardWrapper(props: Record<string, unknown>) {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <DashboardComponent {...props} />
-    </Suspense>
-  );
+interface DashboardPageProps {
+  username: string;
 }
 
-export default function DashboardPage(props: Record<string, unknown>) {
-  return <DashboardWrapper {...props} />;
+export default function DashboardPage({ username }: DashboardPageProps) {
+  return <DashboardComponent username={username} />;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { username } = context.params || {};
   
-  // Fetch any necessary data here
-  // For example, you might want to fetch user data from your API
-  // const userData = await fetchUserData(username);
+  if (typeof username !== 'string') {
+    return {
+      notFound: true,
+    };
+  }
+  
+  // You can add additional server-side checks here if needed
+  // For example, you might want to verify if the username exists in your database
   
   return {
     props: {
       username,
-      // Add other props as needed
-      // userData,
     },
   };
 };
