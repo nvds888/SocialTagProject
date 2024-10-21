@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
@@ -20,7 +20,6 @@ import VerificationDialog from '@/components/VerificationDialog'
 import ReVerificationDialog from '@/components/ReVerificationDialog'
 import Leaderboard from '@/components/Leaderboard'
 import { NFT, Verification } from '@/types/User'
-import SearchParamsHandler from './SearchParamsHandler';
 
 axios.defaults.withCredentials = true
 
@@ -82,7 +81,6 @@ const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, on
   </motion.div>
 )
 
-
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -121,24 +119,18 @@ export default function Dashboard() {
     }
   }, [router])
 
-  const handleAuthStatusChange = useCallback((authStatus: string | null, platform: string | null) => {
-    if (authStatus === 'success' && platform) {
-      fetchUser();
-    }
-  }, [fetchUser]);
-
   useEffect(() => {
-    fetchUser()
-  }, [fetchUser])
+    if (router.isReady) {
+      const authStatus = router.query.auth_status as string | undefined
+      const platform = router.query.platform as string | undefined
 
-  useEffect(() => {
-    const authStatus = router.query.auth_status as string | undefined
-    const platform = router.query.platform as string | undefined
-
-    if (authStatus === 'success' && platform) {
-      fetchUser()
+      if (authStatus === 'success' && platform) {
+        fetchUser()
+      } else {
+        fetchUser()
+      }
     }
-  }, [fetchUser, router.query])
+  }, [fetchUser, router.isReady, router.query])
 
   const handleDisconnectWalletClick = useCallback(() => {
     peraWallet.disconnect();
@@ -146,21 +138,25 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    peraWallet.reconnectSession().then((accounts) => {
-      peraWallet.connector?.on("disconnect", handleDisconnectWalletClick);
+    if (typeof window !== 'undefined') {
+      peraWallet.reconnectSession().then((accounts) => {
+        peraWallet.connector?.on("disconnect", handleDisconnectWalletClick);
 
-      if (accounts.length) {
-        setConnectedAccount(accounts[0]);
-      }
-    }).catch(e => console.log(e));
+        if (accounts.length) {
+          setConnectedAccount(accounts[0]);
+        }
+      }).catch(e => console.log(e));
 
-    return () => {
-      peraWallet.connector?.off("disconnect");
-    };
+      return () => {
+        peraWallet.connector?.off("disconnect");
+      };
+    }
   }, [handleDisconnectWalletClick]);
 
   const handleConnect = (platform: string) => {
-    window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
+    if (typeof window !== 'undefined') {
+      window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
+    }
   }
 
   const handleVerifyConfirm = () => {
@@ -225,27 +221,31 @@ export default function Dashboard() {
   }
 
   const handleShareProfile = () => {
-    const profileUrl = `${window.location.origin}/socialtag/${user?.twitter?.username}`
-    navigator.clipboard.writeText(profileUrl).then(() => {
-      toast({
-        title: "Link Copied!",
-        description: "Your profile link has been copied to the clipboard.",
-        duration: 3000,
+    if (typeof window !== 'undefined') {
+      const profileUrl = `${window.location.origin}/socialtag/${user?.twitter?.username}`
+      navigator.clipboard.writeText(profileUrl).then(() => {
+        toast({
+          title: "Link Copied!",
+          description: "Your profile link has been copied to the clipboard.",
+          duration: 3000,
+        })
+      }).catch((err) => {
+        console.error('Failed to copy link: ', err)
+        toast({
+          title: "Failed to copy link",
+          description: "Please try again or copy the link manually.",
+          variant: "destructive",
+          duration: 3000,
+        })
       })
-    }).catch((err) => {
-      console.error('Failed to copy link: ', err)
-      toast({
-        title: "Failed to copy link",
-        description: "Please try again or copy the link manually.",
-        variant: "destructive",
-        duration: 3000,
-      })
-    })
+    }
   }
 
   const handleOpenProfile = () => {
-    const profileUrl = `${window.location.origin}/socialtag/${user?.twitter?.username}`
-    window.open(profileUrl, '_blank')
+    if (typeof window !== 'undefined') {
+      const profileUrl = `${window.location.origin}/socialtag/${user?.twitter?.username}`
+      window.open(profileUrl, '_blank')
+    }
   }
 
   const handleConnectPera = async () => {
@@ -321,9 +321,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 text-black relative">
-      <Suspense fallback={null}>
-        <SearchParamsHandler onAuthStatusChange={handleAuthStatusChange} />
-      </Suspense>
       {showConfetti && <Confetti />}
       <div className="relative z-10">
         <header className="flex justify-between items-center p-6 bg-white shadow-md">
@@ -395,12 +392,12 @@ export default function Dashboard() {
                 <div className="flex justify-between items-start mb-2">
                   <h2 className="text-xl font-bold text-white">Profile Operator</h2>
                   <div className="flex items-center bg-yellow-400 px-3 py-1 rounded-full">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 text-black">
-    <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
-    <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
-  </svg>
-  <span className="text-sm font-bold text-black">{user.rewardPoints}</span>
-</div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 text-black">
+                      <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
+                      <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm font-bold text-black">{user.rewardPoints}</span>
+                  </div>
                 </div>
                 <div className="flex items-center">
                   <User size={20} className="mr-2 text-white" />
@@ -515,12 +512,12 @@ export default function Dashboard() {
         </main>
       </div>
       <CustomizePanel
-    isOpen={isCustomizePanelOpen}
-    onClose={() => setIsCustomizePanelOpen(false)}
-    user={user as User}
-    onSettingsUpdate={fetchUser}
-    connectedWalletAddress={connectedAccount}
-  />
+        isOpen={isCustomizePanelOpen}
+        onClose={() => setIsCustomizePanelOpen(false)}
+        user={user as User}
+        onSettingsUpdate={fetchUser}
+        connectedWalletAddress={connectedAccount}
+      />
       <VerificationDialog
         isOpen={isVerificationDialogOpen}
         onClose={() => setIsVerificationDialogOpen(false)}
