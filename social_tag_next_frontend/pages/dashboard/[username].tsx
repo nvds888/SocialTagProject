@@ -1,18 +1,12 @@
 import { GetServerSideProps } from 'next';
-import dynamic from 'next/dynamic';
-
-// Dynamically import the Dashboard component with SSR disabled
-const DashboardComponent = dynamic(() => import('../../components/Dashboard'), {
-  ssr: false,
-  loading: () => <div>Loading...</div>
-});
+import Dashboard from '../../components/Dashboard';
 
 interface DashboardPageProps {
   username: string;
 }
 
 export default function DashboardPage({ username }: DashboardPageProps) {
-  return <DashboardComponent username={username} />;
+  return <Dashboard username={username} />;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
