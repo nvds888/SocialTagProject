@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 // Dynamically import the Dashboard component with SSR disabled
 const DashboardComponent = dynamic(() => import('../../components/Dashboard'), {
   ssr: false,
+  loading: () => <div>Loading...</div>
 });
 
 interface DashboardPageProps {
