@@ -27,6 +27,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
 const peraWallet = new PeraWalletConnect();
 
+interface DashboardProps {
+  [key: string]: unknown;
+}
+
 interface SocialCardProps {
   platform: string;
   icon: React.ReactNode;
@@ -81,7 +85,7 @@ const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, on
   </motion.div>
 )
 
-export default function Dashboard() {
+export default function Dashboard(props: DashboardProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [verifying, setVerifying] = useState(false)
@@ -120,17 +124,15 @@ export default function Dashboard() {
   }, [router])
 
   useEffect(() => {
-    if (router.isReady) {
-      const authStatus = router.query.auth_status as string | undefined
-      const platform = router.query.platform as string | undefined
-
-      if (authStatus === 'success' && platform) {
-        fetchUser()
-      } else {
-        fetchUser()
-      }
+    const authStatus = props.auth_status as string | undefined;
+    const platform = props.platform as string | undefined;
+  
+    if (authStatus === 'success' && platform) {
+      fetchUser();
+    } else {
+      fetchUser();
     }
-  }, [fetchUser, router.isReady, router.query])
+  }, [props.auth_status, props.platform, fetchUser]);
 
   const handleDisconnectWalletClick = useCallback(() => {
     peraWallet.disconnect();

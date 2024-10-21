@@ -1,5 +1,20 @@
 import { useRouter } from 'next/router';
-import Dashboard from '../../components/Dashboard'; // Adjust the import path as needed
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
+// Dynamically import the Dashboard component with SSR disabled
+const DashboardComponent = dynamic(() => import('../../components/Dashboard'), {
+  ssr: false,
+});
+
+// Wrapper component
+function DashboardWrapper(props: Record<string, unknown>) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardComponent {...props} />
+    </Suspense>
+  );
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -8,5 +23,5 @@ export default function DashboardPage() {
     return <div>Loading...</div>;
   }
 
-  return <Dashboard {...router.query} />;
+  return <DashboardWrapper {...router.query} />;
 }
