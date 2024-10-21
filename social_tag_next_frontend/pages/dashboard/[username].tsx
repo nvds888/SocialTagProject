@@ -1,3 +1,5 @@
+"use client";
+
 import { GetServerSideProps } from 'next';
 import Dashboard from '../../components/Dashboard';
 
