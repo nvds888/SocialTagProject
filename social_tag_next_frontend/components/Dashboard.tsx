@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Confetti from 'react-confetti'
@@ -90,7 +89,6 @@ export default function Dashboard() {
   const [verifying, setVerifying] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isVerified, setIsVerified] = useState(false)
-  const searchParams = useSearchParams()
   const { toast } = useToast()
   const [connectedAccount, setConnectedAccount] = useState<string | null>(null)
   const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false)
@@ -134,14 +132,13 @@ export default function Dashboard() {
   }, [fetchUser])
 
   useEffect(() => {
-    if (!searchParams) return;
-    const authStatus = searchParams.get('auth_status')
-    const platform = searchParams.get('platform')
+    const authStatus = router.query.auth_status as string | undefined
+    const platform = router.query.platform as string | undefined
 
     if (authStatus === 'success' && platform) {
       fetchUser()
     }
-  }, [fetchUser, searchParams])
+  }, [fetchUser, router.query])
 
   const handleDisconnectWalletClick = useCallback(() => {
     peraWallet.disconnect();
