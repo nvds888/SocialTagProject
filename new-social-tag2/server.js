@@ -22,17 +22,25 @@ mongoose.connect(process.env.MONGODB_URI, {
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch(err => console.error('Could not connect to MongoDB Atlas:', err));
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
+  const corsOptions = {
+    origin: process.env.NEXT_PUBLIC_FRONTEND_URL,
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE']
+  };
+  
+  app.use(cors(corsOptions));
+
+  app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 app.use(passport.initialize());

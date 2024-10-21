@@ -6,7 +6,13 @@ const router = express.Router();
 function handleAuthCallback(req, res, platform) {
   req.session.justAuthenticated = true;
   req.session.authenticatedPlatform = platform;
-  res.redirect(`http://localhost:3000/dashboard?auth_status=success&platform=${platform}`);
+  const username = req.user.twitter?.username || req.user.username;
+  if (username) {
+    res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
+  } else {
+    console.error('Username not found in user object:', req.user);
+    res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+  }
 }
 
 // Twitter Routes
@@ -66,13 +72,11 @@ router.get('/spotify/callback',
 );
 
 router.get('/checkAuth', (req, res) => {
-  if (req.session.justAuthenticated) {
-    const platform = req.session.authenticatedPlatform;
-    req.session.justAuthenticated = false;  // Reset the flag
-    req.session.authenticatedPlatform = null;  // Reset the platform
-    res.json({ justAuthenticated: true, platform: platform });
+  if (req.isAuthenticated()) {
+    const username = req.user.twitter?.username || req.user.username;
+    res.json({ isAuthenticated: true, username: username });
   } else {
-    res.json({ justAuthenticated: false });
+    res.json({ isAuthenticated: false });
   }
 });
 

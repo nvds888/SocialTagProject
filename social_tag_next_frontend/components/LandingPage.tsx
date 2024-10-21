@@ -1,12 +1,15 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
-import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, Trophy, User, Coins } from 'lucide-react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import axios from 'axios'
+import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, Trophy, User, Coins } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SpotifyIcon from '@/components/SpotifyIcon' 
 import Leaderboard from '@/components/Leaderboard'
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
 const FeatureIcon = ({ Icon }: { Icon: React.ElementType }) => (
   <div className="icon-wrapper bg-gray-100 rounded-full p-4">
@@ -17,15 +20,38 @@ const FeatureIcon = ({ Icon }: { Icon: React.ElementType }) => (
 export default function LandingPage() {
   const [showPopup, setShowPopup] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [username, setUsername] = useState<string | null>(null)
   const featuresRef = useRef<HTMLElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/checkAuth`, { withCredentials: true })
+        setIsAuthenticated(response.data.isAuthenticated)
+        setUsername(response.data.username)
+      } catch (error) {
+        console.error('Error checking auth status:', error)
+      }
+    }
+    checkAuthStatus()
+  }, [])
 
   const handleCreateProfileClick = () => {
     setShowPopup(true)
   }
 
   const handleTwitterAuth = () => {
-    window.location.href = 'http://localhost:5000/auth/twitter'
+    window.location.href = `${API_BASE_URL}/auth/twitter`
+  }
+
+  const handleDashboardClick = () => {
+    if (isAuthenticated && username) {
+      window.location.href = `/dashboard/${username}`
+    } else {
+      setShowPopup(true)
+    }
   }
 
   const openLeaderboard = () => setShowLeaderboard(true)
@@ -45,9 +71,18 @@ export default function LandingPage() {
               <Trophy size={18} className="mr-2" />
               <strong>Leaderboard</strong>
             </button>
-            <Link href="/dashboard" className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors">
-              <strong>My Dashboard</strong>
-            </Link>
+            {isAuthenticated ? (
+              <Link href={`/dashboard/${username}`} className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors">
+                <strong>My Dashboard</strong>
+              </Link>
+            ) : (
+              <button 
+                onClick={handleDashboardClick}
+                className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors"
+              >
+                <strong>Sign In</strong>
+              </button>
+            )}
           </div>
         </header>
         <main className="landing-main">
@@ -238,7 +273,7 @@ export default function LandingPage() {
             >
               &times;
             </button>
-          </motion.div>
+            </motion.div>
         </div>
       )}
 

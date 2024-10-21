@@ -39,7 +39,8 @@ async (token, tokenSecret, profile, done) => {
           username: profile.username,
           token: token,
           tokenSecret: tokenSecret
-        }
+        },
+        username: profile.username // Add this line to save the username at the top level
       });
     } else {
       user.twitter = {
@@ -48,6 +49,7 @@ async (token, tokenSecret, profile, done) => {
         token: token,
         tokenSecret: tokenSecret
       };
+      user.username = profile.username; // Update the top-level username
     }
     await user.save();
     return done(null, user);

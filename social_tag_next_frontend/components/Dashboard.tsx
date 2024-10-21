@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import axios from 'axios'
+import { useRouter } from 'next/router'
 import Confetti from 'react-confetti'
 import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, Trophy, RefreshCw, SquareStack } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
@@ -97,22 +98,30 @@ export default function Dashboard() {
   const [isReVerificationDialogOpen, setIsReVerificationDialogOpen] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const router = useRouter()
 
   const fetchUser = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`${API_BASE_URL}/api/user`)
+      const response = await axios.get(`${API_BASE_URL}/api/user`, { withCredentials: true })
       console.log('User data received:', response.data)
       setUser(response.data)
-      setIsVerified(response.data.verifications && response.data.verifications.length > 0)
+
+      if (response.data.verifications && response.data.verifications.length > 0) {
+        setIsVerified(true)
+      } else {
+        setIsVerified(false)
+      }
+      
       setError(null)
     } catch (error) {
       console.error('Error fetching user data:', error)
       setError('Failed to load user data. Please try again.')
+      router.push('/') // Redirect to home page if not authenticated
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [router])
 
   const handleAuthStatusChange = useCallback((authStatus: string | null, platform: string | null) => {
     if (authStatus === 'success' && platform) {
