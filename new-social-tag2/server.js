@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const passport = require('./configpassport');
-const cookieParser = require('cookie-parser');
 const authRoutes = require('./routesauth');
 const apiRoutes = require('./routesapi');
 const peraWalletRoutes = require('./peraWalletRoutes');
@@ -40,8 +39,6 @@ mongoose.connect(process.env.MONGODB_URI, {
   };
   
   app.use(cors(corsOptions));
-
-  app.use(cookieParser(process.env.SESSION_SECRET));
 
   app.options('*', cors(corsOptions));
 
