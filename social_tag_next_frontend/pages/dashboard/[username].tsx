@@ -1,31 +1,23 @@
-"use client";
+'use client';
 
-import { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import Dashboard from '../../components/Dashboard';
 
-interface DashboardPageProps {
-  username: string;
-}
+export default function DashboardPage() {
+  const router = useRouter();
+  const [username, setUsername] = useState<string | null>(null);
 
-export default function DashboardPage({ username }: DashboardPageProps) {
-  return <Dashboard username={username} />;
-}
+  useEffect(() => {
+    if (router.isReady) {
+      const { username: routeUsername } = router.query;
+      setUsername(Array.isArray(routeUsername) ? routeUsername[0] : routeUsername || null);
+    }
+  }, [router.isReady, router.query]);
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { username } = context.params || {};
-  
-  if (typeof username !== 'string') {
-    return {
-      notFound: true,
-    };
+  if (!username) {
+    return <div>Loading...</div>;
   }
-  
-  // You can add additional server-side checks here if needed
-  // For example, you might want to verify if the username exists in your database
-  
-  return {
-    props: {
-      username,
-    },
-  };
-};
+
+  return <Dashboard username={username as string} />;
+}

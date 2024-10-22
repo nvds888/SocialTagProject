@@ -196,6 +196,49 @@ router.post('/re-verify', async (req, res) => {
   }
 });
 
+router.get('/user/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ 
+      $or: [
+        { 'twitter.username': username },
+        { username: username }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const { twitter, facebook, linkedin, github, spotify, verifications, theme, bio, profileNFT, purchasedItems, profileViews, reverifyCount, baseVerifyPoints } = user;
+
+    const latestVerification = verifications && verifications.length > 0 ? verifications[verifications.length - 1] : null;
+
+    const rewardPoints = calculateRewardPoints(profileViews, purchasedItems, verifications, profileNFT, user.nfd, reverifyCount, baseVerifyPoints);
+
+    res.json({
+      twitter: twitter ? { username: twitter.username } : null,
+      facebook: facebook ? { name: facebook.name } : null,
+      linkedin: linkedin ? { name: linkedin.name } : null,
+      github: github ? { username: github.username } : null,
+      spotify: spotify ? { id: spotify.id, username: spotify.username } : null,
+      verifications: verifications || [],
+      theme,
+      bio,
+      profileNFT,
+      purchasedItems: purchasedItems || [],
+      profileViews: profileViews || 0,
+      rewardPoints,
+      verificationLink: latestVerification ? latestVerification.verificationLink : null,
+      algorandTransactionId: latestVerification ? latestVerification.algorandTransactionId : null,
+      stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null
+    });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/explore', async (req, res) => {
   const { username } = req.query;
 

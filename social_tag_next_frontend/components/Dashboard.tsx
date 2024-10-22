@@ -25,11 +25,8 @@ axios.defaults.withCredentials = true
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
-const peraWallet = new PeraWalletConnect();
+const peraWallet = typeof window !== 'undefined' ? new PeraWalletConnect() : null;
 
-interface DashboardProps {
-  [key: string]: unknown;
-}
 
 interface SocialCardProps {
   platform: string;
@@ -85,7 +82,8 @@ const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, on
   </motion.div>
 )
 
-export default function Dashboard(props: DashboardProps) {
+const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
+  const { username } = props;
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [verifying, setVerifying] = useState(false)
@@ -101,16 +99,11 @@ export default function Dashboard(props: DashboardProps) {
 
   const router = useRouter()
 
-  useEffect(() => {
-    if (router.isReady) {
-      // setRouterQuery(router.query);
-    }
-  }, [router.isReady, router.query]);
-
   const fetchUser = useCallback(async () => {
+    if (!username) return;
     try {
       setLoading(true)
-      const response = await axios.get(`${API_BASE_URL}/api/user`, { withCredentials: true })
+      const response = await axios.get(`${API_BASE_URL}/api/user/${username}`, { withCredentials: true })
       console.log('User data received:', response.data)
       setUser(response.data)
 
@@ -124,30 +117,27 @@ export default function Dashboard(props: DashboardProps) {
     } catch (error) {
       console.error('Error fetching user data:', error)
       setError('Failed to load user data. Please try again.')
-      router.push('/') // Redirect to home page if not authenticated
+      // Don't redirect here, just show the error
     } finally {
       setLoading(false)
     }
-  }, [router])
+  }, [username])
 
   useEffect(() => {
-    const authStatus = props.auth_status as string | undefined;
-    const platform = props.platform as string | undefined;
-  
-    if (authStatus === 'success' && platform) {
-      fetchUser();
-    } else {
+    if (router.isReady && username) {
       fetchUser();
     }
-  }, [props.auth_status, props.platform, fetchUser]);
+  }, [router.isReady, username, fetchUser]);
 
   const handleDisconnectWalletClick = useCallback(() => {
-    peraWallet.disconnect();
-    setConnectedAccount(null);
+    if (peraWallet) { // Check if peraWallet is not null
+      peraWallet.disconnect();
+      setConnectedAccount(null);
+    }
   }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && peraWallet) { // Check if peraWallet is not null
       peraWallet.reconnectSession().then((accounts) => {
         peraWallet.connector?.on("disconnect", handleDisconnectWalletClick);
 
@@ -163,9 +153,7 @@ export default function Dashboard(props: DashboardProps) {
   }, [handleDisconnectWalletClick]);
 
   const handleConnect = (platform: string) => {
-    if (typeof window !== 'undefined') {
-      window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
-    }
+    router.push(`${API_BASE_URL}/auth/${platform.toLowerCase()}`);
   }
 
   const handleVerifyConfirm = () => {
@@ -542,3 +530,5 @@ export default function Dashboard(props: DashboardProps) {
     </div>
   )
 }
+
+export default Dashboard
