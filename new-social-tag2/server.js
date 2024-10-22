@@ -23,7 +23,12 @@ mongoose.connect(process.env.MONGODB_URI, {
   .catch(err => console.error('Could not connect to MongoDB Atlas:', err));
 
   const corsOptions = {
-    origin: process.env.NEXT_PUBLIC_FRONTEND_URL,
+    origin: [
+      process.env.NEXT_PUBLIC_FRONTEND_URL,
+      'https://social-tag.vercel.app',
+      'https://vercel.live/link/social-tag-nielsvdschepop12367-gmailcoms-projects.vercel.app',
+      'http://localhost:3000'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE']
   };
@@ -38,10 +43,15 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+    secure: true,  // Must be true when using HTTPS
+    sameSite: 'none',  // Required for cross-domain cookies
+    maxAge: 24 * 60 * 60 * 1000,  // 24 hours
+    httpOnly: true,  // Prevents JavaScript access to the cookie
+  },
+  proxy: true  // Trust the reverse proxy
 }));
+
+app.set('trust proxy', 1);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -52,6 +62,15 @@ app.use('/api/leaderboard', apiRoutes);
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use('/peraWalletRoutes', peraWalletRoutes);
+
+app.use((req, res, next) => {
+  console.log('Incoming request to:', req.path);
+  console.log('Session:', req.session);
+  console.log('Is Authenticated:', req.isAuthenticated());
+  console.log('User:', req.user);
+  console.log('Cookies:', req.cookies);
+  next();
+});
 
 // Route to check authentication status
 app.get('/api/user', (req, res) => {

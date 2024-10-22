@@ -164,7 +164,13 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     setVerifying(true)
     setIsVerificationDialogOpen(false)
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/verify`)
+      console.log('Making verify request');
+    const response = await axios.post(`${API_BASE_URL}/api/verify`, {}, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
       console.log('Verification response:', response.data)
       setIsVerified(true)
       setShowConfetti(true)
