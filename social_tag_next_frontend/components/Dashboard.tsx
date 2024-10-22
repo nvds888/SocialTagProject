@@ -23,7 +23,7 @@ import { NFT, Verification } from '@/types/User'
 
 axios.defaults.withCredentials = true
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://socialtagbackend.onrender.com'
 
 const peraWallet = typeof window !== 'undefined' ? new PeraWalletConnect() : null;
 
