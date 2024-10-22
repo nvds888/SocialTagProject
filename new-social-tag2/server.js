@@ -19,12 +19,25 @@ const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL
 mongoose.connect(process.env.MONGODB_URI, { 
   useNewUrlParser: true, 
   useUnifiedTopology: true,
-  // If you're using Mongoose 6.0 or later, you don't need these options:
-  // useCreateIndex: true,
-  // useFindAndModify: false
+  ssl: true,
+  tls: true,
+  tlsCAFile: `${__dirname}/ca-certificate.crt`, // Only if you're using a CA certificate
+  authSource: 'admin',
+  retryWrites: true,
+  minPoolSize: 5,
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
 })
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch(err => console.error('Could not connect to MongoDB Atlas:', err));
+.then(() => console.log('Connected to MongoDB Atlas'))
+.catch(err => {
+  console.error('MongoDB connection error details:', {
+    name: err.name,
+    message: err.message,
+    code: err.code,
+    stack: err.stack
+  });
+});
 
   const corsOptions = {
     origin: [
@@ -43,20 +56,24 @@ mongoose.connect(process.env.MONGODB_URI, {
   app.options('*', cors(corsOptions));
 
 app.use(express.json());
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true, // Changed to true to ensure session is created
+  saveUninitialized: true,
   store: MongoStore.create({ 
     mongoUrl: process.env.MONGODB_URI,
-    ttl: 24 * 60 * 60 // 1 day
+    ttl: 24 * 60 * 60,
+    crypto: {
+      secret: process.env.SESSION_SECRET
+    }
   }),
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Only use secure in production
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: true, // Always true since Render uses HTTPS
+    sameSite: 'none',
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined // Add domain for production
+    domain: '.vercel.app' // Make sure this matches your frontend domain
   },
   proxy: true
 }));
