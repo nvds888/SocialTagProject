@@ -42,13 +42,18 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({ 
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 24 * 60 * 60 // 1 day
+  }),
   cookie: { 
-    secure: true,  // Must be true when using HTTPS
-    sameSite: 'none',  // Required for cross-domain cookies
+    secure: process.env.NODE_ENV === 'production', // true in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000,  // 24 hours
-    httpOnly: true,  // Prevents JavaScript access to the cookie
+    httpOnly: true,
+    domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
   },
-  proxy: true  // Trust the reverse proxy
+  proxy: true
 }));
 
 app.set('trust proxy', 1);

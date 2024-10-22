@@ -9,18 +9,20 @@ const axios = require('axios');
 const User = require('./modelsUser');
 
 passport.serializeUser((user, done) => {
+  console.log('Serializing user:', user);
   done(null, user.id);
 });
 
-passport.deserializeUser((id, done) => {
-  User.findById(id)
-    .then(user => {
-      done(null, user);
-    })
-    .catch(err => {
-      console.error('Error in deserializeUser:', err);
-      done(err, null);
-    });
+passport.deserializeUser(async (id, done) => {
+  console.log('Deserializing user ID:', id);
+  try {
+    const user = await User.findById(id);
+    console.log('Deserialized user:', user);
+    done(null, user);
+  } catch (err) {
+    console.error('Deserialize error:', err);
+    done(err, null);
+  }
 });
 
 // Twitter Strategy

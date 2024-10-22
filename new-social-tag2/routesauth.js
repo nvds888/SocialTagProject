@@ -16,13 +16,23 @@ function handleAuthCallback(req, res, platform) {
 }
 
 // Twitter Routes
-router.get('/twitter', passport.authenticate('twitter'));
+router.get('/twitter', (req, res, next) => {
+  passport.authenticate('twitter', {
+    state: Math.random().toString(36).substring(7),
+    session: true
+  })(req, res, next);
+});
 
-router.get('/twitter/callback', 
-  passport.authenticate('twitter', { failureRedirect: '/login' }),
+router.get('/twitter/callback',
+  passport.authenticate('twitter', { 
+    failureRedirect: '/login',
+    session: true
+  }),
   (req, res) => {
-    console.log('Twitter authentication successful');
-    handleAuthCallback(req, res, 'twitter');
+    console.log('Twitter auth successful. Session:', req.session);
+    console.log('User:', req.user);
+    // Redirect to dashboard with username
+    res.redirect(`/dashboard/${req.user.twitter.username}`);
   }
 );
 

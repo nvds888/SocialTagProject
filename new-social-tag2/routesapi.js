@@ -18,6 +18,22 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+const sessionCheck = (req, res, next) => {
+  console.log('Session check middleware:');
+  console.log('Session:', req.session);
+  console.log('Is Authenticated:', req.isAuthenticated());
+  console.log('User:', req.user);
+  
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ 
+      error: 'Not authenticated',
+      session: !!req.session,
+      hasUser: !!req.user
+    });
+  }
+  next();
+};
+
 // Updated function to calculate reward points
 const calculateRewardPoints = (profileViews, purchasedItems, verifications, profileNFT, nfd, reverifyCount, baseVerifyPoints) => {
   const viewPoints = profileViews * 15;
@@ -93,7 +109,7 @@ router.get('/user/reward-points', async (req, res) => {
   }
 });
 
-router.post('/verify', async (req, res) => {
+router.post('/verify', sessionCheck, async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
