@@ -16,28 +16,24 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL 
 
-mongoose.connect(process.env.MONGODB_URI, { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true,
-  ssl: true,
-  tls: true,
-  tlsCAFile: `${__dirname}/ca-certificate.crt`, // Only if you're using a CA certificate
-  authSource: 'admin',
-  retryWrites: true,
-  minPoolSize: 5,
-  maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-})
-.then(() => console.log('Connected to MongoDB Atlas'))
-.catch(err => {
-  console.error('MongoDB connection error details:', {
-    name: err.name,
-    message: err.message,
-    code: err.code,
-    stack: err.stack
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB Atlas successfully');
+  })
+  .catch(err => {
+    console.error('MongoDB connection error details:', {
+      name: err.name,
+      message: err.message,
+      code: err.code
+    });
+    
+    // Log the connection string with hidden credentials for debugging
+    const sanitizedUri = process.env.MONGODB_URI.replace(
+      /(mongodb\+srv:\/\/)([^:]+):([^@]+)@/,
+      '$1***:***@'
+    );
+    console.log('Attempted connection with:', sanitizedUri);
   });
-});
 
   const corsOptions = {
     origin: [
