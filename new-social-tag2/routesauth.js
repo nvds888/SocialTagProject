@@ -16,24 +16,33 @@ function handleAuthCallback(req, res, platform) {
 }
 
 // Twitter Routes
-router.get('/twitter', (req, res, next) => {
-  passport.authenticate('twitter', {
-    state: Math.random().toString(36).substring(7),
-    session: true
-  })(req, res, next);
-});
+router.get('/twitter', 
+  (req, res, next) => {
+    // Ensure session is saved before authentication
+    req.session.save(() => {
+      passport.authenticate('twitter')(req, res, next);
+    });
+  }
+);
 
 router.get('/twitter/callback',
-  passport.authenticate('twitter', { 
-    failureRedirect: '/login',
-    session: true
-  }),
+  (req, res, next) => {
+    passport.authenticate('twitter', { 
+      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`,
+      successRedirect: undefined // Remove successRedirect to handle manually
+    })(req, res, next);
+  },
   (req, res) => {
-    console.log('Twitter auth successful. Session:', req.session);
-    console.log('User:', req.user);
-    // Redirect to dashboard with username
-    const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
-    res.redirect(`${FRONTEND_URL}/dashboard/${req.user.twitter.username}`);
+    // Ensure session is saved before redirect
+    req.session.save(() => {
+      const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
+      const username = req.user?.twitter?.username;
+      if (username) {
+        res.redirect(`${FRONTEND_URL}/dashboard/${username}`);
+      } else {
+        res.redirect(`${FRONTEND_URL}/error`);
+      }
+    });
   }
 );
 

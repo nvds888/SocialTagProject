@@ -165,6 +165,8 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     setIsVerificationDialogOpen(false)
     try {
       console.log('Making verify request');
+      console.log('Current cookie:', document.cookie);
+
     const response = await axios.post(`${API_BASE_URL}/api/verify`, {}, {
       withCredentials: true,
       headers: {
@@ -178,10 +180,11 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       fetchUser()
     } catch (error) {
       console.error('Verification failed:', error)
-      toast({
-        title: "Verification Failed",
-        description: "Please ensure at least two accounts are connected.",
-        variant: "destructive",
+      console.error('Full error:', error);
+    toast({
+      title: "Verification Failed",
+      description: "Please ensure at least two accounts are connected.",
+      variant: "destructive",
       })
     } finally {
       setVerifying(false)

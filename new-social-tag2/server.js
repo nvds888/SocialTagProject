@@ -2,7 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const passport = require('./configpassport');
+const cookieParser = require('cookie-parser');
 const authRoutes = require('./routesauth');
 const apiRoutes = require('./routesapi');
 const peraWalletRoutes = require('./peraWalletRoutes');
@@ -34,30 +36,30 @@ mongoose.connect(process.env.MONGODB_URI, {
     ],
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   };
   
   app.use(cors(corsOptions));
 
-  app.options('*', cors(corsOptions));
+  app.use(cookieParser(process.env.SESSION_SECRET));
 
-  const MongoStore = require('connect-mongo');
+  app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // Changed to true to ensure session is created
   store: MongoStore.create({ 
     mongoUrl: process.env.MONGODB_URI,
     ttl: 24 * 60 * 60 // 1 day
   }),
   cookie: { 
-    secure: isProduction, // true in production
-    sameSite: 'none',  // Important for cross-site cookies
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: process.env.NODE_ENV === 'production', // Only use secure in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
+    domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined // Add domain for production
   },
   proxy: true
 }));

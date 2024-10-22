@@ -8,30 +8,16 @@ const SpotifyStrategy = require('passport-spotify').Strategy;
 const axios = require('axios');
 const User = require('./modelsUser');
 
-passport.serializeUser((user, done) => {
-  console.log('Serializing user:', user);
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  console.log('Deserializing user ID:', id);
-  try {
-    const user = await User.findById(id);
-    console.log('Deserialized user:', user);
-    done(null, user);
-  } catch (err) {
-    console.error('Deserialize error:', err);
-    done(err, null);
-  }
-});
 
 // Twitter Strategy
 passport.use(new TwitterStrategy({
   consumerKey: process.env.TWITTER_CONSUMER_KEY,
   consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-  callbackURL: "http://localhost:5000/auth/twitter/callback"
+  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/callback`,
+  passReqToCallback: true,
+  proxy: true
 },
-async (token, tokenSecret, profile, done) => {
+async (req, token, tokenSecret, profile, done) => {
   try {
     let user = await User.findOne({ 'twitter.id': profile.id });
     if (!user) {
@@ -42,7 +28,7 @@ async (token, tokenSecret, profile, done) => {
           token: token,
           tokenSecret: tokenSecret
         },
-        username: profile.username // Add this line to save the username at the top level
+        username: profile.username
       });
     } else {
       user.twitter = {
@@ -51,7 +37,7 @@ async (token, tokenSecret, profile, done) => {
         token: token,
         tokenSecret: tokenSecret
       };
-      user.username = profile.username; // Update the top-level username
+      user.username = profile.username;
     }
     await user.save();
     return done(null, user);
@@ -59,6 +45,21 @@ async (token, tokenSecret, profile, done) => {
     return done(error);
   }
 }));
+
+passport.serializeUser((user, done) => {
+  console.log('Serializing user:', user.id);
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    console.log('Deserializing user:', id);
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
 
 // Facebook Strategy
 passport.use(new FacebookStrategy({
