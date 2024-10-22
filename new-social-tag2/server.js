@@ -12,6 +12,9 @@ const themePurchaseRoutes = require('./themePurchaseRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const isProduction = process.env.NODE_ENV === 'production';
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL 
+
 mongoose.connect(process.env.MONGODB_URI, { 
   useNewUrlParser: true, 
   useUnifiedTopology: true,
@@ -30,12 +33,15 @@ mongoose.connect(process.env.MONGODB_URI, {
       'http://localhost:3000'
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE']
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   };
   
   app.use(cors(corsOptions));
 
   app.options('*', cors(corsOptions));
+
+  const MongoStore = require('connect-mongo');
 
 app.use(express.json());
 app.use(session({
@@ -47,9 +53,9 @@ app.use(session({
     ttl: 24 * 60 * 60 // 1 day
   }),
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // true in production
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000,  // 24 hours
+    secure: isProduction, // true in production
+    sameSite: 'none',  // Important for cross-site cookies
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
     httpOnly: true,
     domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
   },

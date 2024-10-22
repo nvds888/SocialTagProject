@@ -32,7 +32,8 @@ router.get('/twitter/callback',
     console.log('Twitter auth successful. Session:', req.session);
     console.log('User:', req.user);
     // Redirect to dashboard with username
-    res.redirect(`/dashboard/${req.user.twitter.username}`);
+    const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(`${FRONTEND_URL}/dashboard/${req.user.twitter.username}`);
   }
 );
 
