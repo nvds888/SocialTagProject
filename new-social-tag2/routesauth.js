@@ -59,10 +59,7 @@ router.get('/twitter', async (req, res, next) => {
     });
 
     // Now authenticate with Twitter
-    return passport.authenticate('twitter', {
-      session: true,
-      state: req.session.oauth.twitter.requestToken
-    })(req, res, next);
+    passport.authenticate('twitter')(req, res, next);
 
   } catch (error) {
     console.error('Error in Twitter auth:', error);
@@ -70,29 +67,54 @@ router.get('/twitter', async (req, res, next) => {
   }
 });
 
-router.get('/twitter/callback', (req, res, next) => {
-  if (!req.session) {
-    console.error('No session in callback');
-    return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
-  }
+router.get('/twitter/callback',
+  (req, res, next) => {
+    console.log('Twitter callback session data:', {
+      hasSession: !!req.session,
+      sessionId: req.sessionID,
+      oauth: req.session?.oauth,
+      cookie: req.session?.cookie
+    });
 
-  console.log('Callback session data:', {
-    hasSession: !!req.session,
-    sessionId: req.sessionID,
-    oauth: req.session.oauth,
-    cookie: req.session.cookie
-  });
-
-  if (req.session.oauth) {
-    return passport.authenticate('twitter', {
-      successRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`,
-      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`
+    passport.authenticate('twitter', { 
+      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login` 
     })(req, res, next);
-  } else {
-    console.error('No OAuth data in session');
-    return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+  },
+  async (req, res) => {
+    try {
+      // Check if authentication was successful
+      if (!req.user) {
+        console.error('No user data after authentication');
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+      }
+
+      const username = req.user?.twitter?.username;
+      if (!username) {
+        console.error('No username in user data:', req.user);
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+      }
+
+      // Save session before redirect
+      await new Promise((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            reject(err);
+          } else {
+            console.log('Session saved successfully with user:', username);
+            resolve();
+          }
+        });
+      });
+
+      console.log('Authentication successful, redirecting to dashboard for:', username);
+      return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
+    } catch (error) {
+      console.error('Error in callback:', error);
+      return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+    }
   }
-});
+);
 
 // Facebook Routes
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
