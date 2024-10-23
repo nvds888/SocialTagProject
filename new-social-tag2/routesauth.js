@@ -39,69 +39,60 @@ async function ensureUserAndSession(req, res, next) {
 }
 
 // Twitter Routes
-router.get('/twitter', (req, res, next) => {
-  // Initialize session with oauth container
-  req.session.oauth = {};
-  
-  req.session.save((err) => {
-    if (err) {
-      console.error('Session initialization error:', err);
-      return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
-    }
-    
-    console.log('Session initialized with oauth container');
-    passport.authenticate('twitter', {
+router.get('/twitter', async (req, res, next) => {
+  try {
+    // Create a new session with required data structure
+    req.session.oauth = {};
+    req.session.oauth.twitter = {
+      requestToken: Math.random().toString(36).substring(7),
+      requestTokenSecret: Math.random().toString(36).substring(7)
+    };
+
+    console.log('Setting OAuth data:', req.session.oauth);
+
+    // Wait for session to be saved
+    await new Promise((resolve) => {
+      req.session.save(() => {
+        console.log('Session saved with OAuth data:', req.session);
+        resolve();
+      });
+    });
+
+    // Now authenticate with Twitter
+    return passport.authenticate('twitter', {
       session: true,
-      state: Math.random().toString(36).substring(7)
+      state: req.session.oauth.twitter.requestToken
     })(req, res, next);
-  });
+
+  } catch (error) {
+    console.error('Error in Twitter auth:', error);
+    return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+  }
 });
 
-router.get('/twitter/callback',
-  (req, res, next) => {
-    console.log('Twitter callback - Session data:', {
-      sessionExists: !!req.session,
-      oauth: req.session?.oauth,
-      user: req.user,
-      cookies: req.cookies
-    });
-    
-    passport.authenticate('twitter', { 
-      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`,
-      keepSessionInfo: true
-    })(req, res, next);
-  },
-  async (req, res) => {
-    const username = req.user?.twitter?.username;
-    if (username) {
-      try {
-        // Save user data in session
-        req.session.user = req.user;
-        await new Promise((resolve, reject) => {
-          req.session.save((err) => {
-            if (err) {
-              console.error('Session save error:', err);
-              reject(err);
-            } else {
-              console.log('Session saved successfully with user:', username);
-              resolve();
-            }
-          });
-        });
-
-        console.log('Twitter auth successful, redirecting to dashboard for:', username);
-        res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
-      } catch (error) {
-        console.error('Session handling error:', error);
-        // Still redirect even if session save fails
-        res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
-      }
-    } else {
-      console.error('No username found after successful authentication');
-      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
-    }
+router.get('/twitter/callback', (req, res, next) => {
+  if (!req.session) {
+    console.error('No session in callback');
+    return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
   }
-);
+
+  console.log('Callback session data:', {
+    hasSession: !!req.session,
+    sessionId: req.sessionID,
+    oauth: req.session.oauth,
+    cookie: req.session.cookie
+  });
+
+  if (req.session.oauth) {
+    return passport.authenticate('twitter', {
+      successRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`,
+      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`
+    })(req, res, next);
+  } else {
+    console.error('No OAuth data in session');
+    return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+  }
+});
 
 // Facebook Routes
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
@@ -176,8 +167,9 @@ router.get('/checkAuth', (req, res) => {
   console.log('CheckAuth - Session data:', {
     sessionExists: !!req.session,
     isAuthenticated: req.isAuthenticated(),
-    user: req.user,
-    oauth: req.session?.oauth
+    sessionId: req.sessionID,
+    oauth: req.session?.oauth,
+    user: req.user
   });
 
   if (req.isAuthenticated()) {
@@ -186,6 +178,17 @@ router.get('/checkAuth', (req, res) => {
   } else {
     res.json({ isAuthenticated: false });
   }
+});
+
+// Debug route to check session
+router.get('/debug-session', (req, res) => {
+  res.json({
+    sessionExists: !!req.session,
+    sessionId: req.sessionID,
+    oauth: req.session?.oauth,
+    cookie: req.session?.cookie,
+    user: req.user
+  });
 });
 
 module.exports = router;

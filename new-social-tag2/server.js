@@ -55,8 +55,8 @@ app.set('trust proxy', 1);
 // Use MemoryStore for sessions
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
+  resave: true,  // Changed to true
+  saveUninitialized: true,  // Changed to true
   cookie: { 
     secure: true,
     sameSite: 'none',
@@ -64,7 +64,8 @@ app.use(session({
     httpOnly: true,
     domain: '.vercel.app'
   },
-  proxy: true
+  proxy: true,
+  name: 'socialtagsession' // Added specific name
 }));
 
 // Initialize Passport
