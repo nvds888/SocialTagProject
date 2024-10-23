@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const passport = require('./configpassport');
 const authRoutes = require('./routesauth');
 const apiRoutes = require('./routesapi');
@@ -12,17 +13,13 @@ const themePurchaseRoutes = require('./themePurchaseRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// MongoDB connection for user data only
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log('Connected to MongoDB Atlas for user data');
+    console.log('Connected to MongoDB Atlas');
   })
   .catch(err => {
-    console.error('MongoDB connection error details:', {
-      name: err.name,
-      message: err.message,
-      code: err.code
-    });
+    console.error('MongoDB connection error:', err);
   });
 
 const corsOptions = {
@@ -42,31 +39,33 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 app.set('trust proxy', 1);
 
-// Create session store
-const sessionConfig = {
+// Session configuration with MongoStore
+app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 24 * 60 * 60, // 1 day
+    autoRemove: 'native',
+    touchAfter: 24 * 3600 // Only update session once per day
+  }),
   cookie: { 
     secure: true,
     sameSite: 'none',
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
     httpOnly: true,
     domain: '.vercel.app'
   },
-  proxy: true,
   name: 'socialtagsession',
-  rolling: true // Resets cookie maxAge on every response
-};
+  proxy: true
+}));
 
-// Add session middleware
-app.use(session(sessionConfig));
-
-// Initialize Passport after session
+// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug middleware - log every request
+// Debug middleware
 app.use((req, res, next) => {
   console.log('--------------------');
   console.log('Request:', {
@@ -75,7 +74,7 @@ app.use((req, res, next) => {
     hasSession: !!req.session,
     isAuthenticated: req.isAuthenticated(),
     sessionKeys: req.session ? Object.keys(req.session) : [],
-    cookies: req.cookies
+    oauth: req.session?.oauth
   });
   next();
 });
@@ -122,7 +121,7 @@ app.post('/api/pera/transaction', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('Using in-memory session store');
+  console.log('Using MongoStore for sessions');
 });
 
 process.on('unhandledRejection', (reason, promise) => {
