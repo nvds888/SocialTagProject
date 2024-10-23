@@ -41,25 +41,33 @@ async function ensureUserAndSession(req, res, next) {
 // Twitter Routes
 router.get('/twitter', async (req, res, next) => {
   try {
-    // Create a new session with required data structure
-    req.session.oauth = {};
-    req.session.oauth.twitter = {
-      requestToken: Math.random().toString(36).substring(7),
-      requestTokenSecret: Math.random().toString(36).substring(7)
+    // Set the exact session key that passport-oauth1 expects
+    const requestToken = Math.random().toString(36).substring(7);
+    const requestTokenSecret = Math.random().toString(36).substring(7);
+    
+    req.session['oauth:twitter'] = {
+      oauth_token: requestToken,
+      oauth_token_secret: requestTokenSecret
     };
 
-    console.log('Setting OAuth data:', req.session.oauth);
+    console.log('Setting OAuth data:', {
+      token: requestToken,
+      secret: requestTokenSecret
+    });
 
     // Wait for session to be saved
     await new Promise((resolve) => {
       req.session.save(() => {
-        console.log('Session saved with OAuth data:', req.session);
+        console.log('Session saved, keys:', Object.keys(req.session));
         resolve();
       });
     });
 
-    // Now authenticate with Twitter
-    passport.authenticate('twitter')(req, res, next);
+    return passport.authenticate('twitter', {
+      callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/callback`,
+      requestTokenURL: 'https://api.twitter.com/oauth/request_token',
+      accessTokenURL: 'https://api.twitter.com/oauth/access_token',
+    })(req, res, next);
 
   } catch (error) {
     console.error('Error in Twitter auth:', error);
@@ -72,17 +80,17 @@ router.get('/twitter/callback',
     console.log('Twitter callback session data:', {
       hasSession: !!req.session,
       sessionId: req.sessionID,
-      oauth: req.session?.oauth,
-      cookie: req.session?.cookie
+      sessionKeys: Object.keys(req.session),
+      oauthData: req.session['oauth:twitter']
     });
 
     passport.authenticate('twitter', { 
-      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login` 
+      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`,
+      callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/callback`
     })(req, res, next);
   },
   async (req, res) => {
     try {
-      // Check if authentication was successful
       if (!req.user) {
         console.error('No user data after authentication');
         return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
@@ -94,14 +102,14 @@ router.get('/twitter/callback',
         return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
       }
 
-      // Save session before redirect
+      // Save updated session
       await new Promise((resolve, reject) => {
         req.session.save((err) => {
           if (err) {
             console.error('Session save error:', err);
             reject(err);
           } else {
-            console.log('Session saved successfully with user:', username);
+            console.log('Session saved with user:', username);
             resolve();
           }
         });
@@ -190,7 +198,8 @@ router.get('/checkAuth', (req, res) => {
     sessionExists: !!req.session,
     isAuthenticated: req.isAuthenticated(),
     sessionId: req.sessionID,
-    oauth: req.session?.oauth,
+    sessionKeys: req.session ? Object.keys(req.session) : [],
+    oauthData: req.session?.['oauth:twitter'],
     user: req.user
   });
 
@@ -207,7 +216,8 @@ router.get('/debug-session', (req, res) => {
   res.json({
     sessionExists: !!req.session,
     sessionId: req.sessionID,
-    oauth: req.session?.oauth,
+    sessionKeys: req.session ? Object.keys(req.session) : [],
+    oauthData: req.session?.['oauth:twitter'],
     cookie: req.session?.cookie,
     user: req.user
   });
