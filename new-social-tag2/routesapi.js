@@ -59,7 +59,7 @@ const calculateRewardPoints = (profileViews, purchasedItems, verifications, prof
   return Math.max(totalPoints - reverifyDeduction, 0);
 };
 
-router.get('/user', (req, res) => {
+router.get('/user', sessionCheck, async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
@@ -89,7 +89,7 @@ router.get('/user', (req, res) => {
   });
 });
 
-router.get('/user/reward-points', async (req, res) => {
+router.get('/user/reward-points', sessionCheck, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
@@ -158,7 +158,7 @@ router.post('/verify', sessionCheck, async (req, res) => {
   }
 });
 
-router.post('/re-verify', async (req, res) => {
+router.post('/re-verify', sessionCheck, async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
@@ -212,7 +212,7 @@ router.post('/re-verify', async (req, res) => {
   }
 });
 
-router.get('/user/:username', async (req, res) => {
+router.get('/user/:username', sessionCheck, async (req, res) => {
   try {
     const { username } = req.params;
     const user = await User.findOne({ 
@@ -295,7 +295,7 @@ router.get('/explore', async (req, res) => {
   }
 });
 
-router.delete('/user', async (req, res) => {
+router.delete('/user', sessionCheck, async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
@@ -315,7 +315,7 @@ router.delete('/user', async (req, res) => {
   }
 });
 
-router.post('/increment-view/:username', async (req, res) => {
+router.post('/increment-view/:username', sessionCheck, async (req, res) => {
   try {
     const user = await User.findOneAndUpdate(
       { 'twitter.username': req.params.username },
@@ -336,7 +336,7 @@ router.post('/increment-view/:username', async (req, res) => {
   }
 });
 
-router.post('/update-hardcoded-status', async (req, res) => {
+router.post('/update-hardcoded-status', sessionCheck, async (req, res) => {
   try {
     const { isHardcoded, assetConfigurationTxId } = req.body;
     console.log('Updating hardcoded status:', { isHardcoded, assetConfigurationTxId });
@@ -376,7 +376,7 @@ router.post('/update-hardcoded-status', async (req, res) => {
   }
 });
 
-router.post('/user/settings', async (req, res) => {
+router.post('/user/settings', sessionCheck, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
