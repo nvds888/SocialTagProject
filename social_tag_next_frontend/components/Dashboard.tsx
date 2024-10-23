@@ -109,7 +109,9 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     if (!username) return;
     try {
       setLoading(true);
-      const response = await apiClient.get(`/api/user/${username}`);
+      const response = await axios.get(`${API_BASE_URL}/api/user/${username}`, { 
+        withCredentials: true 
+      });
       console.log('User data received:', response.data);
       setUser(response.data);
 
