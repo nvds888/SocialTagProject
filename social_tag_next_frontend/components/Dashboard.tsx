@@ -21,12 +21,18 @@ import ReVerificationDialog from '@/components/ReVerificationDialog'
 import Leaderboard from '@/components/Leaderboard'
 import { NFT, Verification } from '@/types/User'
 
-axios.defaults.withCredentials = true
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://socialtagbackend.onrender.com'
 
-const peraWallet = typeof window !== 'undefined' ? new PeraWalletConnect() : null;
+// Create centralized API client with consistent configuration
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 
+const peraWallet = typeof window !== 'undefined' ? new PeraWalletConnect() : null;
 
 interface SocialCardProps {
   platform: string;
@@ -102,26 +108,25 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const fetchUser = useCallback(async () => {
     if (!username) return;
     try {
-      setLoading(true)
-      const response = await axios.get(`${API_BASE_URL}/api/user/${username}`, { withCredentials: true })
-      console.log('User data received:', response.data)
-      setUser(response.data)
+      setLoading(true);
+      const response = await apiClient.get(`/api/user/${username}`);
+      console.log('User data received:', response.data);
+      setUser(response.data);
 
       if (response.data.verifications && response.data.verifications.length > 0) {
-        setIsVerified(true)
+        setIsVerified(true);
       } else {
-        setIsVerified(false)
+        setIsVerified(false);
       }
       
-      setError(null)
+      setError(null);
     } catch (error) {
-      console.error('Error fetching user data:', error)
-      setError('Failed to load user data. Please try again.')
-      // Don't redirect here, just show the error
+      console.error('Error fetching user data:', error);
+      setError('Failed to load user data. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [username])
+  }, [username]);
 
   useEffect(() => {
     if (router.isReady && username) {
@@ -130,14 +135,14 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   }, [router.isReady, username, fetchUser]);
 
   const handleDisconnectWalletClick = useCallback(() => {
-    if (peraWallet) { // Check if peraWallet is not null
+    if (peraWallet) {
       peraWallet.disconnect();
       setConnectedAccount(null);
     }
   }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && peraWallet) { // Check if peraWallet is not null
+    if (typeof window !== 'undefined' && peraWallet) {
       peraWallet.reconnectSession().then((accounts) => {
         peraWallet.connector?.on("disconnect", handleDisconnectWalletClick);
 
@@ -153,129 +158,120 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   }, [handleDisconnectWalletClick]);
 
   const handleConnect = (platform: string) => {
-    router.push(`${API_BASE_URL}/auth/${platform.toLowerCase()}`);
+    window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
   }
 
   const handleVerifyConfirm = () => {
-    setIsVerificationDialogOpen(true)
+    setIsVerificationDialogOpen(true);
   }
 
   const handleVerify = async () => {
-    setVerifying(true)
-    setIsVerificationDialogOpen(false)
+    setVerifying(true);
+    setIsVerificationDialogOpen(false);
     try {
-      console.log('Making verify request');
-      console.log('Current cookie:', document.cookie);
-
-    const response = await axios.post(`${API_BASE_URL}/api/verify`, {}, {
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-      console.log('Verification response:', response.data)
-      setIsVerified(true)
-      setShowConfetti(true)
-      setTimeout(() => setShowConfetti(false), 5000)
-      fetchUser()
+      const response = await apiClient.post('/api/verify');
+      console.log('Verification response:', response.data);
+      setIsVerified(true);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000);
+      fetchUser();
     } catch (error) {
-      console.error('Verification failed:', error)
-      console.error('Full error:', error);
-    toast({
-      title: "Verification Failed",
-      description: "Please ensure at least two accounts are connected.",
-      variant: "destructive",
-      })
+      console.error('Verification failed:', error);
+      toast({
+        title: "Verification Failed",
+        description: "Please ensure at least two accounts are connected.",
+        variant: "destructive",
+      });
     } finally {
-      setVerifying(false)
+      setVerifying(false);
     }
   }
 
   const handleReVerifyConfirm = () => {
-    setIsReVerificationDialogOpen(true)
+    setIsReVerificationDialogOpen(true);
   }
 
   const handleReVerify = async () => {
-    setIsReVerificationDialogOpen(false)
+    setIsReVerificationDialogOpen(false);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/re-verify`)
+      const response = await apiClient.post('/api/re-verify');
       if (response.data.success) {
-        setIsVerified(false)
-        fetchUser()
+        setIsVerified(false);
+        fetchUser();
         toast({
           title: "Re-verification Successful",
           description: "Your profile has been reset for re-verification.",
           duration: 3000,
-        })
+        });
       } else {
         toast({
           title: "Re-verification Failed",
           description: response.data.message,
           variant: "destructive",
           duration: 3000,
-        })
+        });
       }
     } catch (error) {
-      console.error('Re-verification failed:', error)
+      console.error('Re-verification failed:', error);
       toast({
         title: "Re-verification Failed",
         description: "An error occurred. Please try again.",
         variant: "destructive",
         duration: 3000,
-      })
+      });
     }
   }
 
   const handleShareProfile = () => {
     if (typeof window !== 'undefined') {
-      const profileUrl = `${window.location.origin}/socialtag/${user?.twitter?.username}`
+      const profileUrl = `${window.location.origin}/socialtag/${user?.twitter?.username}`;
       navigator.clipboard.writeText(profileUrl).then(() => {
         toast({
           title: "Link Copied!",
           description: "Your profile link has been copied to the clipboard.",
           duration: 3000,
-        })
+        });
       }).catch((err) => {
-        console.error('Failed to copy link: ', err)
+        console.error('Failed to copy link: ', err);
         toast({
           title: "Failed to copy link",
           description: "Please try again or copy the link manually.",
           variant: "destructive",
           duration: 3000,
-        })
-      })
+        });
+      });
     }
   }
 
   const handleOpenProfile = () => {
     if (typeof window !== 'undefined') {
-      const profileUrl = `${window.location.origin}/socialtag/${user?.twitter?.username}`
-      window.open(profileUrl, '_blank')
+      const profileUrl = `${window.location.origin}/socialtag/${user?.twitter?.username}`;
+      window.open(profileUrl, '_blank');
     }
   }
 
   const handleConnectPera = async () => {
     if (peraWallet) {
       try {
-        const newAccounts = await peraWallet.connect()
-        setConnectedAccount(newAccounts[0])
+        const newAccounts = await peraWallet.connect();
+        setConnectedAccount(newAccounts[0]);
       } catch (error) {
-        console.error("Connection failed:", error)
+        console.error("Connection failed:", error);
       }
     }
   }
 
   const handleOpenLeaderboard = () => {
-    setShowLeaderboard(true)
+    setShowLeaderboard(true);
   }
 
   const handleCloseLeaderboard = () => {
-    setShowLeaderboard(false)
+    setShowLeaderboard(false);
   }
 
   const renderVerificationHistory = () => {
     if (!user?.verifications || user.verifications.length === 0) {
-      return <p className="text-gray-500">No verification history available.</p>
+      return <p className="text-gray-500">No verification history available.</p>;
     }
 
     return (
@@ -306,24 +302,24 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
           </li>
         ))}
       </ul>
-    )
+    );
   }
 
   if (loading) {
-    return <div className="loading text-black text-center py-20">Loading...</div>
+    return <div className="loading text-black text-center py-20">Loading...</div>;
   }
 
   if (error) {
-    return <div className="error text-red-500 text-center py-20">{error}</div>
+    return <div className="error text-red-500 text-center py-20">{error}</div>;
   }
 
-  const isTwitterConnected = !!user?.twitter?.username
-  const isFacebookConnected = !!user?.facebook?.name
-  const isLinkedInConnected = !!user?.linkedin?.name
-  const isGitHubConnected = !!user?.github?.username
-  const isSpotifyConnected = !!user?.spotify?.username
-  const connectedAccountsCount = [isTwitterConnected, isFacebookConnected, isLinkedInConnected, isGitHubConnected, isSpotifyConnected].filter(Boolean).length
-  const canVerify = connectedAccountsCount >= 2
+  const isTwitterConnected = !!user?.twitter?.username;
+  const isFacebookConnected = !!user?.facebook?.name;
+  const isLinkedInConnected = !!user?.linkedin?.name;
+  const isGitHubConnected = !!user?.github?.username;
+  const isSpotifyConnected = !!user?.spotify?.username;
+  const connectedAccountsCount = [isTwitterConnected, isFacebookConnected, isLinkedInConnected, isGitHubConnected, isSpotifyConnected].filter(Boolean).length;
+  const canVerify = connectedAccountsCount >= 2;
 
   return (
     <div className="min-h-screen bg-gray-100 text-black relative">
@@ -385,7 +381,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
           </nav>
         </header>
         <main className="container mx-auto px-4 py-8">
-          <motion.div 
+        <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -411,7 +407,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
                 </div>
               </div>
             </div>
-          )}
+            )}
             <div className="social-cards grid gap-1 mb-6">
               <SocialCard
                 platform="X"
