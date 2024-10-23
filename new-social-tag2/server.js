@@ -12,9 +12,6 @@ const themePurchaseRoutes = require('./themePurchaseRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const isProduction = process.env.NODE_ENV === 'production';
-const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL 
-
 // MongoDB connection for user data only
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
@@ -26,13 +23,6 @@ mongoose.connect(process.env.MONGODB_URI)
       message: err.message,
       code: err.code
     });
-    
-    // Log the connection string with hidden credentials for debugging
-    const sanitizedUri = process.env.MONGODB_URI.replace(
-      /(mongodb\+srv:\/\/)([^:]+):([^@]+)@/,
-      '$1***:***@'
-    );
-    console.log('Attempted connection with:', sanitizedUri);
   });
 
 const corsOptions = {
@@ -52,11 +42,11 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 app.set('trust proxy', 1);
 
-// Use MemoryStore for sessions
-app.use(session({
+// Create session store
+const sessionConfig = {
   secret: process.env.SESSION_SECRET,
-  resave: true,  // Changed to true
-  saveUninitialized: true,  // Changed to true
+  resave: false,
+  saveUninitialized: false,
   cookie: { 
     secure: true,
     sameSite: 'none',
@@ -65,32 +55,37 @@ app.use(session({
     domain: '.vercel.app'
   },
   proxy: true,
-  name: 'socialtagsession' // Added specific name
-}));
+  name: 'socialtagsession',
+  rolling: true // Resets cookie maxAge on every response
+};
 
-// Initialize Passport
+// Add session middleware
+app.use(session(sessionConfig));
+
+// Initialize Passport after session
 app.use(passport.initialize());
 app.use(passport.session());
-
-// Routes
-app.use('/api/theme', themePurchaseRoutes);
-app.use('/api/pera', peraWalletRoutes);
-app.use('/api/leaderboard', apiRoutes);
-app.use('/auth', authRoutes);
-app.use('/api', apiRoutes);
-app.use('/peraWalletRoutes', peraWalletRoutes);
 
 // Debug middleware - log every request
 app.use((req, res, next) => {
   console.log('--------------------');
-  console.log('Incoming request to:', req.path);
-  console.log('Session:', req.session);
-  console.log('Is Authenticated:', req.isAuthenticated());
-  console.log('User:', req.user);
-  console.log('Cookies:', req.cookies);
-  console.log('--------------------');
+  console.log('Request:', {
+    path: req.path,
+    sessionId: req.sessionID,
+    hasSession: !!req.session,
+    isAuthenticated: req.isAuthenticated(),
+    sessionKeys: req.session ? Object.keys(req.session) : [],
+    cookies: req.cookies
+  });
   next();
 });
+
+// Routes
+app.use('/auth', authRoutes);
+app.use('/api', apiRoutes);
+app.use('/api/theme', themePurchaseRoutes);
+app.use('/api/pera', peraWalletRoutes);
+app.use('/peraWalletRoutes', peraWalletRoutes);
 
 // Auth status route
 app.get('/api/user', (req, res) => {
@@ -125,8 +120,11 @@ app.post('/api/pera/transaction', async (req, res) => {
   }
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('Using in-memory session store for testing');
+  console.log('Using in-memory session store');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
