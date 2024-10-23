@@ -84,6 +84,21 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   }
+}, { 
+  timestamps: true
 });
 
-module.exports = mongoose.model('User', UserSchema);
+// Add indexes for better performance
+UserSchema.index({ 'twitter.id': 1 });
+UserSchema.index({ 'facebook.id': 1 });
+UserSchema.index({ 'linkedin.id': 1 });
+UserSchema.index({ 'github.id': 1 });
+UserSchema.index({ 'spotify.id': 1 });
+
+// Add a method to validate user
+UserSchema.methods.isValid = function() {
+  return !!(this.twitter?.id || this.facebook?.id || this.linkedin?.id || this.github?.id || this.spotify?.id);
+};
+
+const User = mongoose.model('User', UserSchema);
+module.exports = User;
