@@ -15,29 +15,21 @@ passport.use(new TwitterStrategy({
   callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/callback`,
   passReqToCallback: true,
   proxy: true,
-  state: true
+  includeEmail: true // Add this if you want email
 },
 async (req, token, tokenSecret, profile, done) => {
   try {
-    console.log('Twitter Strategy Execution:', {
-      phase: 'start',
-      profileId: profile.id,
-      sessionId: req.sessionID,
-      sessionData: req.session
+    console.log('Twitter profile received:', {
+      id: profile.id,
+      username: profile.username,
+      sessionId: req.sessionID
     });
 
-    if (!profile || !profile.id) {
-      console.error('Invalid profile received:', profile);
-      return done(new Error('Invalid profile data'));
-    }
-
+    // Try to find existing user
     let user = await User.findOne({ 'twitter.id': profile.id });
-    console.log('User lookup result:', {
-      exists: !!user,
-      userId: user?._id
-    });
-
+    
     if (!user) {
+      console.log('Creating new user for Twitter profile:', profile.id);
       user = new User({
         twitter: {
           id: profile.id,
@@ -45,13 +37,12 @@ async (req, token, tokenSecret, profile, done) => {
           token: token,
           tokenSecret: tokenSecret
         },
-        username: profile.username
-      });
-      console.log('Created new user:', {
         username: profile.username,
-        twitterId: profile.id
+        profileViews: 0,
+        rewardPoints: 0
       });
     } else {
+      console.log('Updating existing user:', user._id);
       user.twitter = {
         id: profile.id,
         username: profile.username,
@@ -59,46 +50,21 @@ async (req, token, tokenSecret, profile, done) => {
         tokenSecret: tokenSecret
       };
       user.username = profile.username;
-      console.log('Updated existing user:', {
-        userId: user._id,
-        username: profile.username
-      });
     }
 
-    await user.save();
+    const savedUser = await user.save();
     console.log('User saved successfully:', {
-      userId: user._id,
-      username: user.username
+      id: savedUser._id,
+      username: savedUser.username
     });
 
-    if (req.session) {
-      req.session.passport = req.session.passport || {};
-      req.session.passport.user = user._id;
-      req.session.username = user.username;
-      
-      await new Promise((resolve, reject) => {
-        req.session.save(err => {
-          if (err) {
-            console.error('Session save error:', err);
-            reject(err);
-          } else {
-            console.log('Session saved with user data:', {
-              sessionId: req.sessionID,
-              userId: user._id
-            });
-            resolve();
-          }
-        });
-      });
-    }
+    // Store in session
+    req.session.user = savedUser;
+    await new Promise((resolve) => req.session.save(resolve));
 
-    return done(null, user);
+    return done(null, savedUser);
   } catch (error) {
-    console.error('Twitter strategy error:', {
-      error: error.message,
-      stack: error.stack,
-      sessionId: req.sessionID
-    });
+    console.error('Twitter strategy error:', error);
     return done(error);
   }
 }));

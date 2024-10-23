@@ -74,59 +74,53 @@ router.get('/twitter', async (req, res, next) => {
   }
 });
 
-router.get('/twitter/callback',
-  (req, res, next) => {
-    console.log('Twitter callback - Session data:', {
-      sessionId: req.sessionID,
-      oauth: req.session?.oauth?.twitter,
-      all_session_data: req.session
+router.get('/twitter/callback', async (req, res, next) => {
+  try {
+    // Log query parameters from Twitter
+    console.log('Twitter callback query params:', {
+      oauth_token: req.query.oauth_token,
+      oauth_verifier: req.query.oauth_verifier
     });
 
-    // Try to restore session if needed
-    if (!req.session.oauth?.twitter?.oauth_token && req.query.oauth_token) {
-      req.session.oauth = {
-        twitter: {
-          oauth_token: req.query.oauth_token,
-          oauth_token_secret: req.session.oauth?.twitter?.oauth_token_secret
-        }
+    // Manually set the oauth token from the query parameters
+    if (req.query.oauth_token) {
+      if (!req.session.oauth) {
+        req.session.oauth = { twitter: {} };
+      }
+      req.session.oauth.twitter = {
+        oauth_token: req.query.oauth_token,
+        oauth_verifier: req.query.oauth_verifier
       };
-    }
 
-    passport.authenticate('twitter', { 
-      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`,
-      keepSessionInfo: true,
-      callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/callback`
-    })(req, res, next);
-  },
-  async (req, res) => {
-    try {
-      console.log('Authentication successful, user:', {
-        id: req.user?._id,
-        username: req.user?.twitter?.username
-      });
-
-      if (!req.user) {
-        console.error('No user object after authentication');
-        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
-      }
-
-      const username = req.user?.twitter?.username;
-      if (!username) {
-        console.error('No username in user data:', req.user);
-        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
-      }
-
-      // Save session
       await new Promise((resolve) => req.session.save(resolve));
-
-      console.log('Redirecting to dashboard for:', username);
-      return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
-    } catch (error) {
-      console.error('Callback error:', error);
-      return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
     }
+
+    // Now authenticate with the tokens we have
+    passport.authenticate('twitter', {
+      successRedirect: undefined,
+      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`,
+      failureMessage: true,
+      passReqToCallback: true
+    })(req, res, (err) => {
+      if (err) {
+        console.error('Passport authentication error:', err);
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+      }
+      
+      // If we get here, authentication was successful
+      const username = req.user?.twitter?.username;
+      if (username) {
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
+      } else {
+        console.error('No username after successful auth:', req.user);
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+      }
+    });
+  } catch (error) {
+    console.error('Twitter callback error:', error);
+    res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
   }
-);
+});
 
 // Facebook Routes
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
