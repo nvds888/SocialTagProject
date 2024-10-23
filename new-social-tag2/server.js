@@ -22,22 +22,22 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('MongoDB connection error:', err);
   });
 
-const corsOptions = {
-  origin: [
-    process.env.NEXT_PUBLIC_FRONTEND_URL,
-    'https://social-tag.vercel.app',
-    'https://vercel.live/link/social-tag-nielsvdschepop12367-gmailcoms-projects.vercel.app',
-    'http://localhost:3000'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-};
+  app.set('trust proxy', 1);
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+  const corsOptions = {
+    origin: [
+      process.env.NEXT_PUBLIC_FRONTEND_URL,
+      'https://social-tag.vercel.app'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  };
+  
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
+
 app.use(express.json());
-app.set('trust proxy', 1);
 
 // Session configuration with MongoStore
 app.use(session({
@@ -46,16 +46,15 @@ app.use(session({
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URI,
-    ttl: 24 * 60 * 60, // 1 day
-    autoRemove: 'native',
-    touchAfter: 24 * 3600 // Only update session once per day
+    ttl: 24 * 60 * 60
   }),
   cookie: { 
     secure: true,
-    sameSite: 'none',
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    sameSite: 'none',  // Important for cross-origin
+    maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    domain: '.vercel.app'
+    // Remove domain restriction or make it more specific
+    // domain: '.vercel.app'  // Remove this line
   },
   name: 'socialtagsession',
   proxy: true
@@ -67,14 +66,12 @@ app.use(passport.session());
 
 // Debug middleware
 app.use((req, res, next) => {
-  console.log('--------------------');
-  console.log('Request:', {
-    path: req.path,
-    sessionId: req.sessionID,
+  console.log('Session Debug:', {
+    url: req.url,
+    sessionID: req.sessionID,
     hasSession: !!req.session,
-    isAuthenticated: req.isAuthenticated(),
-    sessionKeys: req.session ? Object.keys(req.session) : [],
-    oauth: req.session?.oauth
+    sessionContent: req.session,
+    cookies: req.cookies
   });
   next();
 });
