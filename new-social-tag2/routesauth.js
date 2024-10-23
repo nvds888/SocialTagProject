@@ -2,9 +2,6 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 
-// In-memory store for OAuth tokens
-const oauthTokens = new Map();
-
 // Helper function to verify user exists/was created before session handling
 async function ensureUserAndSession(req, res, next) {
   if (!req.user) {
@@ -13,6 +10,8 @@ async function ensureUserAndSession(req, res, next) {
   }
   
   try {
+    console.log('Ensuring user session with user:', req.user);
+    
     // Regenerate session for security
     await new Promise((resolve, reject) => {
       req.session.regenerate((err) => {
@@ -41,58 +40,59 @@ async function ensureUserAndSession(req, res, next) {
 
 // Twitter Routes
 router.get('/twitter', (req, res, next) => {
-  // Generate a random token
-  const tempToken = Math.random().toString(36).substring(7);
+  // Initialize session with oauth container
+  req.session.oauth = {};
   
-  // Store it in memory
-  oauthTokens.set(tempToken, {
-    timestamp: Date.now()
-  });
-  
-  // Add it to the session
-  req.session.oauthToken = tempToken;
-  
-  // Force session save before Twitter auth
   req.session.save((err) => {
     if (err) {
-      console.error('Session save error:', err);
+      console.error('Session initialization error:', err);
       return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
     }
-    console.log('Session saved with oauth token:', tempToken);
-    passport.authenticate('twitter')(req, res, next);
+    
+    console.log('Session initialized with oauth container');
+    passport.authenticate('twitter', {
+      session: true,
+      state: Math.random().toString(36).substring(7)
+    })(req, res, next);
   });
 });
 
 router.get('/twitter/callback',
   (req, res, next) => {
-    console.log('Twitter callback - Session:', req.session);
-    console.log('Stored OAuth tokens:', oauthTokens);
+    console.log('Twitter callback - Session data:', {
+      sessionExists: !!req.session,
+      oauth: req.session?.oauth,
+      user: req.user,
+      cookies: req.cookies
+    });
     
     passport.authenticate('twitter', { 
-      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`
+      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login`,
+      keepSessionInfo: true
     })(req, res, next);
   },
   async (req, res) => {
     const username = req.user?.twitter?.username;
     if (username) {
-      // Clear the temporary token
-      if (req.session.oauthToken) {
-        oauthTokens.delete(req.session.oauthToken);
-        delete req.session.oauthToken;
-      }
-      
       try {
+        // Save user data in session
+        req.session.user = req.user;
         await new Promise((resolve, reject) => {
           req.session.save((err) => {
-            if (err) reject(err);
-            else resolve();
+            if (err) {
+              console.error('Session save error:', err);
+              reject(err);
+            } else {
+              console.log('Session saved successfully with user:', username);
+              resolve();
+            }
           });
         });
-        
+
         console.log('Twitter auth successful, redirecting to dashboard for:', username);
         res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
       } catch (error) {
-        console.error('Session save error in callback:', error);
+        console.error('Session handling error:', error);
         // Still redirect even if session save fails
         res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
       }
@@ -173,6 +173,13 @@ router.get('/spotify/callback',
 );
 
 router.get('/checkAuth', (req, res) => {
+  console.log('CheckAuth - Session data:', {
+    sessionExists: !!req.session,
+    isAuthenticated: req.isAuthenticated(),
+    user: req.user,
+    oauth: req.session?.oauth
+  });
+
   if (req.isAuthenticated()) {
     const username = req.user.twitter?.username || req.user.username;
     res.json({ isAuthenticated: true, username: username });
@@ -180,15 +187,5 @@ router.get('/checkAuth', (req, res) => {
     res.json({ isAuthenticated: false });
   }
 });
-
-// Clean up expired tokens periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [token, data] of oauthTokens.entries()) {
-    if (now - data.timestamp > 600000) { // 10 minutes
-      oauthTokens.delete(token);
-    }
-  }
-}, 60000); // Check every minute
 
 module.exports = router;
