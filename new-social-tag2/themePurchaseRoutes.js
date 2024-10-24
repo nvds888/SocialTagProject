@@ -3,7 +3,23 @@ const router = express.Router();
 const peraWalletService = require('./perawalletservice');
 const User = require('./modelsUser');
 
-router.post('/purchase', async (req, res) => {
+const sessionCheck = (req, res, next) => {
+  console.log('Session check middleware:');
+  console.log('Session:', req.session);
+  console.log('Is Authenticated:', req.isAuthenticated());
+  console.log('User:', req.user);
+  
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ 
+      error: 'Not authenticated',
+      session: !!req.session,
+      hasUser: !!req.user
+    });
+  }
+  next();
+};
+
+router.post('/purchase', sessionCheck, async (req, res) => {
   try {
     const { themeName, userAddress } = req.body;
 
@@ -42,7 +58,7 @@ router.post('/purchase', async (req, res) => {
   }
 });
 
-router.post('/confirm', async (req, res) => {
+router.post('/confirm', sessionCheck, async (req, res) => {
   try {
     const { signedTxn, themeName } = req.body;
     const userId = req.user.id; // Assuming you have user authentication middleware
