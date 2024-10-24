@@ -12,5 +12,11 @@
           }
         }
       }
+    ],
+    "rewrites": [
+      {
+        "source": "/api/:path*",
+        "destination": "https://socialtagbackend.onrender.com/:path*"
+      }
     ]
   }

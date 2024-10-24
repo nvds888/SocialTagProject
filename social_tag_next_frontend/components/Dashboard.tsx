@@ -21,7 +21,7 @@ import ReVerificationDialog from '@/components/ReVerificationDialog'
 import Leaderboard from '@/components/Leaderboard'
 import { NFT, Verification } from '@/types/User'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://socialtagbackend.onrender.com'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 // Create centralized API client with consistent configuration
 const apiClient = axios.create({
