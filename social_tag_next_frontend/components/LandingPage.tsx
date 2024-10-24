@@ -43,7 +43,7 @@ export default function LandingPage() {
   }
 
   const handleTwitterAuth = () => {
-    window.location.href = `${API_BASE_URL}/api/auth/twitter`
+    window.location.href = `${API_BASE_URL}/auth/twitter`
   }
 
   const handleDashboardClick = () => {
