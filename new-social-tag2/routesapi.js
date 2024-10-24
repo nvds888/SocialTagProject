@@ -6,13 +6,7 @@ const { createVerificationTransaction } = require('./combinedBlockchainService')
 const multer = require('multer');
 const path = require('path');
 const peraWalletService = require('./perawalletservice');
-const rateLimit = require('express-rate-limit');
 
-// Rate limiter for view counting
-const viewLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
