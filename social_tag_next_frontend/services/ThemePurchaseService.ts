@@ -23,7 +23,7 @@ export const ThemePurchaseService = {
       const userAddress = accounts[0];
 
       // Request the unsigned transaction from the backend
-      const response = await axios.post('/api/theme/purchase', { themeName, userAddress });
+      const response = await axios.post('/api/theme/purchase', { themeName, userAddress }, { withCredentials: true });
       const { unsignedTxn, themeName: confirmedThemeName } = response.data;
 
       console.log('Received unsigned transaction:', unsignedTxn);
@@ -63,7 +63,9 @@ export const ThemePurchaseService = {
       const confirmResponse = await axios.post('/api/theme/confirm', {
         signedTxn: Buffer.from(signedTxns[0]).toString('base64'),
         themeName: confirmedThemeName
-      });
+      },
+      { withCredentials: true }
+    );
 
       return confirmResponse.data;
     } catch (error) {
