@@ -38,6 +38,8 @@ import { User } from '@/types/User';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
+axios.defaults.withCredentials = true
+
 interface CustomizePanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -367,7 +369,9 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           name: selectedNFD.name,
           assetId: selectedNFD.assetId 
         } : null
-      })
+      }, {
+        withCredentials: true 
+      });
       if (response.data) {
         setTheme(response.data.theme)
         setCardStyle(response.data.cardStyle)
