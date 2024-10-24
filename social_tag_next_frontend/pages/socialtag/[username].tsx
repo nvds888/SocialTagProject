@@ -70,6 +70,7 @@ export default function PublicProfilePage() {
   const [profile, setProfile] = useState<PublicProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [viewIncremented, setViewIncremented] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -117,34 +118,51 @@ export default function PublicProfilePage() {
     }
 
     const incrementViewCount = async () => {
-      if (typeof username === 'string') {
-        const cookieName = `viewed_${username}`
-        const viewedCookie = Cookies.get(cookieName)
+      if (typeof username === 'string' && !viewIncremented) {
+        const cookieName = `viewed_${username}`;
+        const viewedCookie = Cookies.get(cookieName);
+        
         if (!viewedCookie) {
           try {
-            const response = await axios.post(`${API_BASE_URL}/api/increment-view/${username}`)
-            // Set cookie with 12-hour expiration
-            Cookies.set(cookieName, 'true', { expires: 0.5 }) // 0.5 days = 12 hours
+            console.log('Incrementing view count for:', username);
+            const response = await axios.post(`${API_BASE_URL}/api/increment-view/${username}`);
+            
+            // Set cookie with 6-hour expiration
+            Cookies.set(cookieName, 'true', { 
+              expires: 0.25, // 0.25 days = 6 hours
+              sameSite: 'lax',
+              secure: process.env.NODE_ENV === 'production'
+            });
+            
+            setViewIncremented(true);
             
             // Update the profile with the new view count
             setProfile(prevProfile => {
               if (prevProfile) {
-                return { ...prevProfile, profileViews: response.data.views }
+                return {
+                  ...prevProfile,
+                  profileViews: response.data.views,
+                  rewardPoints: response.data.rewardPoints
+                };
               }
-              return prevProfile
-            })
+              return prevProfile;
+            });
+            
+            console.log('View count updated successfully:', response.data);
           } catch (error) {
-            console.error('Error incrementing view count:', error)
+            console.error('Error incrementing view count:', error);
           }
+        } else {
+          console.log('View already counted for this user within the cooldown period');
         }
       }
-    }
+    };
 
     if (username) {
       fetchProfile()
       incrementViewCount()
     }
-  }, [username]) // Removed incrementViewCount from dependencies
+  }, [username, viewIncremented])
 
   const isProfileVerified = (profile: PublicProfile | null): boolean => {
     return !!profile?.algorandTransactionId

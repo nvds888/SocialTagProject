@@ -6,6 +6,13 @@ const { createVerificationTransaction } = require('./combinedBlockchainService')
 const multer = require('multer');
 const path = require('path');
 const peraWalletService = require('./perawalletservice');
+const rateLimit = require('express-rate-limit');
+
+// Rate limiter for view counting
+const viewLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -91,10 +98,6 @@ router.get('/user', sessionCheck, async (req, res) => {
 });
 
 router.get('/user/reward-points', sessionCheck, async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: 'Not authenticated' });
-  }
-
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -316,24 +319,75 @@ router.delete('/user', sessionCheck, async (req, res) => {
   }
 });
 
-router.post('/increment-view/:username', sessionCheck, async (req, res) => {
+router.post('/increment-view/:username', async (req, res) => {
   try {
-    const user = await User.findOneAndUpdate(
-      { 'twitter.username': req.params.username },
-      { $inc: { profileViews: 1 } },
-      { new: true }
-    );
-
+    console.log('Processing view increment for username:', req.params.username);
+    
+    // Get the user's IP address
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    console.log('Client IP:', clientIP);
+    
+    // Find the user
+    const user = await User.findOne({ 'twitter.username': req.params.username });
+    
     if (!user) {
+      console.log('User not found:', req.params.username);
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const rewardPoints = calculateRewardPoints(user.profileViews, user.purchasedItems, user.verifications, user.profileNFT, user.nfd, user.reverifyCount, user.baseVerifyPoints);
+    // Check if this IP has viewed within the last 6 hours
+    const sixHoursAgo = new Date(Date.now() - (6 * 60 * 60 * 1000));
+    
+    // Initialize viewHistory if it doesn't exist
+    if (!user.viewHistory) {
+      user.viewHistory = [];
+    }
 
-    res.json({ views: user.profileViews, rewardPoints });
+    // Clean up old view history entries
+    user.viewHistory = user.viewHistory.filter(view => 
+      new Date(view.timestamp) > sixHoursAgo
+    );
+
+    // Check if this IP has viewed recently
+    const hasRecentView = user.viewHistory.some(view => 
+      view.ip === clientIP && new Date(view.timestamp) > sixHoursAgo
+    );
+
+    if (!hasRecentView) {
+      console.log('Recording new view for IP:', clientIP);
+      // Add new view record
+      user.viewHistory.push({
+        ip: clientIP,
+        timestamp: new Date()
+      });
+
+      // Increment view count
+      user.profileViews = (user.profileViews || 0) + 1;
+      
+      await user.save();
+      console.log('Updated view count:', user.profileViews);
+    } else {
+      console.log('Recent view found for IP:', clientIP);
+    }
+
+    const rewardPoints = calculateRewardPoints(
+      user.profileViews,
+      user.purchasedItems, 
+      user.verifications, 
+      user.profileNFT, 
+      user.nfd, 
+      user.reverifyCount, 
+      user.baseVerifyPoints
+    );
+
+    res.json({ 
+      views: user.profileViews, 
+      rewardPoints,
+      message: hasRecentView ? 'View already counted' : 'View counted successfully'
+    });
   } catch (error) {
     console.error('Error incrementing view count:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
@@ -422,8 +476,10 @@ router.post('/user/settings', sessionCheck, async (req, res) => {
 
 router.get('/public-profile/:username', async (req, res) => {
   try {
+    console.log('Fetching public profile for username:', req.params.username);
     const user = await User.findOne({ 'twitter.username': req.params.username });
     if (!user) {
+      console.log('User not found:', req.params.username);
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -434,6 +490,7 @@ router.get('/public-profile/:username', async (req, res) => {
     const rewardPoints = calculateRewardPoints(user.profileViews, user.purchasedItems, user.verifications, user.profileNFT, user.nfd, user.reverifyCount, user.baseVerifyPoints);
 
     const publicProfile = {
+      username: user.username,
       twitter: user.twitter ? { username: user.twitter.username } : null,
       facebook: user.facebook ? { name: user.facebook.name } : null,
       linkedin: user.linkedin ? { name: user.linkedin.name } : null,
@@ -453,6 +510,7 @@ router.get('/public-profile/:username', async (req, res) => {
         id: user.nfd.id
       } : null
     };
+    console.log('Returning public profile:', publicProfile);
     res.json(publicProfile);
   } catch (error) {
     console.error('Error fetching public profile:', error);
