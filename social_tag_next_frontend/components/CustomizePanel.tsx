@@ -5,6 +5,8 @@ import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import algosdk from 'algosdk';
+import { PeraWalletConnect } from '@perawallet/connect';
 import { Info, ChevronDown, ChevronUp, ExternalLink, CheckCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -14,7 +16,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useToast } from "@/components/ui/use-toast"
-import { ThemePurchaseService } from '@/services/ThemePurchaseService'
 import SocialTagBackground from '@/components/SocialTagBackground'
 import ArcticIceBackground from '@/components/ArcticIceBackground'
 import TropicalIslandBackground from '@/components/TropicalIslandBackground'
@@ -37,6 +38,7 @@ import NFDSelectionModal from '@/components/NFDSelectionModal'
 import { User } from '@/types/User';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+const peraWallet = new PeraWalletConnect();
 
 axios.defaults.withCredentials = true
 
@@ -226,9 +228,56 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     if (selectedItem) {
       setIsPurchasing(true)
       try {
-        const result = await ThemePurchaseService.purchaseTheme(selectedItem.name);
-
-        if (result.success) {
+        // Check if the wallet is connected
+        let accounts: string[] = [];
+        try {
+          accounts = await peraWallet.reconnectSession();
+        } catch (error) {
+          accounts = await peraWallet.connect();
+        }
+  
+        if (accounts.length === 0) {
+          setError('Failed to connect to Pera Wallet');
+          return;
+        }
+  
+        const userAddress = accounts[0];
+  
+        // Request the unsigned transaction
+        const response = await axios.post(
+          `${API_BASE_URL}/api/theme/purchase`, 
+          { themeName: selectedItem.name, userAddress },
+          { withCredentials: true }
+        );
+        
+        const { unsignedTxn, themeName: confirmedThemeName } = response.data;
+  
+        // Decode the transaction
+        const binaryUnsignedTxn = new Uint8Array(Buffer.from(unsignedTxn, 'base64'));
+        const decodedTxn = algosdk.decodeUnsignedTransaction(binaryUnsignedTxn);
+  
+        if (!decodedTxn) {
+          throw new Error('Failed to decode transaction');
+        }
+  
+        // Sign the transaction with Pera Wallet
+        const signedTxns = await peraWallet.signTransaction([[{ txn: decodedTxn }]]);
+  
+        if (!signedTxns || signedTxns.length === 0) {
+          throw new Error('No signed transactions received');
+        }
+  
+        // Send the signed transaction for confirmation
+        const confirmResponse = await axios.post(
+          `${API_BASE_URL}/api/theme/confirm`,
+          {
+            signedTxn: Buffer.from(signedTxns[0]).toString('base64'),
+            themeName: confirmedThemeName
+          },
+          { withCredentials: true }
+        );
+  
+        if (confirmResponse.data.success) {
           const newPurchasedItems = [...purchasedItems, selectedItem.name]
           updatePurchasedItemsCache(newPurchasedItems)
           if (selectedItem.type === 'theme') {
@@ -247,7 +296,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           setTimeout(() => setShowConfetti(false), 5000)
           fetchRewardPoints()
         } else {
-          setError(result.message || `Failed to purchase ${selectedItem.type}. Please try again.`);
+          throw new Error(confirmResponse.data.message || 'Transaction failed');
         }
       } catch (error) {
         console.error(`Error purchasing ${selectedItem.type}:`, error);
