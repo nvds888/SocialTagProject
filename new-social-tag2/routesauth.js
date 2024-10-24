@@ -64,7 +64,7 @@ router.get('/twitter', async (req, res, next) => {
     });
 
     return passport.authenticate('twitter', {
-      callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/callback`,
+      callbackURL: "https://social-tag.vercel.app/api/auth/twitter/callback",
       keepSessionInfo: true
     })(req, res, next);
 

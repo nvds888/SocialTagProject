@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import SpotifyIcon from '@/components/SpotifyIcon' 
 import Leaderboard from '@/components/Leaderboard'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://socialtagbackend.onrender.com'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 const FeatureIcon = ({ Icon }: { Icon: React.ElementType }) => (
   <div className="icon-wrapper bg-gray-100 rounded-full p-4">
