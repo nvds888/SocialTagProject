@@ -148,7 +148,7 @@ router.get('/linkedin/callback',
   passport.authenticate('linkedin', { failureRedirect: '/login' }),
   ensureUserAndSession,
   (req, res) => {
-    const username = req.user?.linkedin?.name;
+    const username = req.user?.twitter?.username || req.user?.linkedin?.name;
     if (username) {
       res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
     } else {

@@ -71,7 +71,7 @@ async (req, token, tokenSecret, profile, done) => {
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_APP_ID,
   clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook/callback`,
+  callbackURL: `https://social-tag.vercel.app/api/auth/facebook/callback`,
   profileFields: ['id', 'displayName', 'email']
 },
 async (accessToken, refreshToken, profile, done) => {
@@ -120,7 +120,7 @@ passport.use('linkedin', new LinkedInStrategy({
   tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
   clientID: process.env.LINKEDIN_CLIENT_ID,
   clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-  callbackURL: `https://social-tag.vercel.app/api/auth/linkedin/callback`,
+  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/linkedin/callback`,
   scope: ['openid', 'profile', 'email'],
   state: true
 }, async (accessToken, refreshToken, profile, done) => {
