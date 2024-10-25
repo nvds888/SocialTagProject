@@ -106,7 +106,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
 </TableCell>
                           <TableCell className="text-center">
                             <a 
-                              href={`http://localhost:3000/socialtag/${entry.twitterUsername}`}
+                              href={`http://social-tag.vercel.app/socialtag/${entry.twitterUsername}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-400 hover:underline inline-flex items-center"
