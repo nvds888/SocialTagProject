@@ -258,9 +258,9 @@ export default function LandingPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <h3 className="text-2xl font-bold mb-6 text-center">Sign Up or Sign In</h3>
+            <h3 className="text-2xl font-bold mb-6 text-center">Sign Up // In</h3>
             <button
-              className="twitter-auth-button bg-white text-black w-full px-4 py-3 rounded-full flex items-center justify-center text-lg font-semibold hover:bg-opacity-90 transition-colors"
+              className="twitter-auth-button bg-white text-black w-12 h-12 rounded-none flex items-center justify-center text-lg font-semibold hover:bg-opacity-90 transition-colors"
               onClick={handleTwitterAuth}
             >
               <Twitter size={24} className="mr-2" />
