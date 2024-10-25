@@ -129,7 +129,7 @@ router.get('/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   ensureUserAndSession,
   (req, res) => {
-    const username = req.user?.facebook?.name;
+    const username = req.user?.twitter?.username || req.user?.facebook?.name;
     if (username) {
       res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
     } else {
@@ -182,7 +182,7 @@ router.get('/spotify/callback',
   passport.authenticate('spotify', { failureRedirect: '/login' }),
   ensureUserAndSession,
   (req, res) => {
-    const username = req.user?.spotify?.username;
+    const username = req.user?.twitter?.username || req.user?.spotify?.name;
     if (username) {
       res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
     } else {

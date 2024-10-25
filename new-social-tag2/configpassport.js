@@ -183,7 +183,7 @@ async (accessToken, refreshToken, profile, done) => {
 passport.use(new SpotifyStrategy({
   clientID: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/spotify/callback`,
+  callbackURL: `https://social-tag.vercel.app/api/auth/spotify/callback`,
 },
 async (accessToken, refreshToken, expires_in, profile, done) => {
   try {
