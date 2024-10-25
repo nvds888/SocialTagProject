@@ -128,7 +128,7 @@ export default function LandingPage() {
              Think of it as Linktree, but redefined with trust and transparency.
             </motion.p>
             <motion.button
-              className="create-profile-button bg-black text-white px-8 py-3 rounded-none text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
+              className="create-profile-button bg-blue-600 text-white px-8 py-3 rounded-none text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
               onClick={handleCreateProfileClick}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
