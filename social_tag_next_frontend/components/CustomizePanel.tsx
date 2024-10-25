@@ -623,7 +623,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           {/* Special Edition Section */}
           <div className="border-t pt-4">
             <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
-              <span>🌟 Special Edition Items</span>
+              <span>🌟 Special Edition Backgrounds</span>
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -730,19 +730,28 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       className="overflow-hidden"
                     >
                       <div className="mt-4 space-y-4">
-                        <div>
-                          <Label htmlFor="bio" className="text-lg font-medium text-gray-700 mb-2 block">
-                            About Me (max 25 words)
-                          </Label>
-                          <Textarea
-                            id="bio"
-                            value={bio}
-                            onChange={(e) => setBio(e.target.value)}
-                            className="w-full bg-white text-black rounded-md px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent"
-                            rows={2}
-                            maxLength={250}
-                          />
-                        </div>
+  <div>
+    <h3 className="text-lg font-semibold mb-4">About Me</h3>
+    <Label htmlFor="bio" className="text-sm text-gray-500 mb-2 block">
+      Express yourself in 25 words or less
+    </Label>
+    <Textarea
+      id="bio"
+      value={bio}
+      onChange={(e) => {
+        const words = e.target.value.trim().split(/\s+/);
+        if (words.length <= 25) {
+          setBio(e.target.value);
+        }
+      }}
+      className="w-full bg-white text-black rounded-md px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent"
+      rows={2}
+      placeholder="Tell others about yourself..."
+    />
+    <div className="mt-1 text-sm text-gray-500 flex justify-end">
+      {bio.trim().split(/\s+/).filter(word => word.length > 0).length}/25 words
+    </div>
+  </div>
                         <div>
   <Label className="text-lg font-medium text-black mb-2 block">
     Profile NFT & NFDomains
