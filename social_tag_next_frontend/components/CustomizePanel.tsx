@@ -479,7 +479,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           >
             {showConfetti && <Confetti />}
             <div className="flex justify-between items-center mb-4">
-              <h1 className="text-xl font-bold text-black">tag /tag/ noun: </h1>
+              <h1 className="text-xl font-bold text-black">Studio </h1>
               <div className="flex items-center space-x-8">
                 <span className="text-xs font-medium text-gray-600">Unique Profile Views:</span>
                 <span className="text-lg font-bold text-black">{profileViews}</span>
