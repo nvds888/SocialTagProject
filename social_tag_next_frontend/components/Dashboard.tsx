@@ -330,10 +330,10 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         <header className="flex justify-between items-center p-6 bg-white shadow-md">
           <h1 className="text-4xl font-bold">SocialTag</h1>
           <nav className="flex items-center space-x-4">
-            <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-none hover:bg-white transition-colors">Home</Link>
+            <Link href="/" className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors">Home</Link>
             <Button
               onClick={() => setIsCustomizePanelOpen(true)}
-              className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors"
+              className="bg-blue-600 text-white px-4 py-2 rounded-none hover:bg-white transition-colors"
             >
               Studio
             </Button>
