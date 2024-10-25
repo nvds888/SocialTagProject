@@ -157,16 +157,16 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={CheckCircle} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Ensure Authenticity</h3>
-                <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started!</p>
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Authentic You</h3>
+                <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
               </motion.div>
               <motion.div 
                 className="feature-card bg-gradient-to-br from-blue-100 to-blue-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={Coins} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Rewards</h3>
-                <p className="text-gray-600">Earn reward points for account verification, purchasing items, and much more. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Reward Points</h3>
+                <p className="text-gray-600">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
               </motion.div>
               <motion.div 
                 className="feature-card bg-gradient-to-br from-blue-100 to-purple-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
@@ -183,13 +183,11 @@ export default function LandingPage() {
             <div className="about-content flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto">
               <div className="about-text md:w-1/2 mb-8 md:mb-0 md:pr-8">
                 <p className="text-gray-600 mb-4">
-                SocialTag was born from a vision of a more authentic online world. In an era where digital identity is increasingly important, we identified the need for a solution that allows users to prove they are the real person behind a specific social account. By linking multiple accounts, users can emphasize their authenticity across platforms. 
+                SocialTag has a vision of a more authentic online social world. In an era where url links are thrown at you from every corner of the web, it is crucial for users to be able to prove if someone really had access to account X or Y. By linking multiple accounts together and handling verification on the blockchain, users have undeniable proof of authenticity. 
                 </p>
-                <p className="text-gray-600 mb-4">
-                We aim to create a unique solution that ensures authenticity by leveraging the APIs of major social platforms, while optimizing for data integrity and transparency through the use of public blockchain technology.
-                </p>
+              
                 <p className="text-gray-600">
-                With SocialTag, we&apos;re not just verifying identities—we&apos;re creating a foundation for trusted online interactions. By empowering users to take control of their digital presence, we&apos;re paving the way for a more secure and authentic internet.
+                With SocialTag, we&apos;re not just verifying identities—we&apos;re creating a foundation for trusted online social interactions. By empowering users to take control of their digital presence, we&apos;re paving the way for a more secure and authentic internet.
                 </p>
               </div>
               <div className="about-image md:w-1/2">
