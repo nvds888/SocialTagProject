@@ -197,9 +197,9 @@ export default function PublicProfilePage() {
   }[profile.cardStyle] || ProfileCard
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4 md:p-8">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-2 sm:p-4 md:p-8">
       <BackgroundComponent />
-      <div className="z-10 w-full max-w-[95vw] md:max-w-md relative">
+      <div className="z-10 w-full max-w-[90vw] sm:max-w-[80vw] md:max-w-md relative">
         <CardComponent
           username={profile.username}
           jobTitle={profile.jobTitle}
@@ -225,36 +225,67 @@ export default function PublicProfilePage() {
           height: 100vh !important;
           width: 100vw !important;
         }
-      }
-      
-      @media (max-height: 800px) {
-        .h-[600px] {
-          height: auto !important;
-          min-height: min(600px, 90vh) !important;
-        }
-      }
 
-      @media (max-width: 480px) {
+        /* Make card more compact on mobile */
+        .card {
+          height: auto !important;
+          min-height: auto !important;
+        }
+        
+        /* Adjust card padding */
+        .p-6 {
+          padding: 1rem !important;
+        }
+
+        /* Reduce profile image size */
+        .w-32, .h-32 {
+          width: 4.5rem !important;
+          height: 4.5rem !important;
+        }
+
+        /* Adjust text sizes */
         .text-3xl {
-          font-size: 1.5rem !important;
+          font-size: 1.25rem !important;
         }
         .text-2xl {
-          font-size: 1.25rem !important;
+          font-size: 1.1rem !important;
         }
         .text-xl {
           font-size: 1rem !important;
         }
-        .w-32 {
-          width: 6rem !important;
+        .text-lg {
+          font-size: 0.875rem !important;
         }
-        .h-32 {
-          height: 6rem !important;
+
+        /* Adjust social icons size */
+        .lucide {
+          width: 24px !important;
+          height: 24px !important;
+        }
+
+        /* Adjust spacing */
+        .mb-6 {
+          margin-bottom: 0.75rem !important;
+        }
+        .mb-4 {
+          margin-bottom: 0.5rem !important;
         }
         .space-x-6 > * + * {
-          margin-left: 1rem !important;
+          margin-left: 0.75rem !important;
+        }
+
+        /* Make fixed height card responsive */
+        .h-[600px] {
+          height: auto !important;
+          max-height: 85vh !important;
+        }
+
+        /* Adjust flex spacing */
+        .flex-grow {
+          flex-grow: 0 !important;
         }
       }
     `}</style>
   </div>
-)
+);
 }
