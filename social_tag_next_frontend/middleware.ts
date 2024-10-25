@@ -2,33 +2,36 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith('/api/auth/twitter/callback')) {
-    console.log('Middleware intercepting Twitter callback:', request.nextUrl.toString());
-    
-    const url = new URL(
-      request.nextUrl.pathname + request.nextUrl.search, 
-      'https://socialtagbackend.onrender.com'
-    );
-
-    console.log('Redirecting to:', url.toString());
-    
-    return NextResponse.rewrite(url);
+    // Add debug logging
+    console.log('Incoming request:', request.nextUrl.pathname);
+  
+    if (request.nextUrl.pathname.startsWith('/api/auth/twitter/callback')) {
+      // Remove the /api prefix when forwarding to backend
+      const pathWithoutApi = request.nextUrl.pathname.replace('/api', '');
+      const url = new URL(
+        pathWithoutApi + request.nextUrl.search, 
+        'https://socialtagbackend.onrender.com'
+      );
+  
+      console.log('Rewriting to:', url.toString());
+      return NextResponse.rewrite(url);
+    }
+  
+    // For other API routes
+    if (request.nextUrl.pathname.startsWith('/api/')) {
+      const pathWithoutApi = request.nextUrl.pathname.replace('/api', '');
+      const url = new URL(
+        pathWithoutApi + request.nextUrl.search,
+        'https://socialtagbackend.onrender.com'
+      );
+      return NextResponse.rewrite(url);
+    }
+  
+    return NextResponse.next();
   }
-
-  // For all other API routes, use the existing rewrite
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    const url = new URL(
-      request.nextUrl.pathname + request.nextUrl.search,
-      'https://socialtagbackend.onrender.com'
-    );
-    return NextResponse.rewrite(url);
+  
+  export const config = {
+    matcher: [
+      '/api/:path*',
+    ]
   }
-
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: [
-    '/api/:path*',
-  ]
-}
