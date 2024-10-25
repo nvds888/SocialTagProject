@@ -1,22 +1,22 @@
 {
-    "builds": [
-      {
-        "src": "package.json",
-        "use": "@vercel/next",
-        "config": {
-          "eslint": {
-            "ignoreDuringBuilds": true
-          },
-          "typescript": {
-            "ignoreBuildErrors": true
-          }
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next",
+      "config": {
+        "eslint": {
+          "ignoreDuringBuilds": true
+        },
+        "typescript": {
+          "ignoreBuildErrors": true
         }
       }
-    ],
-    "rewrites": [
-      {
-        "source": "/api/:path*",
-        "destination": "https://socialtagbackend.onrender.com/:path*"
-      }
-    ]
-  }
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://socialtagbackend.onrender.com/:path*"
+    }
+  ]
+}

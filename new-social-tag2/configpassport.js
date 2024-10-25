@@ -12,10 +12,8 @@ const User = require('./modelsUser');
 passport.use(new TwitterStrategy({
   consumerKey: process.env.TWITTER_CONSUMER_KEY,
   consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/twitter/callback`,
-  passReqToCallback: true,
-  proxy: true,
-  includeEmail: true // Add this if you want email
+  callbackURL: "https://social-tag.vercel.app/api/auth/twitter/callback",
+  passReqToCallback: true
 },
 async (req, token, tokenSecret, profile, done) => {
   try {
