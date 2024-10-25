@@ -120,7 +120,7 @@ passport.use('linkedin', new LinkedInStrategy({
   tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
   clientID: process.env.LINKEDIN_CLIENT_ID,
   clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/linkedin/callback`,
+  callbackURL: `https://social-tag.vercel.app/api/auth/linkedin/callback`,
   scope: ['openid', 'profile', 'email'],
   state: true
 }, async (accessToken, refreshToken, profile, done) => {
