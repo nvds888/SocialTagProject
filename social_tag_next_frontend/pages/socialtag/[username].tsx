@@ -197,9 +197,9 @@ export default function PublicProfilePage() {
   }[profile.cardStyle] || ProfileCard
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4 md:p-8">
       <BackgroundComponent />
-      <div className="z-10 w-full max-w-md">
+      <div className="z-10 w-full max-w-[95vw] md:max-w-md relative">
         <CardComponent
           username={profile.username}
           jobTitle={profile.jobTitle}
@@ -218,7 +218,43 @@ export default function PublicProfilePage() {
           rewardPoints={profile.rewardPoints}
           nfd={profile.nfd}
         />
-      </div>
-    </div>
-  )
+        </div>
+    <style jsx global>{`
+      @media (max-width: 768px) {
+        canvas {
+          height: 100vh !important;
+          width: 100vw !important;
+        }
+      }
+      
+      @media (max-height: 800px) {
+        .h-[600px] {
+          height: auto !important;
+          min-height: min(600px, 90vh) !important;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .text-3xl {
+          font-size: 1.5rem !important;
+        }
+        .text-2xl {
+          font-size: 1.25rem !important;
+        }
+        .text-xl {
+          font-size: 1rem !important;
+        }
+        .w-32 {
+          width: 6rem !important;
+        }
+        .h-32 {
+          height: 6rem !important;
+        }
+        .space-x-6 > * + * {
+          margin-left: 1rem !important;
+        }
+      }
+    `}</style>
+  </div>
+)
 }
