@@ -287,5 +287,5 @@ export default function PublicProfilePage() {
       }
     `}</style>
   </div>
-);
+)
 }
