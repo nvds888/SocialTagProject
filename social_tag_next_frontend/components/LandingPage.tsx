@@ -183,11 +183,11 @@ export default function LandingPage() {
             <div className="about-content flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto">
               <div className="about-text md:w-1/2 mb-8 md:mb-0 md:pr-8">
                 <p className="text-gray-600 mb-4">
-                SocialTag has a vision of a more authentic online social world. In an era where url links are thrown at you from every corner of the web, it is crucial for users to be able to prove if someone really had access to account X or Y. By linking multiple accounts together and handling verification on the blockchain, users have undeniable proof of authenticity. 
+                SocialTag has a vision for a more authentic online social world. In an era where URL links are thrown at you from every corner of the web, it&apos;s crucial for users to have a way to prove if someone really has access to account X or Y. SocialTag enables users to link multiple accounts together and handles verification securely on the blockchain.
                 </p>
               
                 <p className="text-gray-600">
-                With SocialTag, we&apos;re not just verifying identities—we&apos;re creating a foundation for trusted online social interactions. By empowering users to take control of their digital presence, we&apos;re paving the way for a more secure and authentic internet.
+                Through this blockchain-based verification, users gain undeniable proof of authenticity, showcasing their identity across platforms with integrity. SocialTag offers a new approach to the traditional link-sharing experience - one that emphasizes trust and transparency.
                 </p>
               </div>
               <div className="about-image md:w-1/2">
@@ -207,7 +207,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
                 <h3 className="text-lg font-semibold mb-4">About Us</h3>
-                <p className="text-sm">SocialTag: Authentic You. One Tag, Zero Imposters. Build on Algorand.</p>
+                <p className="text-sm">SocialTag: Authentic You. One Tag, Zero Imposters. This App uses the Algorand blockchain.</p>
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
