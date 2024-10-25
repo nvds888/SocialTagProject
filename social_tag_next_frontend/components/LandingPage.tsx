@@ -123,7 +123,9 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              Step into a world where authenticity reigns. With Social Tag, your social media presence is protected by a single, blockchain-verified identity.
+             Deploy your public profile: your personalized, blockchain-verified SocialTag.
+             Fully customizable, secure, and built with integrity. 
+             Think of it as Linktree, but redefined with trust and transparency.
             </motion.p>
             <motion.button
               className="create-profile-button bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
