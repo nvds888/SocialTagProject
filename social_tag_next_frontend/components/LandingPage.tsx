@@ -91,9 +91,9 @@ export default function LandingPage() {
               Authentic <span className="relative">
                 You
                 <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-400"
+                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-400 rounded-sm"
                   initial={{ width: 0 }}
-                  animate={{ width: ['0%', '100%', '100%'] }}
+                  animate={{ width: ['0%', '110%', '110%'] }}
                   transition={{
                     duration: 2,
                     times: [0, 0.2, 0.8, 0.8001],
@@ -105,9 +105,9 @@ export default function LandingPage() {
               One Tag, <span className="relative">
                 Zero Imposters
                 <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-400"
+                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-400 rounded-sm"
                   initial={{ width: 0 }}
-                  animate={{ width: ['0%', '0%', '100%', '100%'] }}
+                  animate={{ width: ['0%', '0%', '110%', '110%'] }}
                   transition={{
                     duration: 2,
                     times: [0, 0.2, 0.4, 0.8, 0.8001],
@@ -126,7 +126,7 @@ export default function LandingPage() {
               Step into a world where authenticity reigns. With Social Tag, your social media presence is protected by a single, blockchain-verified identity.
             </motion.p>
             <motion.button
-              className="create-profile-button bg-purple-400 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
+              className="create-profile-button bg-black text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
               onClick={handleCreateProfileClick}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -220,9 +220,6 @@ export default function LandingPage() {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Connect with official APIs</h3>
                 <div className="flex justify-center space-x-4">
-                  <a className="text-white hover:text-gray-300">
-                    <Twitter size={24} />
-                  </a>
                   <a className="text-white hover:text-gray-300">
                     <Twitter size={24} />
                   </a>
