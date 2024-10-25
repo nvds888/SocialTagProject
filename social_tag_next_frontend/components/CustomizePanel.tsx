@@ -479,7 +479,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           >
             {showConfetti && <Confetti />}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-black">tag /tag/ noun: A small label used to identify or provide information about someone or something.</h2>
+              <h1 className="text-xl font-bold text-black">tag /tag/ noun: </h1>
               <div className="flex items-center space-x-8">
                 <span className="text-xs font-medium text-gray-600">Unique Profile Views:</span>
                 <span className="text-lg font-bold text-black">{profileViews}</span>
@@ -571,7 +571,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         <div className="space-y-6 mt-4">
           {/* Regular Themes */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Standard Backgrounds</h3>
+            <h4 className="text-lg font-semibold mb-4">Standard Backgrounds</h4>
             <div className="grid grid-cols-3 gap-4">
               {themes
                 .filter(t => !t.specialEdition)
@@ -622,7 +622,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
           {/* Special Edition Section */}
           <div className="border-t pt-4">
-            <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+            <h4 className="text-lg font-semibold mb-4 flex items-center space-x-2">
               <span>🌟 Special Edition Backgrounds</span>
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
@@ -640,7 +640,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </h3>
+            </h4>
             <div className="grid grid-cols-3 gap-4">
               {themes
                 .filter(t => t.specialEdition)
@@ -731,7 +731,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                     >
                       <div className="mt-4 space-y-4">
   <div>
-    <h3 className="text-lg font-semibold mb-4">About Me</h3>
+    <h4 className="text-lg font-semibold mb-4">About Me</h4>
     <Label htmlFor="bio" className="text-sm text-gray-500 mb-2 block">
       Express yourself in 25 words or less
     </Label>
