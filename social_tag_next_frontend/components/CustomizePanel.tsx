@@ -552,100 +552,165 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
               </div>
 
               <div>
-                <Button
-                  onClick={() => toggleTab('background')}
-                  className="w-full flex justify-between items-center py-2 px-4"
-                  variant="outline"
-                >
-                  <span>Choose Your Background</span>
-                  {openTab === 'background' ? <ChevronUp /> : <ChevronDown />}
-                </Button>
-                <AnimatePresence>
-                  {openTab === 'background' && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
+  <Button
+    onClick={() => toggleTab('background')}
+    className="w-full flex justify-between items-center py-2 px-4"
+    variant="outline"
+  >
+    <span>Choose Your Background</span>
+    {openTab === 'background' ? <ChevronUp /> : <ChevronDown />}
+  </Button>
+  <AnimatePresence>
+    {openTab === 'background' && (
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: 'auto', opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        className="overflow-hidden"
+      >
+        <div className="space-y-6 mt-4">
+          {/* Regular Themes */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Standard Backgrounds</h3>
+            <div className="grid grid-cols-3 gap-4">
+              {themes
+                .filter(t => !t.specialEdition)
+                .map((t) => (
+                  <div key={t.name} className="relative">
+                    <Button
+                      variant="outline"
+                      className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
+                        theme === t.name 
+                          ? 'bg-black text-white' 
+                          : 'bg-white text-black hover:bg-gray-100'
+                      } ${t.premium && !purchasedItems.includes(t.name) ? 'opacity-50' : ''}`}
+                      onClick={() => handleItemSelection('theme', t.name)}
                     >
-                      <div className="grid grid-cols-3 gap-4 mt-4">
-                        {themes.map((t) => (
-                          <div key={t.name} className="relative">
-                            <Button
-                              variant="outline"
-                              className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
-                                theme === t.name 
-                                  ? 'bg-black text-white' 
-                                  : 'bg-white text-black hover:bg-gray-100'
-                              } ${
-                                (t.premium && !purchasedItems.includes(t.name)) || 
-                                (t.specialEdition && rewardPoints < (t.requiredPoints || 300)) 
-                                  ? 'opacity-50' 
-                                  : ''
-                              }`}
-                              onClick={() => handleItemSelection('theme', t.name)}
-                              disabled={(t.specialEdition && rewardPoints < (t.requiredPoints || 300))}
-                            >
-                              <span className="block truncate pr-6">{t.name}</span>
-                              {t.premium && !purchasedItems.includes(t.name) && (
-                                <span className="absolute top-1 right-1 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Buy Now</span>
-                              )}
-                              {t.specialEdition && (
-                                <span className="absolute top-1 right-1 text-xs bg-yellow-400 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
-                              )}
-                            </Button>
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon"
-                                    className="absolute top-1/2 right-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
-                                  >
-                                    <Info className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent 
-                                  side="bottom" 
-                                  className="w-64 h-40 p-0" 
-                                  sideOffset={5}
-                                >
-                                  <div className="w-full h-full relative overflow-hidden rounded-md">
-                                    <div className="absolute inset-0 scale-[1.2] origin-center">
-                                      {renderPreview('theme', t.name)}
-                                    </div>
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            {t.specialEdition && (
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon"
-                                      className="absolute top-1/2 left-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
-                                    >
-                                      <Info className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="bottom" className="w-64 p-2" sideOffset={5}>
-                                  {rewardPoints >= (t.requiredPoints || 300)
-                                      ? "You've unlocked this Special Edition background!" 
-                                      : `Unlock this Special Edition background by earning ${(t.requiredPoints || 300) - rewardPoints} more reward points.`
-                                    }
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
+                      <span className="block truncate pr-6">{t.name}</span>
+                      {t.premium && !purchasedItems.includes(t.name) && (
+                        <span className="absolute top-1 right-1 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Buy Now</span>
+                      )}
+                    </Button>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="absolute top-1/2 right-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
+                          >
+                            <Info className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent 
+                          side="bottom" 
+                          className="w-64 h-40 p-0" 
+                          sideOffset={5}
+                        >
+                          <div className="w-full h-full relative overflow-hidden rounded-md">
+                            <div className="absolute inset-0 scale-[1.2] origin-center">
+                              {renderPreview('theme', t.name)}
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Special Edition Section */}
+          <div className="border-t pt-4">
+            <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+              <span>🌟 Special Edition Items</span>
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="h-6 w-6 p-0"
+                    >
+                      <Info className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="w-64 p-2">
+                    Special Edition items are exclusive backgrounds unlocked with reward points. Earn points through various activities to unlock these unique designs!
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </h3>
+            <div className="grid grid-cols-3 gap-4">
+              {themes
+                .filter(t => t.specialEdition)
+                .map((t) => (
+                  <div key={t.name} className="relative">
+                    <Button
+                      variant="outline"
+                      className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
+                        theme === t.name 
+                          ? 'bg-black text-white' 
+                          : 'bg-white text-black hover:bg-gray-100'
+                      } ${rewardPoints < (t.requiredPoints || 300) ? 'opacity-50' : ''}`}
+                      onClick={() => handleItemSelection('theme', t.name)}
+                      disabled={rewardPoints < (t.requiredPoints || 300)}
+                    >
+                      <span className="block truncate pr-6">{t.name}</span>
+                      <span className="absolute top-1 right-1 text-xs bg-yellow-400 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
+                    </Button>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="absolute top-1/2 right-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
+                          >
+                            <Info className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent 
+                          side="bottom" 
+                          className="w-64 h-40 p-0" 
+                          sideOffset={5}
+                        >
+                          <div className="w-full h-full relative overflow-hidden rounded-md">
+                            <div className="absolute inset-0 scale-[1.2] origin-center">
+                              {renderPreview('theme', t.name)}
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="absolute top-1/2 left-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
+                          >
+                            <Info className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="w-64 p-2" sideOffset={5}>
+                          {rewardPoints >= (t.requiredPoints || 300)
+                            ? "You've unlocked this Special Edition background!" 
+                            : `Unlock this Special Edition background by earning ${(t.requiredPoints || 300) - rewardPoints} more reward points.`
+                          }
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
 
               <div>
                 <Button
