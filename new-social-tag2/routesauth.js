@@ -164,7 +164,7 @@ router.get('/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   ensureUserAndSession,
   (req, res) => {
-    const username = req.user?.github?.username;
+    const username = req.user?.twitter?.username || req.user?.github?.name;
     if (username) {
       res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
     } else {
