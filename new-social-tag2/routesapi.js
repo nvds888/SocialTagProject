@@ -533,11 +533,12 @@ router.get('/leaderboard', async (req, res) => {
 
 router.post('/theme/purchase', sessionCheck, async (req, res) => {
   try {
-    const { themeName, userAddress } = req.body;
+    const { themeName, userAddress, paymentType = 'USDC' } = req.body;
 
     console.log('Received purchase request');
     console.log('Theme:', themeName);
     console.log('User Address:', userAddress);
+    console.log('Payment Type:', paymentType);
 
     if (!userAddress || typeof userAddress !== 'string') {
       return res.status(400).json({ success: false, message: 'Valid user wallet address is required' });
@@ -547,14 +548,18 @@ router.post('/theme/purchase', sessionCheck, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid theme name is required' });
     }
 
-    // Use the minter address from .env as the receiver
     const receiverAddress = process.env.MINTER_ADDRESS;
 
-    // Create unsigned USDC payment transaction
+    // Select the correct asset ID and amount based on payment type
+    const assetId = paymentType === 'USDC' ? peraWalletService.USDC_ASSET_ID : peraWalletService.ORA_ASSET_ID;
+    const amount = paymentType === 'USDC' ? 1 : 10;  // 1 USDC or 10 ORA
+
+    // Create unsigned payment transaction
     const unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
       userAddress,
       receiverAddress,
-      1 // 1 USDC
+      amount,
+      assetId
     );
 
     res.json({ 
@@ -573,7 +578,7 @@ router.post('/theme/purchase', sessionCheck, async (req, res) => {
 
 router.post('/theme/confirm', sessionCheck, async (req, res) => {
   try {
-    const { signedTxn, themeName } = req.body;
+    const { signedTxn, themeName, paymentType } = req.body;
     const userId = req.user.id;
 
     if (!signedTxn || typeof signedTxn !== 'string') {
@@ -587,10 +592,20 @@ router.post('/theme/confirm', sessionCheck, async (req, res) => {
     // Submit the signed transaction
     const txId = await peraWalletService.submitSignedTransaction(signedTxn);
 
-    // Update user's purchased items
+    // Update user's purchased items and purchase history
     const user = await User.findByIdAndUpdate(
       userId,
-      { $addToSet: { purchasedItems: themeName } },
+      { 
+        $addToSet: { 
+          purchasedItems: themeName,
+          purchaseHistory: {
+            item: themeName,
+            paymentType,
+            txId,
+            timestamp: new Date()
+          }
+        }
+      },
       { new: true }
     );
 
