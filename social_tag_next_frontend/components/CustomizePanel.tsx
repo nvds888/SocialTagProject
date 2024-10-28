@@ -942,7 +942,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         <Button
           onClick={() => handlePurchaseConfirmation('ORA')}
           disabled={processingPaymentType !== null}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white"
         >
           {processingPaymentType === 'ORA' ? (
             <span className="flex items-center justify-center">

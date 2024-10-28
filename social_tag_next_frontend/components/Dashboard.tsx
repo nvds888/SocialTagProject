@@ -333,6 +333,13 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
           <nav className="flex items-center space-x-4">
             <Link href="/" className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors">Home</Link>
             <Button
+              onClick={handleOpenLeaderboard}
+              className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors flex items-center"
+            >
+              <Trophy size={18} className="mr-2" />
+              Leaderboard
+            </Button>
+            <Button
               onClick={() => setIsCustomizePanelOpen(true)}
               className="bg-white text-black px-4 py-2 rounded-none hover:bg-white transition-colors"
             >
@@ -500,7 +507,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
                   <motion.button
   onClick={handleReVerifyConfirm}
   disabled={(user?.reverifyCount ?? 0) >= 1} // Use nullish coalescing to provide a default value
-  className={`flex-1 bg-transparent backdrop-filter backdrop-blur-sm bg-opacity-20 border border-white text-black px-4 py-2 rounded-r-lg flex items-center justify-center transition-colors
+  className={`flex-1 bg-black backdrop-filter backdrop-blur-sm bg-opacity-20 border border-white text-white px-4 py-2 rounded-r-lg flex items-center justify-center transition-colors
     ${(user?.reverifyCount ?? 0) >= 1 // Use nullish coalescing here as well
       ? 'opacity-50 cursor-not-allowed' 
       : 'hover:bg-white hover:bg-opacity-30'
@@ -516,7 +523,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               </motion.div>
             )}
             <div className="mt-2">
-              <h3 className="text-xl font-bold mb-4">Verification Tx</h3>
+              <h3 className="text-xl font-bold mb-4">My Verification</h3>
               {renderVerificationHistory()}
             </div>
           </motion.div>
