@@ -501,7 +501,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
                   <motion.button
   onClick={handleReVerifyConfirm}
   disabled={(user?.reverifyCount ?? 0) >= 1} // Use nullish coalescing to provide a default value
-  className={`flex-1 bg-black backdrop-filter backdrop-blur-sm bg-opacity-20 border border-white text-white px-4 py-2 rounded-r-lg flex items-center justify-center transition-colors
+  className={`flex-1 bg-black backdrop-filter backdrop-blur-sm border-white text-white px-4 py-2 rounded-r-lg flex items-center justify-center transition-colors
     ${(user?.reverifyCount ?? 0) >= 1 // Use nullish coalescing here as well
       ? 'opacity-50 cursor-not-allowed' 
       : 'hover:bg-white hover:bg-opacity-30'
