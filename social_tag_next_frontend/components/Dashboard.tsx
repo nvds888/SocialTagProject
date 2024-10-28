@@ -345,13 +345,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             >
               Studio
             </Button>
-            <Button
-              onClick={handleOpenLeaderboard}
-              className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors flex items-center"
-            >
-              <Trophy size={18} className="mr-2" />
-              Leaderboard
-            </Button>
             {!connectedAccount ? (
               <button 
                 onClick={handleConnectPera}
