@@ -551,7 +551,7 @@ router.post('/theme/purchase', sessionCheck, async (req, res) => {
     const receiverAddress = process.env.MINTER_ADDRESS;
 
     // Create unsigned USDC payment transaction
-    const unsignedTxn = await peraWalletService.createUSDCPaymentTransaction(
+    const unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
       userAddress,
       receiverAddress,
       1 // 1 USDC
