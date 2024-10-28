@@ -40,6 +40,7 @@ import { User } from '@/types/User';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 const peraWallet = new PeraWalletConnect();
 
+
 axios.defaults.withCredentials = true
 
 interface CustomizePanelProps {
@@ -125,6 +126,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   onSettingsUpdate,
   connectedWalletAddress
 }) => {
+  const [processingPaymentType, setProcessingPaymentType] = useState<'USDC' | 'ORA' | null>(null);
   const [theme, setTheme] = useState('SocialTag')
   const [cardStyle, setCardStyle] = useState('Default')
   const [bio, setBio] = useState(user.bio || '')
@@ -134,7 +136,6 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const [selectedItem, setSelectedItem] = useState<{ type: 'theme' | 'cardStyle', name: string } | null>(null)
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
   const [openTab, setOpenTab] = useState<string | null>(null)
-  const [isPurchasing, setIsPurchasing] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showNFTModal, setShowNFTModal] = useState(false)
   const [nfts, setNfts] = useState<NFT[]>([])
@@ -226,7 +227,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
   const handlePurchaseConfirmation = async (paymentType: 'USDC' | 'ORA') => {
     if (selectedItem) {
-      setIsPurchasing(true)
+      setProcessingPaymentType(paymentType); 
       try {
         // Check if the wallet is connected
         let accounts: string[] = [];
@@ -303,7 +304,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         console.error(`Error purchasing ${selectedItem.type}:`, error);
         setError(`An error occurred while purchasing the ${selectedItem.type}.`);
       } finally {
-        setIsPurchasing(false)
+        setProcessingPaymentType(null);
         setShowPurchaseModal(false)
       }
     }
@@ -922,11 +923,11 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       <div className="space-y-4">
         <Button
           onClick={() => handlePurchaseConfirmation('USDC')}
-          disabled={isPurchasing}
+          disabled={processingPaymentType !== null}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white"
         >
-          {isPurchasing ? (
-            <span className="flex items-center">
+          {processingPaymentType === 'USDC' ? (
+            <span className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -940,11 +941,11 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
         <Button
           onClick={() => handlePurchaseConfirmation('ORA')}
-          disabled={isPurchasing}
+          disabled={processingPaymentType !== null}
           className="w-full bg-purple-600 hover:bg-purple-700 text-white"
         >
-          {isPurchasing ? (
-            <span className="flex items-center">
+          {processingPaymentType === 'ORA' ? (
+            <span className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -959,6 +960,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         <Button 
           variant="outline" 
           onClick={() => setShowPurchaseModal(false)}
+          disabled={processingPaymentType !== null}
           className="w-full"
         >
           Cancel

@@ -3,9 +3,6 @@ const router = express.Router();
 const peraWalletService = require('./perawalletservice');
 const User = require('./modelsUser');
 
-const USDC_ASSET_ID = 31566704;
-const ORA_ASSET_ID = 1284444444;
-
 const sessionCheck = (req, res, next) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ 
@@ -19,7 +16,7 @@ const sessionCheck = (req, res, next) => {
 
 router.post('/purchase', sessionCheck, async (req, res) => {
   try {
-    const { themeName, userAddress, paymentType } = req.body;
+    const { themeName, userAddress, paymentType = 'USDC' } = req.body;
 
     console.log('Received purchase request');
     console.log('Theme:', themeName);
@@ -41,23 +38,17 @@ router.post('/purchase', sessionCheck, async (req, res) => {
     // Use the minter address from .env as the receiver
     const receiverAddress = process.env.MINTER_ADDRESS;
 
-    // Create unsigned payment transaction based on payment type
-    let unsignedTxn;
-    if (paymentType === 'USDC') {
-      unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
-        userAddress,
-        receiverAddress,
-        1, // 1 USDC
-        USDC_ASSET_ID
-      );
-    } else {
-      unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
-        userAddress,
-        receiverAddress,
-        10, // 10 ORA
-        ORA_ASSET_ID
-      );
-    }
+    // Select the correct asset ID and amount based on payment type
+    const assetId = paymentType === 'USDC' ? peraWalletService.USDC_ASSET_ID : peraWalletService.ORA_ASSET_ID;
+    const amount = paymentType === 'USDC' ? 1 : 1000;  // 1 USDC or 10 ORA
+
+    // Create unsigned payment transaction
+    const unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
+      userAddress,
+      receiverAddress,
+      amount,
+      assetId
+    );
 
     res.json({ 
       success: true, 
@@ -88,7 +79,7 @@ router.post('/confirm', sessionCheck, async (req, res) => {
     // Submit the signed transaction
     const txId = await peraWalletService.submitSignedTransaction(signedTxn);
 
-    // Update user's purchased items
+    // Update user's purchased items and purchase history
     const user = await User.findByIdAndUpdate(
       userId,
       { 
