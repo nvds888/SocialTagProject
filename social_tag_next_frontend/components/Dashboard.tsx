@@ -453,19 +453,21 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               />
             </div>
             {!isVerified && (
-              <motion.button 
-                onClick={handleVerifyConfirm} 
-                className={`max-w-max bg-transparent text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-500 transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
-                disabled={!canVerify || verifying}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {verifying ? 'Verifying...' : 'Verify Profile'}
-              </motion.button>
-            )}
-            {!canVerify && !isVerified && (
-              <p className="mt-4 text-red-400 text-center">Connect at least two accounts to verify your profile.</p>
-            )}
+  <div className="flex justify-center w-full">  {/* Add this wrapper div */}
+    <motion.button 
+      onClick={handleVerifyConfirm} 
+      className={`max-w-max bg-transparent text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-500 transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
+      disabled={!canVerify || verifying}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      {verifying ? 'Verifying...' : 'Verify Profile'}
+    </motion.button>
+  </div>
+)}
+{!canVerify && !isVerified && (
+  <p className="mt-4 text-red-400 text-center">Connect at least two accounts to verify your profile.</p>
+)}
             {isVerified && (
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
