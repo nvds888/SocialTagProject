@@ -9,7 +9,8 @@ const MINTER_ACCOUNT = {
   sk: algosdk.mnemonicToSecretKey(process.env.MINTER_MNEMONIC).sk
 };
 
-const USDC_ASSET_ID = 31566704; // Replace with actual USDC ASA ID
+const USDC_ASSET_ID = 31566704;
+const ORA_ASSET_ID = 1284444444;
 
 async function createASA(username, verifiedAccounts, profileUrl) {
   try {
@@ -90,63 +91,13 @@ async function createClaimASATransactions(receiverAddress, assetId) {
   }
 }
 
-async function fetchWalletNFDs(address) {
+async function createAssetPaymentTransaction(senderAddress, receiverAddress, amount, assetId) {
   try {
-    console.log(`Fetching NFDs for address: ${address}`);
-    
-    if (!address || typeof address !== 'string') {
-      throw new Error('Invalid wallet address provided');
-    }
-
-    const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.4160.nodely.dev/', '');
-    let nfds = [];
-    let nextToken = null;
-
-    do {
-      console.log('Querying indexer for assets...');
-      const response = await indexerClient.lookupAccountAssets(address).limit(100).nextToken(nextToken).do();
-      console.log('Indexer response:', JSON.stringify(response, null, 2));
-      
-      const filteredAssets = response.assets.filter(asset => 
-        asset.amount > 0 // Only consider assets with a positive balance
-      );
-
-      for (const asset of filteredAssets) {
-        console.log(`Fetching info for asset ID: ${asset['asset-id']}`);
-        try {
-          const assetInfo = await algodClient.getAssetByID(asset['asset-id']).do();
-          console.log('Asset info:', JSON.stringify(assetInfo, null, 2));
-          
-          // Check if the asset is an NFD
-          if (assetInfo.params.name && assetInfo.params.name.endsWith('.algo')) {
-            nfds.push({
-              id: asset['asset-id'],
-              name: assetInfo.params.name
-            });
-          }
-        } catch (assetError) {
-          console.error(`Error fetching info for asset ${asset['asset-id']}:`, assetError);
-          // Continue with the next asset
-        }
-      }
-
-      nextToken = response['next-token'];
-    } while (nextToken);
-
-    console.log(`Found ${nfds.length} NFDs for address ${address}`);
-    return nfds;
-  } catch (error) {
-    console.error('Error in fetchWalletNFDs:', error);
-    throw error;
-  }
-}
-
-async function createUSDCPaymentTransaction(senderAddress, receiverAddress, amount) {
-  try {
-    console.log('Creating USDC payment transaction');
+    console.log('Creating asset payment transaction');
     console.log('Sender:', senderAddress);
     console.log('Receiver:', receiverAddress);
     console.log('Amount:', amount);
+    console.log('Asset ID:', assetId);
 
     if (!senderAddress || typeof senderAddress !== 'string') {
       throw new Error('Invalid senderAddress');
@@ -162,21 +113,21 @@ async function createUSDCPaymentTransaction(senderAddress, receiverAddress, amou
 
     const suggestedParams = await algodClient.getTransactionParams().do();
     
-    // Create the USDC transfer transaction
+    // Create the asset transfer transaction
     const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       from: senderAddress,
       to: receiverAddress,
       amount: Math.floor(amount * 1000000), // Convert to 6 decimal places
-      assetIndex: USDC_ASSET_ID,
+      assetIndex: assetId,
       suggestedParams,
-      note: new TextEncoder().encode("SocialTag"), //
+      note: new TextEncoder().encode("SocialTag"),
     });
 
     // Encode the unsigned transaction
     const encodedTxn = algosdk.encodeUnsignedTransaction(txn);
     return Buffer.from(encodedTxn).toString('base64');
   } catch (error) {
-    console.error('Error creating USDC payment transaction:', error);
+    console.error('Error creating asset payment transaction:', error);
     throw error;
   }
 }
@@ -258,12 +209,66 @@ async function fetchWalletNFTs(address) {
   }
 }
 
+async function fetchWalletNFDs(address) {
+  try {
+    console.log(`Fetching NFDs for address: ${address}`);
+    
+    if (!address || typeof address !== 'string') {
+      throw new Error('Invalid wallet address provided');
+    }
+
+    const indexerClient = new algosdk.Indexer('', 'https://mainnet-idx.4160.nodely.dev/', '');
+    let nfds = [];
+    let nextToken = null;
+
+    do {
+      console.log('Querying indexer for assets...');
+      const response = await indexerClient.lookupAccountAssets(address).limit(100).nextToken(nextToken).do();
+      console.log('Indexer response:', JSON.stringify(response, null, 2));
+      
+      const filteredAssets = response.assets.filter(asset => 
+        asset.amount > 0 // Only consider assets with a positive balance
+      );
+
+      for (const asset of filteredAssets) {
+        console.log(`Fetching info for asset ID: ${asset['asset-id']}`);
+        try {
+          const assetInfo = await algodClient.getAssetByID(asset['asset-id']).do();
+          console.log('Asset info:', JSON.stringify(assetInfo, null, 2));
+          
+          // Check if the asset is an NFD
+          if (assetInfo.params.name && assetInfo.params.name.endsWith('.algo')) {
+            nfds.push({
+              id: asset['asset-id'],
+              name: assetInfo.params.name,
+              assetId: asset['asset-id']
+            });
+          }
+        } catch (assetError) {
+          console.error(`Error fetching info for asset ${asset['asset-id']}:`, assetError);
+          // Continue with the next asset
+        }
+      }
+
+      nextToken = response['next-token'];
+    } while (nextToken);
+
+    console.log(`Found ${nfds.length} NFDs for address ${address}`);
+    return nfds;
+  } catch (error) {
+    console.error('Error in fetchWalletNFDs:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   createASA,
   createClaimASATransactions,
-  createUSDCPaymentTransaction,
+  createAssetPaymentTransaction,
   submitSignedTransaction,
   submitClaimTransactions,
   fetchWalletNFTs,
-  fetchWalletNFDs
+  fetchWalletNFDs,
+  USDC_ASSET_ID,
+  ORA_ASSET_ID
 };

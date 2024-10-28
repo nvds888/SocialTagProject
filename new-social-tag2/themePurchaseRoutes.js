@@ -3,12 +3,10 @@ const router = express.Router();
 const peraWalletService = require('./perawalletservice');
 const User = require('./modelsUser');
 
+const USDC_ASSET_ID = 31566704;
+const ORA_ASSET_ID = 1284444444;
+
 const sessionCheck = (req, res, next) => {
-  console.log('Session check middleware:');
-  console.log('Session:', req.session);
-  console.log('Is Authenticated:', req.isAuthenticated());
-  console.log('User:', req.user);
-  
   if (!req.isAuthenticated()) {
     return res.status(401).json({ 
       error: 'Not authenticated',
@@ -21,11 +19,12 @@ const sessionCheck = (req, res, next) => {
 
 router.post('/purchase', sessionCheck, async (req, res) => {
   try {
-    const { themeName, userAddress } = req.body;
+    const { themeName, userAddress, paymentType } = req.body;
 
     console.log('Received purchase request');
     console.log('Theme:', themeName);
     console.log('User Address:', userAddress);
+    console.log('Payment Type:', paymentType);
 
     if (!userAddress || typeof userAddress !== 'string') {
       return res.status(400).json({ success: false, message: 'Valid user wallet address is required' });
@@ -35,15 +34,30 @@ router.post('/purchase', sessionCheck, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid theme name is required' });
     }
 
+    if (!['USDC', 'ORA'].includes(paymentType)) {
+      return res.status(400).json({ success: false, message: 'Invalid payment type' });
+    }
+
     // Use the minter address from .env as the receiver
     const receiverAddress = process.env.MINTER_ADDRESS;
 
-    // Create unsigned USDC payment transaction
-    const unsignedTxn = await peraWalletService.createUSDCPaymentTransaction(
-      userAddress,
-      receiverAddress,
-      1 // 1 USDC
-    );
+    // Create unsigned payment transaction based on payment type
+    let unsignedTxn;
+    if (paymentType === 'USDC') {
+      unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
+        userAddress,
+        receiverAddress,
+        1, // 1 USDC
+        USDC_ASSET_ID
+      );
+    } else {
+      unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
+        userAddress,
+        receiverAddress,
+        10, // 10 ORA
+        ORA_ASSET_ID
+      );
+    }
 
     res.json({ 
       success: true, 
@@ -60,8 +74,8 @@ router.post('/purchase', sessionCheck, async (req, res) => {
 
 router.post('/confirm', sessionCheck, async (req, res) => {
   try {
-    const { signedTxn, themeName } = req.body;
-    const userId = req.user.id; // Assuming you have user authentication middleware
+    const { signedTxn, themeName, paymentType } = req.body;
+    const userId = req.user.id;
 
     if (!signedTxn || typeof signedTxn !== 'string') {
       return res.status(400).json({ success: false, message: 'Valid signed transaction is required' });
@@ -77,7 +91,17 @@ router.post('/confirm', sessionCheck, async (req, res) => {
     // Update user's purchased items
     const user = await User.findByIdAndUpdate(
       userId,
-      { $addToSet: { purchasedItems: themeName } },
+      { 
+        $addToSet: { 
+          purchasedItems: themeName,
+          purchaseHistory: {
+            item: themeName,
+            paymentType,
+            txId,
+            timestamp: new Date()
+          }
+        }
+      },
       { new: true }
     );
 

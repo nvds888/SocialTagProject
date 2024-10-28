@@ -570,6 +570,7 @@ router.post('/theme/purchase', sessionCheck, async (req, res) => {
   }
 });
 
+
 router.post('/theme/confirm', sessionCheck, async (req, res) => {
   try {
     const { signedTxn, themeName } = req.body;

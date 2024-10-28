@@ -78,7 +78,7 @@ export default function LandingPage() {
             ) : (
               <button 
                 onClick={handleDashboardClick}
-                className="nav-button bg-blue-600 text-white px-4 py-2 rounded-none hover:bg-opacity-50 transition-colors"
+                className="nav-button bg-transparent text-black px-4 py-2 rounded-none hover:bg-opacity-50 transition-colors"
               >
                 <strong>Sign In</strong>
               </button>

@@ -9,6 +9,7 @@ const apiRoutes = require('./routesapi');
 const peraWalletRoutes = require('./peraWalletRoutes');
 const cors = require('cors');
 const themePurchaseRoutes = require('./themePurchaseRoutes');
+const oraPurchaseRoutes = require('./oraPurchaseRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
