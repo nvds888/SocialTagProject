@@ -87,7 +87,8 @@ router.get('/user', sessionCheck, async (req, res) => {
     rewardPoints,
     verificationLink: latestVerification ? latestVerification.verificationLink : null,
     algorandTransactionId: latestVerification ? latestVerification.algorandTransactionId : null,
-    stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null
+    stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null,
+    reverifyCount: user.reverifyCount || 0,
   });
 });
 
@@ -245,7 +246,8 @@ router.get('/user/:username', sessionCheck, async (req, res) => {
       rewardPoints,
       verificationLink: latestVerification ? latestVerification.verificationLink : null,
       algorandTransactionId: latestVerification ? latestVerification.algorandTransactionId : null,
-      stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null
+      stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null,
+      reverifyCount: user.reverifyCount || 0,
     });
   } catch (error) {
     console.error('Error fetching user data:', error);
@@ -498,6 +500,7 @@ router.get('/public-profile/:username', async (req, res) => {
       profileViews: user.profileViews,
       algorandTransactionId: latestVerification ? latestVerification.algorandTransactionId : null,
       isVerified: !!latestVerification,
+      reverifyCount: user.reverifyCount || 0,
       rewardPoints: rewardPoints,
       nfd: user.nfd ? { 
         name: user.nfd.name, 
