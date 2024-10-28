@@ -455,7 +455,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             {!isVerified && (
               <motion.button 
                 onClick={handleVerifyConfirm} 
-                className={`max-w-screen-sm bg-transparent text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-100 transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
+                className={`max-w-fit bg-transparent text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-100 transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
                 disabled={!canVerify || verifying}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
