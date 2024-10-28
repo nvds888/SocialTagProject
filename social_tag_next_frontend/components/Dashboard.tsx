@@ -510,7 +510,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   title={(user?.reverifyCount ?? 0) >= 1 ? "You've already used your re-verification" : "Re-verify your profile"}
 >
   <RefreshCw size={16} className="mr-2" />
-  {(user?.reverifyCount ?? 0) >= 1 ? 'Already Re-verified' : 'Re-verify'}
+  {(user?.reverifyCount ?? 0) >= 1 ? 'Re-verify' : 'Re-verify'}
 </motion.button>
                 </div>
               </motion.div>
