@@ -59,6 +59,7 @@ interface User {
   profileNFT?: NFT;
   rewardPoints: number;
   verifications?: Verification[];
+  reverifyCount: number;
 }
 
 const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, onConnect, username, isVerified }) => (
@@ -497,14 +498,20 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
                     Copy
                   </motion.button>
                   <motion.button
-                    onClick={handleReVerifyConfirm}
-                    className="flex-1 bg-transparent backdrop-filter backdrop-blur-sm bg-opacity-20 border border-white text-black px-4 py-2 rounded-r-lg flex items-center justify-center hover:bg-white hover:bg-opacity-30 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <RefreshCw size={16} className="mr-2" />
-                    Re-verify
-                  </motion.button>
+  onClick={handleReVerifyConfirm}
+  disabled={(user?.reverifyCount ?? 0) >= 1} // Use nullish coalescing to provide a default value
+  className={`flex-1 bg-transparent backdrop-filter backdrop-blur-sm bg-opacity-20 border border-white text-black px-4 py-2 rounded-r-lg flex items-center justify-center transition-colors
+    ${(user?.reverifyCount ?? 0) >= 1 // Use nullish coalescing here as well
+      ? 'opacity-50 cursor-not-allowed' 
+      : 'hover:bg-white hover:bg-opacity-30'
+    }`}
+  whileHover={user?.reverifyCount ?? 0 >= 1 ? {} : { scale: 1.05 }}
+  whileTap={user?.reverifyCount ?? 0 >= 1 ? {} : { scale: 0.95 }}
+  title={(user?.reverifyCount ?? 0) >= 1 ? "You've already used your re-verification" : "Re-verify your profile"}
+>
+  <RefreshCw size={16} className="mr-2" />
+  {(user?.reverifyCount ?? 0) >= 1 ? 'Already Re-verified' : 'Re-verify'}
+</motion.button>
                 </div>
               </motion.div>
             )}
