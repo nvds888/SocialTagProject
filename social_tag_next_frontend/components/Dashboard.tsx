@@ -387,7 +387,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="dashboard-card bg-[#8A4FFF] rounded-lg p-6 shadow-lg max-w-2xl mx-auto"
+            className="dashboard-card bg-[#9B8AC4] rounded-lg p-6 shadow-lg max-w-2xl mx-auto"
           >
             {user?.twitter?.username && (
             <div className="profile-operator mb-6 bg-black p-4 rounded-lg relative overflow-hidden">

@@ -625,7 +625,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           {/* Special Edition Section */}
           <div className="border-t pt-4">
             <h4 className="text-lg font-semibold mb-4 flex items-center space-x-2">
-              <span>🌟 Special Edition Backgrounds</span>
+              <span> Special Edition Backgrounds</span>
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -638,7 +638,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="w-64 p-2">
-                    Special Edition items are exclusive backgrounds unlocked with reward points. Earn points through various activities to unlock these unique designs!
+                    Special Edition items are exclusive backgrounds unlocked with reward points. Earn points through various activities to unlock unique designs!
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -659,7 +659,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       disabled={rewardPoints < (t.requiredPoints || 300)}
                     >
                       <span className="block truncate pr-6">{t.name}</span>
-                      <span className="absolute top-1 right-1 text-xs bg-yellow-400 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
+                      <span className="absolute top-1 right-1 text-xs bg-[#E6C17C] text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
                     </Button>
                     <TooltipProvider delayDuration={0}>
                       <Tooltip>
@@ -827,7 +827,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-4 p-6 bg-yellow-400 rounded-lg text-black shadow-md">
+                      <div className="mt-4 p-6 bg-[#E6C17C] rounded-lg text-black shadow-md">
   <div className="flex items-center justify-between mb-4">
     <h3 className="text-2xl font-semibold">My Balance:</h3>
     <div className="flex items-center">
@@ -839,27 +839,27 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 </div>
   </div>
   
-  <div className="bg-yellow-200 p-4 rounded-lg">
+  <div className=" bg-[#F2D6A2] p-4 rounded-lg">
     <h4 className="text-lg font-semibold mb-2">How to Earn Reward Points?</h4>
     <ul className="space-y-2">
       <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <CheckCircle size={16} className="mr-2 text-[#557153]" />
         <span>Verification Hash: <strong>+100 points</strong></span>
       </li>
       <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <CheckCircle size={16} className="mr-2 text-[#557153]" />
         <span>Each account in verification: <strong>+25 points</strong></span>
       </li>
       <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <CheckCircle size={16} className="mr-2 text-[#557153]" />
         <span>Card Style or Background purchases: <strong>+50 points</strong></span>
       </li>
       <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <CheckCircle size={16} className="mr-2 text-[#557153]" />
         <span>Unique profile views (we use cookies): <strong>+15 points</strong></span>
       </li>
       <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-green-600" />
+        <CheckCircle size={16} className="mr-2 text-[#557153]" />
         <span>Add NFT or NFD to profile: <strong>+75 points</strong></span>
       </li>
     </ul>
@@ -942,7 +942,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         <Button
           onClick={() => handlePurchaseConfirmation('ORA')}
           disabled={processingPaymentType !== null}
-          className="w-full bg-orange-400 hover:bg-orange-500 text-white"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white"
         >
           {processingPaymentType === 'ORA' ? (
             <span className="flex items-center justify-center">

@@ -90,7 +90,7 @@ export default function LandingPage() {
               Authentic <span className="relative">
                 You
                 <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-400 rounded-sm"
+                  className="absolute bottom-0 left-0 w-full h-2 bg-[#9B8AC4] rounded-sm"
                   initial={{ width: 0 }}
                   animate={{ width: ['0%', '110%', '110%'] }}
                   transition={{
@@ -104,7 +104,7 @@ export default function LandingPage() {
               One Tag, <span className="relative">
                 Zero Imposters
                 <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-purple-400 rounded-sm"
+                  className="absolute bottom-0 left-0 w-full h-2 bg-[#9B8AC4] rounded-sm"
                   initial={{ width: 0 }}
                   animate={{ width: ['0%', '0%', '110%', '110%'] }}
                   transition={{
