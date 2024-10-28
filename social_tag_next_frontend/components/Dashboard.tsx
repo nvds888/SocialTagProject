@@ -355,7 +355,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             ) : (
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="bg-green-500 text-black px-4 py-2 rounded-full hover:bg-green-600 transition-colors flex items-center">
+                  <button className="bg-green-100 text-black px-4 py-2 rounded-full hover:bg-green-100 transition-colors flex items-center">
                     <Wallet size={18} className="mr-2" />
                     {connectedAccount.substring(0, 4)}...{connectedAccount.substring(connectedAccount.length - 4)}
                   </button>
