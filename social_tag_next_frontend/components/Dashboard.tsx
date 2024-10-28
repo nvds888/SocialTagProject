@@ -5,7 +5,7 @@ import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Confetti from 'react-confetti'
-import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, Trophy, RefreshCw, SquareStack } from 'lucide-react'
+import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -336,14 +336,13 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               onClick={handleOpenLeaderboard}
               className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors flex items-center"
             >
-              <Trophy size={18} className="mr-2" />
               Leaderboard
             </Button>
             <Button
               onClick={() => setIsCustomizePanelOpen(true)}
               className="bg-white text-black px-4 py-2 rounded-none hover:bg-white transition-colors"
             >
-              Studio
+              My Studio
             </Button>
             {!connectedAccount ? (
               <button 

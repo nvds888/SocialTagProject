@@ -916,7 +916,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
             {showPurchaseModal && selectedItem && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded-lg max-w-md w-full">
-      <h3 className="text-xl font-bold mb-4 text-black">Purchase Theme</h3>
+      <h3 className="text-xl font-bold mb-4 text-black">Purchase </h3>
       <p className="text-gray-700 mb-4">
         Select your preferred payment method to purchase {selectedItem.name} {selectedItem.type}:
       </p>
@@ -942,7 +942,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         <Button
           onClick={() => handlePurchaseConfirmation('ORA')}
           disabled={processingPaymentType !== null}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+          className="w-full bg-orange-400 hover:bg-orange-500 text-white"
         >
           {processingPaymentType === 'ORA' ? (
             <span className="flex items-center justify-center">
