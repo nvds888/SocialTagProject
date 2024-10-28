@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import axios from 'axios'
-import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, Trophy, User, Coins } from 'lucide-react'
+import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, User, Coins } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SpotifyIcon from '@/components/SpotifyIcon' 
 import Leaderboard from '@/components/Leaderboard'
@@ -68,7 +68,6 @@ export default function LandingPage() {
               onClick={openLeaderboard} 
               className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors flex items-center"
             >
-              <Trophy size={18} className="mr-2" />
               <strong>Leaderboard</strong>
             </button>
             {isAuthenticated ? (
@@ -161,20 +160,20 @@ export default function LandingPage() {
                 <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-gradient-to-br from-blue-100 to-blue-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
-              >
-                <FeatureIcon Icon={Coins} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Reward Points</h3>
-                <p className="text-gray-600">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
-              </motion.div>
-              <motion.div 
                 className="feature-card bg-gradient-to-br from-blue-100 to-purple-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={User} />
                 <h3 className="text-xl font-semibold mb-2 text-black mt-6">Customize Your &apos;Tag&apos;</h3>
                 <p className="text-gray-600">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
+              </motion.div>
+              <motion.div 
+                className="feature-card bg-gradient-to-br from-blue-100 to-blue-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
+              >
+                <FeatureIcon Icon={Coins} />
+                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Reward Points</h3>
+                <p className="text-gray-600">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
               </motion.div>
             </div>
           </section>
