@@ -516,7 +516,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               </motion.div>
             )}
             <div className="mt-2">
-              <h3 className="text-xl font-bold mb-4">My Verification</h3>
+              <h3 className="text-xl font-bold mb-4">Verification</h3>
               {renderVerificationHistory()}
             </div>
           </motion.div>
