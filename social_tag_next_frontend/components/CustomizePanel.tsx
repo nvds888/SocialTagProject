@@ -224,7 +224,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     }
   }
 
-  const handlePurchaseConfirmation = async () => {
+  const handlePurchaseConfirmation = async (paymentType: 'USDC' | 'ORA') => {
     if (selectedItem) {
       setIsPurchasing(true)
       try {
@@ -246,7 +246,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         // Request the unsigned transaction
         const response = await axios.post(
           `${API_BASE_URL}/api/theme/purchase`, 
-          { themeName: selectedItem.name, userAddress },
+          { themeName: selectedItem.name, userAddress, paymentType },
           { withCredentials: true }
         );
         
@@ -272,7 +272,8 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           `${API_BASE_URL}/api/theme/confirm`,
           {
             signedTxn: Buffer.from(signedTxns[0]).toString('base64'),
-            themeName: confirmedThemeName
+            themeName: confirmedThemeName,
+            paymentType
           },
           { withCredentials: true }
         );
@@ -912,31 +913,60 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
             {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
 
             {showPurchaseModal && selectedItem && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg max-w-md w-full">
-                  <h3 className="text-xl font-bold mb-4 text-black">Confirm Purchase</h3>
-                  <p className="text-gray-700 mb-4">
-                    Are you sure you want to purchase the {selectedItem.name} {selectedItem.type} for 1 USDC?
-                  </p>
-                  <div className="flex justify-end space-x-4">
-                    <Button variant="outline" onClick={() => setShowPurchaseModal(false)}>Cancel</Button>
-                    <Button onClick={handlePurchaseConfirmation} disabled={isPurchasing}>
-                      {isPurchasing ? (
-                        <span className="flex items-center">
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Processing...
-                        </span>
-                      ) : (
-                        'Yes, Purchase for $1'
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg max-w-md w-full">
+      <h3 className="text-xl font-bold mb-4 text-black">Purchase Theme</h3>
+      <p className="text-gray-700 mb-4">
+        Select your preferred payment method to purchase {selectedItem.name} {selectedItem.type}:
+      </p>
+      <div className="space-y-4">
+        <Button
+          onClick={() => handlePurchaseConfirmation('USDC')}
+          disabled={isPurchasing}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          {isPurchasing ? (
+            <span className="flex items-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </span>
+          ) : (
+            'Buy with USDC (1 USDC)'
+          )}
+        </Button>
+
+        <Button
+          onClick={() => handlePurchaseConfirmation('ORA')}
+          disabled={isPurchasing}
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+        >
+          {isPurchasing ? (
+            <span className="flex items-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </span>
+          ) : (
+            'Buy with ORA (10 ORA)'
+          )}
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          onClick={() => setShowPurchaseModal(false)}
+          className="w-full"
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
 
             <NFTSelectionModal
               isOpen={showNFTModal}
