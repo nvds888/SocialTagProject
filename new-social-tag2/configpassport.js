@@ -24,7 +24,7 @@ async (req, token, tokenSecret, profile, done) => {
     });
 
     // Try to find existing user
-    let user = await User.findOne({ 'twitter.id': profile.id });
+    let user = await User.findOne({ 'twitter.username': profile.username });
     
     if (!user) {
       console.log('Creating new user for Twitter profile:', profile.id);

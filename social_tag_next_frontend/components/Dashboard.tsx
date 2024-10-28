@@ -333,7 +333,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             <Link href="/" className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors">Home</Link>
             <Button
               onClick={() => setIsCustomizePanelOpen(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-none hover:bg-white transition-colors"
+              className="bg-white text-black px-4 py-2 rounded-none hover:bg-white transition-colors"
             >
               Studio
             </Button>
@@ -347,7 +347,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             {!connectedAccount ? (
               <button 
                 onClick={handleConnectPera}
-                className="bg-white text-black px-4 py-2 rounded-full hover:bg-green-100 transition-colors flex items-center"
+                className="bg-white text-black px-4 py-2 rounded-none hover:bg-green-100 transition-colors flex items-center"
               >
                 <Wallet size={18} className="mr-2" />
                 Connect Pera
@@ -455,7 +455,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             {!isVerified && (
               <motion.button 
                 onClick={handleVerifyConfirm} 
-                className={`w-full bg-transparent text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-100 transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
+                className={`w-0.5 bg-transparent text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-100 transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
                 disabled={!canVerify || verifying}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -509,7 +509,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               </motion.div>
             )}
             <div className="mt-2">
-              <h3 className="text-xl font-bold mb-4">Verification Hash</h3>
+              <h3 className="text-xl font-bold mb-4">Verification Tx</h3>
               {renderVerificationHistory()}
             </div>
           </motion.div>
