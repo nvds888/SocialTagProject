@@ -504,7 +504,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   className={`flex-1 bg-black backdrop-filter backdrop-blur-sm border-white text-white px-4 py-2 rounded-r-lg flex items-center justify-center transition-colors
     ${(user?.reverifyCount ?? 0) >= 1 // Use nullish coalescing here as well
       ? 'opacity-50 cursor-not-allowed' 
-      : 'hover:bg-white hover:bg-opacity-30'
+      : 'hover:bg-black hover:bg-opacity-30'
     }`}
   whileHover={user?.reverifyCount ?? 0 >= 1 ? {} : { scale: 1.05 }}
   whileTap={user?.reverifyCount ?? 0 >= 1 ? {} : { scale: 0.95 }}
