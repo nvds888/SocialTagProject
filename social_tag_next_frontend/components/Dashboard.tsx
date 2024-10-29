@@ -161,7 +161,12 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   }, [handleDisconnectWalletClick]);
 
   const handleConnect = (platform: string) => {
-    window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
+    // If connecting GitHub, include Twitter username in the URL
+    if (platform === 'github' && user?.twitter?.username) {
+      window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}?twitter_username=${user.twitter.username}`;
+    } else {
+      window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
+    }
   }
 
   const handleVerifyConfirm = () => {

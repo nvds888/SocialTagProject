@@ -8,17 +8,6 @@ const SpotifyStrategy = require('passport-spotify').Strategy;
 const axios = require('axios');
 const User = require('./modelsUser');
 
-// Add this function at the top of configpassport.js
-async function checkForExistingConnection(profile, provider) {
-  const query = {};
-  query[`${provider}.id`] = profile.id;
-  const existingUser = await User.findOne(query);
-  
-  if (existingUser) {
-    throw new Error(`This ${provider} account is already connected to another user`);
-  }
-}
-
 // Twitter Strategy
 passport.use(new TwitterStrategy({
   consumerKey: process.env.TWITTER_CONSUMER_KEY,
@@ -169,38 +158,45 @@ passport.use(new GitHubStrategy({
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
   callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/github/callback`,
   scope: ['user:email'],
-  passReqToCallback: true  // Add this to match Twitter strategy
+  passReqToCallback: true  // Added this
 },
 async (req, accessToken, refreshToken, profile, done) => {
   try {
-    // MUST have an existing session user (Twitter account)
-    if (!req.user) {
-      return done(null, false, { message: 'Must be logged in with Twitter first' });
+    const twitterUsername = req.session.twitterUsername;
+    console.log('Processing GitHub auth with Twitter username:', twitterUsername);
+
+    if (!twitterUsername) {
+      console.error('No Twitter username found in session');
+      return done(null, false, { message: 'Must connect Twitter first' });
     }
 
-    // Get the current logged-in user
-    const existingUser = await User.findById(req.user._id);
-    if (!existingUser) {
-      return done(null, false, { message: 'Current user not found' });
+    // Find user by Twitter username
+    const user = await User.findOne({ 'twitter.username': twitterUsername });
+    
+    if (!user) {
+      console.error('No user found with Twitter username:', twitterUsername);
+      return done(null, false, { message: 'User not found' });
     }
 
     // Check if this GitHub account is already linked to any user
     const githubLinked = await User.findOne({ 'github.id': profile.id });
     if (githubLinked) {
-      return done(null, false, { message: 'This GitHub account is already linked to another user' });
+      console.error('GitHub account already linked to another user');
+      return done(null, false, { message: 'GitHub account already linked' });
     }
 
-    // Add GitHub to existing Twitter user
-    existingUser.github = {
+    // Add GitHub to existing user
+    user.github = {
       id: profile.id,
       username: profile.username,
       email: profile.emails[0].value,
       token: accessToken
     };
 
-    await existingUser.save();
-    return done(null, existingUser);
-
+    await user.save();
+    console.log('Successfully added GitHub to user:', twitterUsername);
+    
+    return done(null, user);
   } catch (error) {
     console.error('Error in GitHub strategy:', error);
     return done(error);
