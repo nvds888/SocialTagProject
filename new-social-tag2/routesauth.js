@@ -195,32 +195,25 @@ router.get('/github', (req, res, next) => {
 });
 
 router.get('/github/callback', 
-  (req, res, next) => {
-    const token = req.query.state;
-    console.log('Retrieved token from state:', token);
-    req.session.linkingToken = token;
-    next();
-  },
   passport.authenticate('github', { 
-    failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard` // Default fallback
+    failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard` 
   }),
   async (req, res) => {
     try {
-      // Find the linking token to get the Twitter username
-      const linkingToken = await LinkingToken.findOne({ 
-        token: req.session.linkingToken 
-      });
-
-      if (!linkingToken) {
-        console.error('No linking token found in callback');
+      if (!req.user || !req.user.linkingToken) {
+        console.error('No user or linking token found');
         return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`);
       }
 
-      // Log the redirect URL we're going to use
-      const redirectUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${linkingToken.twitterUsername}`;
-      console.log('Redirecting to:', redirectUrl);
+      // Now mark token as used
+      await LinkingToken.findOneAndUpdate(
+        { token: req.user.linkingToken.token },
+        { used: true }
+      );
 
-      // Redirect to dashboard with the correct username
+      // Redirect to the correct dashboard
+      const redirectUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${req.user.twitter.username}`;
+      console.log('Redirecting to:', redirectUrl);
       return res.redirect(redirectUrl);
     } catch (error) {
       console.error('Error in GitHub callback:', error);

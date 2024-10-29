@@ -163,14 +163,13 @@ passport.use(new GitHubStrategy({
 },
 async (req, accessToken, refreshToken, profile, done) => {
   try {
-    const token = req.session.linkingToken;
+    const token = req.query.state;  // Get from state instead of session
     console.log('Processing GitHub auth with linking token:', token);
 
-    // Find and validate linking token
+    // Find linking token
     const linkingToken = await LinkingToken.findOne({
-      token,
-      used: false,
-      createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) } // within last 5 minutes
+      token: token,
+      used: false
     });
 
     if (!linkingToken) {
@@ -186,13 +185,6 @@ async (req, accessToken, refreshToken, profile, done) => {
       return done(null, false, { message: 'User not found' });
     }
 
-    // Check if GitHub already linked
-    const githubLinked = await User.findOne({ 'github.id': profile.id });
-    if (githubLinked) {
-      console.error('GitHub account already linked to another user');
-      return done(null, false, { message: 'GitHub account already linked' });
-    }
-
     // Add GitHub to user
     user.github = {
       id: profile.id,
@@ -201,9 +193,11 @@ async (req, accessToken, refreshToken, profile, done) => {
       token: accessToken
     };
 
-    // Mark token as used
-    linkingToken.used = true;
-    await Promise.all([user.save(), linkingToken.save()]);
+    // Save user but DON'T mark token as used yet
+    await user.save();
+    
+    // Add token to user object for the callback
+    user.linkingToken = linkingToken;
     
     console.log('Successfully added GitHub to user:', linkingToken.twitterUsername);
     return done(null, user);
