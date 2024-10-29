@@ -468,53 +468,53 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 {!canVerify && !isVerified && (
   <p className="mt-4 text-red-400 text-center">Connect at least two accounts to verify your profile.</p>
 )}
-            {isVerified && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className="verification-success mt-6 p-4 rounded-lg relative overflow-hidden bg-white-100"
-              >
-                <div className="success-message flex items-center mb-4 relative z-4">
-                  <SquareStack size={30} className="text-green-500 mr-2" />
-                  <span className="text-black text-xl font-bold">Profile successfully verified!</span>
-                </div>
-                <div className="action-buttons flex space-x-4 relative z-10">
-                  <motion.button
-                    onClick={handleOpenProfile}
-                    className="flex-1 bg-transparent backdrop-filter backdrop-blur-sm bg-opacity-80 border border-white text-black px-4 py-2 rounded-l-lg flex items-center justify-center hover:bg-white hover:bg-opacity-30 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <ExternalLink size={16} className="mr-2" />
-                    Open
-                  </motion.button>
-                  <motion.button
-                    onClick={handleShareProfile}
-                    className="flex-1 bg-transparent backdrop-filter backdrop-blur-sm bg-opacity-20 border border-white text-black px-4 py-2 flex items-center justify-center hover:bg-white hover:bg-opacity-30 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Share2 size={16} className="mr-2" />
-                    Copy
-                  </motion.button>
-                  <motion.button
-  onClick={handleReVerifyConfirm}
-  disabled={(user?.reverifyCount ?? 0) >= 1} // Use nullish coalescing to provide a default value
-  className={`flex-1 bg-black backdrop-filter backdrop-blur-sm border-white text-white px-4 py-2 rounded-r-lg flex items-center justify-center transition-colors
-    ${(user?.reverifyCount ?? 0) >= 1 // Use nullish coalescing here as well
-      ? 'opacity-50 cursor-not-allowed' 
-      : 'hover:bg-black hover:bg-opacity-80'
-    }`}
-  whileHover={user?.reverifyCount ?? 0 >= 1 ? {} : { scale: 1.05 }}
-  whileTap={user?.reverifyCount ?? 0 >= 1 ? {} : { scale: 0.95 }}
-  title={(user?.reverifyCount ?? 0) >= 1 ? "You've already used your re-verification" : "Re-verify your profile"}
->
-  <RefreshCw size={16} className="mr-2" />
-  {(user?.reverifyCount ?? 0) >= 1 ? 'Re-verify' : 'Re-verify'}
-</motion.button>
-                </div>
-              </motion.div>
+           {isVerified && (
+  <motion.div 
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.2 }}
+    className="verification-success mt-6 p-4 rounded-lg relative overflow-hidden bg-white-100"
+  >
+    <div className="success-message flex items-center mb-4 relative z-4">
+      <SquareStack size={30} className="text-[#40E0D0] mr-2" />
+      <span className="text-black text-xl font-bold">Profile successfully verified!</span>
+    </div>
+    <div className="action-buttons flex space-x-4 relative z-10">
+      <motion.button
+        onClick={handleOpenProfile}
+        className="flex-1 bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <ExternalLink size={16} className="mr-2" />
+        Open
+      </motion.button>
+      <motion.button
+        onClick={handleShareProfile}
+        className="flex-1 bg-[#40E0D0] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Share2 size={16} className="mr-2" />
+        Copy
+      </motion.button>
+      <motion.button
+        onClick={handleReVerifyConfirm}
+        disabled={(user?.reverifyCount ?? 0) >= 1}
+        className={`flex-1 bg-[#FF6B6B] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black
+          ${(user?.reverifyCount ?? 0) >= 1 
+            ? 'opacity-50 cursor-not-allowed' 
+            : ''
+          }`}
+        whileHover={(user?.reverifyCount ?? 0) >= 1 ? {} : { scale: 1.05 }}
+        whileTap={(user?.reverifyCount ?? 0) >= 1 ? {} : { scale: 0.95 }}
+        title={(user?.reverifyCount ?? 0) >= 1 ? "You've already used your re-verification" : "Re-verify your profile"}
+      >
+        <RefreshCw size={16} className="mr-2" />
+        {(user?.reverifyCount ?? 0) >= 1 ? 'Re-verify' : 'Re-verify'}
+      </motion.button>
+    </div>
+           </motion.div>
             )}
             <div className="mt-2">
               <h3 className="text-xl font-bold mb-4">Verification</h3>
