@@ -162,7 +162,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
   const handleConnect = async (platform: string) => {
     // Check for both GitHub and Spotify
-    if ((platform === 'github' || platform === 'spotify') && user?.twitter?.username) {
+    if ((platform === 'github' || platform === 'spotify' || platform === 'linkedin') && user?.twitter?.username) {
       try {
         const response = await apiClient.post('/auth/create-linking-token', {
           twitterUsername: user.twitter.username,

@@ -162,20 +162,40 @@ router.get('/facebook/callback',
 );
 
 // LinkedIn Routes
-router.get('/linkedin', passport.authenticate('linkedin', { 
-  scope: ['openid', 'profile', 'email'],
-  state: true 
-}));
+router.get('/linkedin', (req, res, next) => {
+  const { token } = req.query;
+  console.log('Received linking token for LinkedIn:', token);
+  
+  passport.authenticate('linkedin', { 
+    scope: ['openid', 'profile', 'email'],
+    state: token // Pass token as state parameter
+  })(req, res, next);
+});
 
-router.get('/linkedin/callback',
-  passport.authenticate('linkedin', { failureRedirect: '/login' }),
-  ensureUserAndSession,
-  (req, res) => {
-    const username = req.user?.twitter?.username || req.user?.linkedin?.name;
-    if (username) {
-      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
-    } else {
-      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+router.get('/linkedin/callback', 
+  passport.authenticate('linkedin', { 
+    failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard` 
+  }),
+  async (req, res) => {
+    try {
+      if (!req.user || !req.user.linkingToken) {
+        console.error('No user or linking token found');
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`);
+      }
+
+      // Mark token as used
+      await LinkingToken.findOneAndUpdate(
+        { token: req.user.linkingToken.token },
+        { used: true }
+      );
+
+      // Redirect to the correct dashboard
+      const redirectUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${req.user.twitter.username}`;
+      console.log('Redirecting to:', redirectUrl);
+      return res.redirect(redirectUrl);
+    } catch (error) {
+      console.error('Error in LinkedIn callback:', error);
+      return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`);
     }
   }
 );

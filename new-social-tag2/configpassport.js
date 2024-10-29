@@ -121,31 +121,45 @@ passport.use('linkedin', new LinkedInStrategy({
   tokenURL: 'https://www.linkedin.com/oauth/v2/accessToken',
   clientID: process.env.LINKEDIN_CLIENT_ID,
   clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-  callbackURL: `https://social-tag.vercel.app/api/auth/linkedin/callback`,
+  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/linkedin/callback`,
   scope: ['openid', 'profile', 'email'],
-  state: true
-}, async (accessToken, refreshToken, profile, done) => {
+  passReqToCallback: true  // Add this
+}, async (req, accessToken, refreshToken, profile, done) => {
   try {
-    console.log('LinkedIn profile:', profile);
-    let user = await User.findOne({ $or: [{ 'linkedin.id': profile.id }, { 'twitter.id': { $exists: true } }] });
-    if (!user) {
-      user = new User({
-        linkedin: {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          token: accessToken
-        }
-      });
-    } else {
-      user.linkedin = {
-        id: profile.sub,
-        name: profile.name,
-        email: profile.email,
-        token: accessToken
-      };
+    const token = req.query.state;  // Get from state parameter
+    console.log('Processing LinkedIn auth with linking token:', token);
+
+    // Find linking token
+    const linkingToken = await LinkingToken.findOne({
+      token: token,
+      used: false
+    });
+
+    if (!linkingToken) {
+      console.error('Invalid or expired linking token');
+      return done(null, false, { message: 'Invalid linking token' });
     }
+
+    // Find user by Twitter username from token
+    const user = await User.findOne({ 'twitter.username': linkingToken.twitterUsername });
+    
+    if (!user) {
+      console.error('No user found with Twitter username:', linkingToken.twitterUsername);
+      return done(null, false, { message: 'User not found' });
+    }
+
+    // Add LinkedIn to user
+    user.linkedin = {
+      id: profile.sub,
+      name: profile.name,
+      email: profile.email,
+      token: accessToken
+    };
+
     await user.save();
+    user.linkingToken = linkingToken;
+    
+    console.log('Successfully added LinkedIn to user:', linkingToken.twitterUsername);
     return done(null, user);
   } catch (error) {
     console.error('Error in LinkedIn strategy:', error);
