@@ -194,16 +194,34 @@ router.get('/github', (req, res, next) => {
   })(req, res, next);
 });
 
-router.get('/github/callback', (req, res, next) => {
-  // Get token from state parameter instead of session
-  const token = req.query.state;
-  console.log('Retrieved token from state:', token);
-  req.session.linkingToken = token;
-  
-  passport.authenticate('github', { 
-    failureRedirect: '/error' 
-  })(req, res, next);
-});
+router.get('/github/callback', 
+  (req, res, next) => {
+    const token = req.query.state;
+    console.log('Retrieved token from state:', token);
+    req.session.linkingToken = token;
+    next();
+  },
+  passport.authenticate('github', { failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/error` }),
+  async (req, res) => {
+    try {
+      // Find the linking token to get the Twitter username
+      const linkingToken = await LinkingToken.findOne({ 
+        token: req.session.linkingToken,
+        used: true  // Should be true at this point
+      });
+
+      if (!linkingToken) {
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+      }
+
+      // Redirect to the dashboard with the Twitter username
+      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${linkingToken.twitterUsername}`);
+    } catch (error) {
+      console.error('Error in GitHub callback:', error);
+      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+    }
+  }
+);
 
 // Spotify Routes
 router.get('/spotify', passport.authenticate('spotify', { 
