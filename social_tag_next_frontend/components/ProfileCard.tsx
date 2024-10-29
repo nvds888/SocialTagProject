@@ -78,29 +78,23 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   }
 
   const handleNFDClick = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    console.log("NFD Click triggered");
-    console.log("NFD data:", nfd);
+    event.preventDefault()
+    event.stopPropagation()
     if (nfd && nfd.id) {
-      const url = `https://explorer.perawallet.app/asset/${nfd.id}`;
-      console.log("Opening URL:", url);
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } else {
-      console.log("NFD id is missing");
+      window.open(`https://explorer.perawallet.app/asset/${nfd.id}`, '_blank', 'noopener,noreferrer')
     }
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-black rounded-3xl shadow-2xl overflow-hidden h-[600px] flex flex-col transform transition-all duration-300 hover:scale-105 hover:rotate-1 relative">
+    <Card className="w-full max-w-md mx-auto bg-[#1F2937] rounded-lg shadow-2xl overflow-hidden h-[600px] flex flex-col transform transition-all duration-300 hover:scale-105 border-2 border-black relative">
       <div className="absolute inset-0 z-0 bg-graph-texture opacity-10"></div>
-      <div className="absolute inset-0 z-10 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 opacity-80"></div>
+      <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#9B8AC4] via-[#40E0D0] to-[#FFB951] opacity-20"></div>
       <div className="absolute inset-0 z-20 transition-opacity duration-300 opacity-0 hover:opacity-100 shimmer-effect"></div>
       <CardContent className="p-6 flex flex-col h-full relative z-30">
         <div className="mb-4 flex items-center justify-between">
           {twitter && twitter.username && (
             <div className="flex items-center">
-              <p className="text-blue-400 text-lg font-bold font-mono">@{twitter.username}</p>
+              <p className="text-[#40E0D0] text-lg font-bold font-mono">@{twitter.username}</p>
               <div className="flex items-center ml-2">
                 {isVerified && (
                   <TooltipProvider>
@@ -112,7 +106,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center"
                         >
-                          <div className="bg-yellow-400 rounded-full p-1 w-6 h-6 flex items-center justify-center">
+                          <div className="bg-[#FFB951] rounded-lg p-1 w-6 h-6 flex items-center justify-center border-2 border-black">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-black">
                               <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
@@ -131,7 +125,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                       <TooltipTrigger asChild>
                         <button 
                           onClick={handleNFDClick} 
-                          className="ml-2 bg-orange-600 rounded-full p-1 w-6 h-6 flex items-center justify-center"
+                          className="ml-2 bg-[#FF6B6B] rounded-lg p-1 w-6 h-6 flex items-center justify-center border-2 border-black"
                         >
                           <img src="https://pbs.twimg.com/profile_images/1517337727066427399/EvCOXfoQ_400x400.png" alt="NFD" className="w-4.5 h-4.5" />
                         </button>
@@ -149,9 +143,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center bg-yellow-400 rounded-full px-2 py-1">
+                  <div className="flex items-center bg-[#40E0D0] rounded-lg px-2 py-1 border-2 border-black shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 text-black">
-                      <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.yellow795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
+                      <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
                       <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
                     </svg>
                     <span className="font-bold text-black">{rewardPoints}</span>
@@ -167,17 +161,17 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 
         <div className="flex flex-col items-center mb-6">
           <div 
-            className={`w-32 h-32 rounded-full overflow-hidden mb-4 relative ${
+            className={`w-32 h-32 rounded-lg overflow-hidden mb-4 relative ${
               profileNFT ? 'cursor-pointer' : ''
-            } shadow-lg`}
+            } shadow-lg border-2 border-black`}
             onClick={profileNFT ? handleNFTClick : undefined}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-gradient-x"></div>
-            <div className="absolute inset-[2px] rounded-full overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#40E0D0] via-[#FFB951] to-[#FF6B6B] animate-gradient-x"></div>
+            <div className="absolute inset-[2px] rounded-lg overflow-hidden">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="w-full h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+                    <div className="w-full h-full bg-gradient-to-r from-[#40E0D0] via-[#FFB951] to-[#FF6B6B]">
                       {profileNFT ? (
                         <img src={profileNFT.image} alt={profileNFT.name} className="w-full h-full object-cover" />
                       ) : profileImage ? (
@@ -196,23 +190,26 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
               </TooltipProvider>
             </div>
           </div>
-          {username && <h2 className="text-3xl font-bold text-white mb-2 font-serif">{username}</h2>}
-          {jobTitle && <p className="text-xl text-gray-300 font-sans">{jobTitle}</p>}
+          {username && <h2 className="text-3xl font-bold text-[#FFB951] mb-2 font-mono">{username}</h2>}
+          {jobTitle && <p className="text-xl text-[#40E0D0] font-mono">{jobTitle}</p>}
         </div>
+
         <div className="mb-6 flex-grow">
-          <h3 className="text-2xl font-semibold text-white mb-2 font-serif">About me:</h3>
-          <p className="text-gray-300 text-lg font-sans leading-relaxed">
+          <h3 className="text-2xl font-semibold text-[#FF6B6B] mb-2 font-mono">About me:</h3>
+          <p className="text-[#40E0D0] text-lg font-mono leading-relaxed">
             {bio ? truncateBio(bio, 25) : "No bio provided yet."}
           </p>
         </div>
+
         {email && (
           <Button
             variant="outline"
-            className="w-full text-lg mb-6 bg-gray-800 hover:bg-gray-700 text-white border-gray-600 transition-colors duration-300"
+            className="w-full text-lg mb-6 bg-[#FFB951] hover:bg-[#FFB951] hover:brightness-110 text-black border-2 border-black font-mono shadow-md transition-all"
           >
             {email}
           </Button>
         )}
+
         <div className="flex justify-center space-x-6 mt-auto">
           <TooltipProvider>
             {socialIcons.map(({ platform, icon: Icon, data, field, url }) => (
@@ -223,13 +220,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                       href={data ? url(data[field as keyof typeof data] as string) : '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`text-gray-300 hover:text-white transition-colors transform hover:scale-110 ${!data ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`text-[#40E0D0] hover:text-[#FFB951] transition-colors transform hover:scale-110 ${!data ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <Icon size={36} />
                     </a>
                     {data && data[field as keyof typeof data] && (
-                      <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-white">
+                      <div className="absolute -top-1 -right-1 bg-[#FF6B6B] rounded-lg p-1 border-2 border-black">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-black">
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                       </div>
@@ -248,20 +245,20 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
       </CardContent>
       <style jsx>{`
         .bg-graph-texture {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         .shimmer-effect {
           background: linear-gradient(
             to right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.1) 50%,
-            rgba(255, 255, 255,0) 100%
+            rgba(64, 224, 208, 0) 0%,
+            rgba(64, 224, 208, 0.1) 50%,
+            rgba(64, 224, 208, 0) 100%
           );
           background-size: 200% 100%;
           animation: shimmer 2s infinite;
         }
         @keyframes shimmer {
-          0%{
+          0% {
             background-position: 100% 0;
           }
           100% {
@@ -281,6 +278,18 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           75% {
             transform: rotate(-1deg);
           }
+        }
+        @keyframes gradient-x {
+          0%, 100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        .animate-gradient-x {
+          animation: gradient-x 15s ease infinite;
+          background-size: 200% 200%;
         }
       `}</style>
     </Card>
