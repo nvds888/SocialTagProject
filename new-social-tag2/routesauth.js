@@ -183,24 +183,27 @@ router.get('/linkedin/callback',
 // GitHub Routes
 router.get('/github', (req, res, next) => {
   const { token } = req.query;
-  if (!token) {
-    return res.status(400).json({ error: 'No linking token provided' });
-  }
-  // Store token in session for callback
+  console.log('Received linking token:', token);
+  
+  // Store token in session and also pass it as state parameter
   req.session.linkingToken = token;
-  passport.authenticate('github', { scope: ['user:email'] })(req, res, next);
+  
+  passport.authenticate('github', { 
+    scope: ['user:email'],
+    state: token // Pass token as state parameter
+  })(req, res, next);
 });
 
-router.get('/github/callback',
-  passport.authenticate('github', { failureRedirect: '/error' }),
-  async (req, res, next) => {
-    const token = req.session.linkingToken;
-    if (!token) {
-      return res.redirect('/error');
-    }
-    next();
-  }
-);
+router.get('/github/callback', (req, res, next) => {
+  // Get token from state parameter instead of session
+  const token = req.query.state;
+  console.log('Retrieved token from state:', token);
+  req.session.linkingToken = token;
+  
+  passport.authenticate('github', { 
+    failureRedirect: '/error' 
+  })(req, res, next);
+});
 
 // Spotify Routes
 router.get('/spotify', passport.authenticate('spotify', { 

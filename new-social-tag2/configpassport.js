@@ -5,6 +5,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const OAuth2Strategy = require('passport-oauth2');
 const GitHubStrategy = require('passport-github2').Strategy;
 const SpotifyStrategy = require('passport-spotify').Strategy;
+const LinkingToken = require('./modelsLinkingToken');
 const axios = require('axios');
 const User = require('./modelsUser');
 
