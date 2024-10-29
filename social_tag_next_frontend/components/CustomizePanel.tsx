@@ -759,18 +759,29 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     Profile NFT & NFDomains
   </Label>
   <div className="space-y-4">
-    <div className="grid grid-cols-3 gap-4">
-      <Button onClick={handleFetchNFTs} disabled={isLoadingNFTs} className="w-full">
-        {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
-      </Button>
-      <Button onClick={handleCreateNFT} className="w-full">
+  <div className="grid grid-cols-3 gap-4">
+    <Button 
+      onClick={handleFetchNFTs} 
+      disabled={isLoadingNFTs} 
+      className={`w-full bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
+    >
+      {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
+    </Button>
+    <Button 
+      onClick={handleCreateNFT} 
+      className="w-full bg-[#40E0D0] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black"
+    >
       <ExternalLink size={16} className="mr-2" />
-        Create NFT
-      </Button>
-      <Button onClick={handleFetchNFDs} disabled={isLoadingNFDs} className="w-full">
-        {isLoadingNFDs ? 'Loading...' : 'Select NFD'}
-      </Button>
-    </div>
+      Create NFT
+    </Button>
+    <Button 
+      onClick={handleFetchNFDs} 
+      disabled={isLoadingNFDs} 
+      className={`w-full bg-[#FF6B6B] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
+    >
+      {isLoadingNFDs ? 'Loading...' : 'Select NFD'}
+    </Button>
+  </div>
     <div className="flex space-x-4">
       <div className="w-2/3">
       {selectedNFT && selectedNFT.image && (
@@ -827,39 +838,39 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-4 p-6 bg-[#E6C17C] rounded-lg text-black shadow-md">
+                      <div className="mt-4 p-6 bg-[#FFB951] rounded-lg text-black shadow-md border-2 border-black">
   <div className="flex items-center justify-between mb-4">
     <h3 className="text-2xl font-semibold">My Balance:</h3>
-    <div className="flex items-center">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 mr-2 text-black">
-    <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
-    <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
-  </svg>
-  <span className="text-3xl font-bold">{rewardPoints}</span>
-</div>
+    <div className="flex items-center bg-[#40E0D0] px-4 py-2 rounded-lg border-2 border-black shadow-md">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 mr-2 text-black">
+        <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
+        <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
+      </svg>
+      <span className="text-3xl font-bold">{rewardPoints}</span>
+    </div>
   </div>
   
-  <div className=" bg-[#F2D6A2] p-4 rounded-lg">
+  <div className="bg-[#FF6B6B] p-4 rounded-lg border-2 border-black shadow-md">
     <h4 className="text-lg font-semibold mb-2">How to Earn Reward Points?</h4>
     <ul className="space-y-2">
-      <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-[#557153]" />
+      <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black mb-2">
+        <CheckCircle size={16} className="mr-2 text-black" />
         <span>Verification Hash: <strong>+100 points</strong></span>
       </li>
-      <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-[#557153]" />
+      <li className="flex items-center bg-[#FFB951] p-2 rounded-lg border-2 border-black mb-2">
+        <CheckCircle size={16} className="mr-2 text-black" />
         <span>Each account in verification: <strong>+25 points</strong></span>
       </li>
-      <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-[#557153]" />
+      <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black mb-2">
+        <CheckCircle size={16} className="mr-2 text-black" />
         <span>Card Style or Background purchases: <strong>+50 points</strong></span>
       </li>
-      <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-[#557153]" />
+      <li className="flex items-center bg-[#FFB951] p-2 rounded-lg border-2 border-black mb-2">
+        <CheckCircle size={16} className="mr-2 text-black" />
         <span>Unique profile views (we use cookies): <strong>+15 points</strong></span>
       </li>
-      <li className="flex items-center">
-        <CheckCircle size={16} className="mr-2 text-[#557153]" />
+      <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black">
+        <CheckCircle size={16} className="mr-2 text-black" />
         <span>Add NFT or NFD to profile: <strong>+75 points</strong></span>
       </li>
     </ul>
