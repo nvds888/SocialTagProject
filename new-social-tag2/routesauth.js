@@ -146,17 +146,40 @@ router.get('/twitter/callback', async (req, res, next) => {
 });
 
 // Facebook Routes
-router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+router.get('/facebook', (req, res, next) => {
+  const { token } = req.query;
+  console.log('Received linking token for Facebook:', token);
+  
+  passport.authenticate('facebook', { 
+    scope: ['email'],
+    state: token // Pass token as state parameter
+  })(req, res, next);
+});
 
-router.get('/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/login' }),
-  ensureUserAndSession,
-  (req, res) => {
-    const username = req.user?.twitter?.username || req.user?.facebook?.name;
-    if (username) {
-      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
-    } else {
-      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+router.get('/facebook/callback', 
+  passport.authenticate('facebook', { 
+    failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard` 
+  }),
+  async (req, res) => {
+    try {
+      if (!req.user || !req.user.linkingToken) {
+        console.error('No user or linking token found');
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`);
+      }
+
+      // Mark token as used
+      await LinkingToken.findOneAndUpdate(
+        { token: req.user.linkingToken.token },
+        { used: true }
+      );
+
+      // Redirect to the correct dashboard
+      const redirectUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${req.user.twitter.username}`;
+      console.log('Redirecting to:', redirectUrl);
+      return res.redirect(redirectUrl);
+    } catch (error) {
+      console.error('Error in Facebook callback:', error);
+      return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`);
     }
   }
 );

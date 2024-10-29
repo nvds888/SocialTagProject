@@ -72,24 +72,49 @@ async (req, token, tokenSecret, profile, done) => {
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_APP_ID,
   clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: `https://social-tag.vercel.app/api/auth/facebook/callback`,
-  profileFields: ['id', 'displayName', 'email']
+  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook/callback`,  // Update this to match others
+  profileFields: ['id', 'displayName', 'email'],
+  passReqToCallback: true  // Add this
 },
-async (accessToken, refreshToken, profile, done) => {
+async (req, accessToken, refreshToken, profile, done) => {
   try {
-    let user = await User.findOne({ $or: [{ 'facebook.id': profile.id }, { 'twitter.id': { $exists: true } }] });
-    if (!user) {
-      user = new User();
+    const token = req.query.state;
+    console.log('Processing Facebook auth with linking token:', token);
+
+    // Find linking token
+    const linkingToken = await LinkingToken.findOne({
+      token: token,
+      used: false
+    });
+
+    if (!linkingToken) {
+      console.error('Invalid or expired linking token');
+      return done(null, false, { message: 'Invalid linking token' });
     }
+
+    // Find user by Twitter username from token
+    const user = await User.findOne({ 'twitter.username': linkingToken.twitterUsername });
+    
+    if (!user) {
+      console.error('No user found with Twitter username:', linkingToken.twitterUsername);
+      return done(null, false, { message: 'User not found' });
+    }
+
+    // Add Facebook to user
     user.facebook = {
       id: profile.id,
       name: profile.displayName,
       email: profile.emails[0].value,
       token: accessToken
     };
+
     await user.save();
+    user.linkingToken = linkingToken;
+    
+    console.log('Successfully added Facebook to user:', linkingToken.twitterUsername);
     return done(null, user);
   } catch (error) {
+    console.error('Error in Facebook strategy:', error);
     return done(error);
   }
 }));
