@@ -51,73 +51,99 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50"
+          className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center p-4 z-50 font-mono"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 rounded-lg shadow-xl"
+            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl border-2 border-black"
           >
-            <Card className="w-full bg-gray-900 text-white border-none">
-              <CardHeader className="flex flex-row justify-between items-center">
-                <CardTitle className="text-3xl font-bold">Leaderboard</CardTitle>
-                <Button variant="ghost" onClick={onClose} className="text-white">
+            <Card className="w-full border-none bg-transparent">
+              <CardHeader className="flex flex-row justify-between items-center bg-[#1F2937] p-4 border-b-2 border-black">
+                <CardTitle className="text-3xl font-bold text-[#40E0D0] tracking-wide">
+                  LEADERBOARD
+                </CardTitle>
+                <Button 
+                  variant="ghost" 
+                  onClick={onClose} 
+                  className="text-white hover:bg-[#FF6B6B] hover:text-black border-2 border-black rounded-lg transition-all"
+                >
                   <X size={24} />
                 </Button>
               </CardHeader>
-              <CardContent>
-                {loading && <div className="text-center py-4">Loading...</div>}
-                {error && <div className="text-center py-4 text-red-500">{error}</div>}
+              <CardContent className="p-0">
+                {loading && (
+                  <div className="text-center py-8 text-black font-bold animate-pulse">
+                    LOADING...
+                  </div>
+                )}
+                {error && (
+                  <div className="text-center py-8 text-[#FF6B6B] font-bold">
+                    {error}
+                  </div>
+                )}
                 {!loading && !error && (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-white">Rank</TableHead>
-                        <TableHead className="text-white">X Username</TableHead>
-                        <TableHead className="text-white">NFDomain</TableHead>
-                        <TableHead className="text-white text-right">Reward Points</TableHead>
-                        <TableHead className="text-white text-center">Profile</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {leaderboard.map((entry, index) => (
-                        <TableRow key={entry.twitterUsername} className="hover:bg-gray-800">
-                          <TableCell className="font-medium">{index + 1}</TableCell>
-                          <TableCell className="text-blue-400">
-                            <a 
-                              href={`https://x.com/${entry.twitterUsername}`} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                            >
-                              @{entry.twitterUsername}
-                            </a>
-                          </TableCell>
-                          <TableCell>{entry.nfdName || 'N/A'}</TableCell>
-                          <TableCell className="text-right">
-  <div className="inline-flex items-center bg-yellow-400 rounded-full px-3 py-1">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 text-black">
-      <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
-      <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
-    </svg>
-    <span className="font-bold text-black">{entry.rewardPoints}</span>
-  </div>
-</TableCell>
-                          <TableCell className="text-center">
-                            <a 
-                              href={`http://social-tag.vercel.app/socialtag/${entry.twitterUsername}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-400 hover:underline inline-flex items-center"
-                            >
-                              View <ExternalLink size={16} className="ml-1" />
-                            </a>
-                          </TableCell>
+                  <div className="border-2 border-black m-4 rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-[#1F2937] border-b-2 border-black">
+                          <TableHead className="text-[#40E0D0] font-bold">RANK</TableHead>
+                          <TableHead className="text-[#40E0D0] font-bold">USERNAME</TableHead>
+                          <TableHead className="text-[#40E0D0] font-bold">NFDOMAIN</TableHead>
+                          <TableHead className="text-[#40E0D0] font-bold text-right">POINTS</TableHead>
+                          <TableHead className="text-[#40E0D0] font-bold text-center">PROFILE</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {leaderboard.map((entry, index) => (
+                          <TableRow 
+                            key={entry.twitterUsername} 
+                            className={`
+                              border-b-2 border-black hover:bg-gray-100 transition-colors
+                              ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                            `}
+                          >
+                            <TableCell className="font-bold text-black border-r-2 border-black">
+                              {index + 1}
+                            </TableCell>
+                            <TableCell className="text-[#FFB951] border-r-2 border-black">
+                              <a 
+                                href={`https://x.com/${entry.twitterUsername}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="hover:underline hover:text-[#FF6B6B] transition-colors"
+                              >
+                                @{entry.twitterUsername}
+                              </a>
+                            </TableCell>
+                            <TableCell className="text-black border-r-2 border-black">
+                              {entry.nfdName || 'N/A'}
+                            </TableCell>
+                            <TableCell className="text-right border-r-2 border-black">
+                              <div className="inline-flex items-center bg-[#40E0D0] rounded-lg px-3 py-1 border-2 border-black">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 text-black">
+                                  <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
+                                  <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
+                                </svg>
+                                <span className="font-bold text-black">{entry.rewardPoints}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <a 
+                                href={`http://social-tag.vercel.app/socialtag/${entry.twitterUsername}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center bg-[#FFB951] text-black px-3 py-1 rounded-lg border-2 border-black hover:brightness-110 transition-all"
+                              >
+                                View <ExternalLink size={16} className="ml-1" />
+                              </a>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
