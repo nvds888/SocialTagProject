@@ -160,11 +160,26 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     }
   }, [handleDisconnectWalletClick]);
 
-  const handleConnect = (platform: string) => {
-    // If connecting GitHub, include Twitter username in the URL
+  const handleConnect = async (platform: string) => {
     if (platform === 'github' && user?.twitter?.username) {
-      window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}?twitter_username=${user.twitter.username}`;
+      // Generate linking token first
+      try {
+        const response = await apiClient.post('/auth/create-linking-token', {
+          twitterUsername: user.twitter.username,
+          platform: 'github'
+        });
+        const { token } = response.data;
+        window.location.href = `${API_BASE_URL}/auth/github?token=${token}`;
+      } catch (error) {
+        console.error('Error creating linking token:', error);
+        toast({
+          title: "Connection Error",
+          description: "Failed to initiate GitHub connection",
+          variant: "destructive",
+        });
+      }
     } else {
+      // Original code for other platforms
       window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
     }
   }

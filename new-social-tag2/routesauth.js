@@ -1,6 +1,8 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
+const LinkingToken = require('./modelsLinkingToken');
+const crypto = require('crypto');
 
 // Helper function to verify user exists/was created before session handling
 async function ensureUserAndSession(req, res, next) {
@@ -29,6 +31,27 @@ async function ensureUserAndSession(req, res, next) {
     next(error);
   }
 }
+
+router.post('/create-linking-token', async (req, res) => {
+  try {
+    const { twitterUsername, platform } = req.body;
+    if (!twitterUsername || !platform) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    await LinkingToken.create({
+      token,
+      twitterUsername,
+      platform
+    });
+
+    res.json({ token });
+  } catch (error) {
+    console.error('Error creating linking token:', error);
+    res.status(500).json({ error: 'Failed to create linking token' });
+  }
+});
 
 // Twitter Routes
 router.get('/twitter', async (req, res, next) => {
@@ -159,30 +182,23 @@ router.get('/linkedin/callback',
 
 // GitHub Routes
 router.get('/github', (req, res, next) => {
-  // Store twitter username in session
-  const twitterUsername = req.query.twitter_username;
-  if (twitterUsername) {
-    req.session.twitterUsername = twitterUsername;
-    console.log('Storing Twitter username:', twitterUsername);
+  const { token } = req.query;
+  if (!token) {
+    return res.status(400).json({ error: 'No linking token provided' });
   }
+  // Store token in session for callback
+  req.session.linkingToken = token;
   passport.authenticate('github', { scope: ['user:email'] })(req, res, next);
 });
 
 router.get('/github/callback',
-  (req, res, next) => {
-    console.log('GitHub callback - stored Twitter username:', req.session.twitterUsername);
-    next();
-  },
-  passport.authenticate('github', { failureRedirect: '/login' }),
-  ensureUserAndSession,
-  (req, res) => {
-    // Use stored Twitter username for redirect
-    const username = req.session.twitterUsername;
-    if (username) {
-      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${username}`);
-    } else {
-      res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+  passport.authenticate('github', { failureRedirect: '/error' }),
+  async (req, res, next) => {
+    const token = req.session.linkingToken;
+    if (!token) {
+      return res.redirect('/error');
     }
+    next();
   }
 );
 

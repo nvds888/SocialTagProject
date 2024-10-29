@@ -158,34 +158,41 @@ passport.use(new GitHubStrategy({
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
   callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/github/callback`,
   scope: ['user:email'],
-  passReqToCallback: true  // Added this
+  passReqToCallback: true
 },
 async (req, accessToken, refreshToken, profile, done) => {
   try {
-    const twitterUsername = req.session.twitterUsername;
-    console.log('Processing GitHub auth with Twitter username:', twitterUsername);
+    const token = req.session.linkingToken;
+    console.log('Processing GitHub auth with linking token:', token);
 
-    if (!twitterUsername) {
-      console.error('No Twitter username found in session');
-      return done(null, false, { message: 'Must connect Twitter first' });
+    // Find and validate linking token
+    const linkingToken = await LinkingToken.findOne({
+      token,
+      used: false,
+      createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) } // within last 5 minutes
+    });
+
+    if (!linkingToken) {
+      console.error('Invalid or expired linking token');
+      return done(null, false, { message: 'Invalid linking token' });
     }
 
-    // Find user by Twitter username
-    const user = await User.findOne({ 'twitter.username': twitterUsername });
+    // Find user by Twitter username from token
+    const user = await User.findOne({ 'twitter.username': linkingToken.twitterUsername });
     
     if (!user) {
-      console.error('No user found with Twitter username:', twitterUsername);
+      console.error('No user found with Twitter username:', linkingToken.twitterUsername);
       return done(null, false, { message: 'User not found' });
     }
 
-    // Check if this GitHub account is already linked to any user
+    // Check if GitHub already linked
     const githubLinked = await User.findOne({ 'github.id': profile.id });
     if (githubLinked) {
       console.error('GitHub account already linked to another user');
       return done(null, false, { message: 'GitHub account already linked' });
     }
 
-    // Add GitHub to existing user
+    // Add GitHub to user
     user.github = {
       id: profile.id,
       username: profile.username,
@@ -193,9 +200,11 @@ async (req, accessToken, refreshToken, profile, done) => {
       token: accessToken
     };
 
-    await user.save();
-    console.log('Successfully added GitHub to user:', twitterUsername);
+    // Mark token as used
+    linkingToken.used = true;
+    await Promise.all([user.save(), linkingToken.save()]);
     
+    console.log('Successfully added GitHub to user:', linkingToken.twitterUsername);
     return done(null, user);
   } catch (error) {
     console.error('Error in GitHub strategy:', error);
