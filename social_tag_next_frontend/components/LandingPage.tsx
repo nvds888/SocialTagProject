@@ -127,7 +127,7 @@ export default function LandingPage() {
              Think of it as Linktree, but redefined with trust and transparency.
             </motion.p>
             <motion.button
-              className="create-profile-button bg-black text-white px-8 py-3 rounded-none text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
+              className="create-profile-button bg-[#FF6B6B] text-white px-8 py-3 rounded-none text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
               onClick={handleCreateProfileClick}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -168,8 +168,8 @@ export default function LandingPage() {
                 <p className="text-gray-800">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-[#FF6B6B] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
+                className="feature-card bg-[#9B8AC4] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }} 
               >
                 <FeatureIcon Icon={Coins} />
                 <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Reward Points</h3>

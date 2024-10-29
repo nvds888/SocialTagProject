@@ -280,7 +280,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     return (
       <ul className="space-y-2">
         {user.verifications.map((verification, index) => (
-          <li key={index} className={`p-2 rounded-lg ${verification.isPermanentafy ? 'bg-green-100' : 'bg-gray-100'}`}>
+          <li key={index} className={`p-2 rounded-lg ${verification.isPermanentafy ? 'bg-[#FF6B6B]' : 'bg-gray-100'}`}>
             <div className="flex items-center text-gray-700">
               <Clock size={16} className="mr-2" />
               {new Date(verification.timestamp).toLocaleString()}
@@ -355,7 +355,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             ) : (
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="bg-green-100 text-black px-4 py-2 rounded-full hover:bg-green-100 transition-colors flex items-center">
+                  <button className="bg-[#FF6B6B] text-black px-4 py-2 rounded-full hover:bg-[#FF6B6B] transition-colors flex items-center">
                     <Wallet size={18} className="mr-2" />
                     {connectedAccount.substring(0, 4)}...{connectedAccount.substring(connectedAccount.length - 4)}
                   </button>
