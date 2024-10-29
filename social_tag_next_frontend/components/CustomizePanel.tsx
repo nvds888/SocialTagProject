@@ -513,7 +513,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                               variant="outline"
                               className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
                                 cardStyle === c.name 
-                                  ? 'bg-black text-white' 
+                                  ? 'bg-[#ACA1D0] text-white' 
                                   : 'bg-white text-black hover:bg-gray-100'
                               } ${c.premium && !purchasedItems.includes(c.name) ? 'opacity-50' : ''}`}
                               onClick={() => handleItemSelection('cardStyle', c.name)}
@@ -583,7 +583,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       variant="outline"
                       className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
                         theme === t.name 
-                          ? 'bg-black text-white' 
+                          ? 'bg-[#ACA1D0] text-white' 
                           : 'bg-white text-black hover:bg-gray-100'
                       } ${t.premium && !purchasedItems.includes(t.name) ? 'opacity-50' : ''}`}
                       onClick={() => handleItemSelection('theme', t.name)}
@@ -652,14 +652,14 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       variant="outline"
                       className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
                         theme === t.name 
-                          ? 'bg-black text-white' 
+                          ? 'bg-[#ACA1D0] text-white' 
                           : 'bg-white text-black hover:bg-gray-100'
                       } ${rewardPoints < (t.requiredPoints || 300) ? 'opacity-50' : ''}`}
                       onClick={() => handleItemSelection('theme', t.name)}
                       disabled={rewardPoints < (t.requiredPoints || 300)}
                     >
                       <span className="block truncate pr-6">{t.name}</span>
-                      <span className="absolute top-1 right-1 text-xs bg-[#E6C17C] text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
+                      <span className="absolute top-1 right-1 text-xs bg-[#40E0D0] text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
                     </Button>
                     <TooltipProvider delayDuration={0}>
                       <Tooltip>
