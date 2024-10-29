@@ -161,20 +161,20 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   }, [handleDisconnectWalletClick]);
 
   const handleConnect = async (platform: string) => {
-    if (platform === 'github' && user?.twitter?.username) {
-      // Generate linking token first
+    // Check for both GitHub and Spotify
+    if ((platform === 'github' || platform === 'spotify') && user?.twitter?.username) {
       try {
         const response = await apiClient.post('/auth/create-linking-token', {
           twitterUsername: user.twitter.username,
-          platform: 'github'
+          platform: platform.toLowerCase()  // This works for both 'github' and 'spotify'
         });
         const { token } = response.data;
-        window.location.href = `${API_BASE_URL}/auth/github?token=${token}`;
+        window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}?token=${token}`;
       } catch (error) {
-        console.error('Error creating linking token:', error);
+        console.error(`Error creating linking token for ${platform}:`, error);
         toast({
           title: "Connection Error",
-          description: "Failed to initiate GitHub connection",
+          description: `Failed to initiate ${platform} connection`,
           variant: "destructive",
         });
       }

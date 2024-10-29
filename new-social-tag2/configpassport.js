@@ -211,21 +211,48 @@ async (req, accessToken, refreshToken, profile, done) => {
 passport.use(new SpotifyStrategy({
   clientID: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  callbackURL: `https://social-tag.vercel.app/api/auth/spotify/callback`,
+  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/spotify/callback`,
+  passReqToCallback: true  // Add this
 },
-async (accessToken, refreshToken, expires_in, profile, done) => {
+async (req, accessToken, refreshToken, expires_in, profile, done) => {
   try {
-    let user = await User.findOne({ $or: [{ 'spotify.id': profile.id }, { 'twitter.id': { $exists: true } }] });
-    if (!user) {
-      user = new User();
+    const token = req.query.state;
+    console.log('Processing Spotify auth with linking token:', token);
+
+    // Find linking token
+    const linkingToken = await LinkingToken.findOne({
+      token: token,
+      used: false
+    });
+
+    if (!linkingToken) {
+      console.error('Invalid or expired linking token');
+      return done(null, false, { message: 'Invalid linking token' });
     }
+
+    // Find user by Twitter username from token
+    const user = await User.findOne({ 'twitter.username': linkingToken.twitterUsername });
+    
+    if (!user) {
+      console.error('No user found with Twitter username:', linkingToken.twitterUsername);
+      return done(null, false, { message: 'User not found' });
+    }
+
+    // Add Spotify to user
     user.spotify = {
       id: profile.id,
       username: profile.username,
       email: profile.emails[0].value,
       token: accessToken
     };
+
+    // Save user but DON'T mark token as used yet
     await user.save();
+    
+    // Add token to user object for the callback
+    user.linkingToken = linkingToken;
+    
+    console.log('Successfully added Spotify to user:', linkingToken.twitterUsername);
     return done(null, user);
   } catch (error) {
     console.error('Error in Spotify strategy:', error);
