@@ -169,41 +169,38 @@ passport.use(new GitHubStrategy({
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
   callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/github/callback`,
   scope: ['user:email'],
-  passReqToCallback: true  // Add this to get access to the request object
+  passReqToCallback: true  // Add this to match Twitter strategy
 },
 async (req, accessToken, refreshToken, profile, done) => {
   try {
-    // If user is already logged in, add GitHub to their account
-    if (req.user) {
-      await checkForExistingConnection(profile, 'github');
-      const existingUser = await User.findById(req.user._id);
-      existingUser.github = {
-        id: profile.id,
-        username: profile.username,
-        email: profile.emails[0].value,
-        token: accessToken
-      };
-      await existingUser.save();
-      return done(null, existingUser);
+    // MUST have an existing session user (Twitter account)
+    if (!req.user) {
+      return done(null, false, { message: 'Must be logged in with Twitter first' });
     }
-    
-    // If not logged in, look for user with this GitHub account
-    let user = await User.findOne({ 'github.id': profile.id });
-    
-    // If no user found with this GitHub, create new user
-    if (!user) {
-      user = new User({
-        github: {
-          id: profile.id,
-          username: profile.username,
-          email: profile.emails[0].value,
-          token: accessToken
-        }
-      });
+
+    // Get the current logged-in user
+    const existingUser = await User.findById(req.user._id);
+    if (!existingUser) {
+      return done(null, false, { message: 'Current user not found' });
     }
-    
-    await user.save();
-    return done(null, user);
+
+    // Check if this GitHub account is already linked to any user
+    const githubLinked = await User.findOne({ 'github.id': profile.id });
+    if (githubLinked) {
+      return done(null, false, { message: 'This GitHub account is already linked to another user' });
+    }
+
+    // Add GitHub to existing Twitter user
+    existingUser.github = {
+      id: profile.id,
+      username: profile.username,
+      email: profile.emails[0].value,
+      token: accessToken
+    };
+
+    await existingUser.save();
+    return done(null, existingUser);
+
   } catch (error) {
     console.error('Error in GitHub strategy:', error);
     return done(error);
