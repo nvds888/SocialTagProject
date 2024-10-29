@@ -90,7 +90,7 @@ export default function LandingPage() {
               Authentic <span className="relative">
                 You
                 <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-[#9B8AC4] rounded-sm"
+                  className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
                   animate={{ width: ['0%', '110%', '110%'] }}
                   transition={{
@@ -104,7 +104,7 @@ export default function LandingPage() {
               One Tag, <span className="relative">
                 Zero Imposters
                 <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-[#9B8AC4] rounded-sm"
+                  className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
                   animate={{ width: ['0%', '0%', '110%', '110%'] }}
                   transition={{
@@ -152,28 +152,28 @@ export default function LandingPage() {
             <h2 className="section-title text-3xl font-bold text-center mb-12 text-black">Key Features</h2>
             <div className="feature-cards grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
               <motion.div 
-                className="feature-card bg-gradient-to-br from-purple-100 to-purple-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
+                className="feature-card bg-[#FFB951] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={CheckCircle} />
                 <h3 className="text-xl font-semibold mb-2 text-black mt-6">Authentic You</h3>
-                <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
+                <p className="text-gray-800">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-gradient-to-br from-blue-100 to-purple-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-purple-200"
+                className="feature-card bg-[#40E0D0] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={User} />
                 <h3 className="text-xl font-semibold mb-2 text-black mt-6">Customize Your &apos;Tag&apos;</h3>
-                <p className="text-gray-600">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
+                <p className="text-gray-800">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-gradient-to-br from-blue-100 to-blue-200 p-10 rounded-xl text-left transition-all duration-300 shadow-lg border border-blue-200"
+                className="feature-card bg-[#FF6B6B] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
               >
                 <FeatureIcon Icon={Coins} />
                 <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Reward Points</h3>
-                <p className="text-gray-600">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
+                <p className="text-gray-800">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
               </motion.div>
             </div>
           </section>
