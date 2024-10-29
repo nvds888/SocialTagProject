@@ -2,12 +2,11 @@
 
 import React, { useEffect, useRef } from 'react'
 
-const retroColors = [
-  '#FFB3BA', // Light Pink
-  '#BAFFC9', // Light Mint
-  '#BAE1FF', // Light Blue
-  '#FFFFBA', // Light Yellow
-  '#FFD9BA'  // Light Peach
+const cyberpunkColors = [
+  '#FFB951', // Yellow/Gold
+  '#40E0D0', // Turquoise/Teal
+  '#FF6B6B', // Coral/Red
+  '#9B8AC4', // Purple (from previous theme)
 ];
 
 const LavaEffect: React.FC = () => {
@@ -30,9 +29,22 @@ const LavaEffect: React.FC = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const blocks: { x: number; y: number; width: number; height: number; color: string; targetY: number }[] = [];
+    // Add retro styling to blocks
+    const blocks: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      color: string;
+      targetY: number;
+      borderColor: string;
+      shadowColor: string;
+      borderWidth: number;
+      borderRadius: number;
+    }[] = [];
+
     const blockSize = 50;
-    const blockGap = 10;
+    const blockGap = 15; // Increased gap for more retro feel
     const chainLength = Math.floor(canvas.width / (blockSize + blockGap));
 
     for (let i = 0; i < chainLength; i++) {
@@ -41,12 +53,53 @@ const LavaEffect: React.FC = () => {
         y: canvas.height + blockSize,
         width: blockSize,
         height: blockSize,
-        color: retroColors[i % retroColors.length],
-        targetY: canvas.height / 4 + Math.sin(i * 0.2) * 60 // Adjusted to rise higher
+        color: cyberpunkColors[i % cyberpunkColors.length],
+        targetY: canvas.height / 4 + Math.sin(i * 0.2) * 60,
+        borderColor: '#000000',
+        shadowColor: 'rgba(0, 0, 0, 0.3)',
+        borderWidth: 2,
+        borderRadius: 8
       });
     }
 
     let time = 0;
+
+    const drawRetroBlock = (
+      ctx: CanvasRenderingContext2D,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      color: string,
+      borderColor: string,
+      borderWidth: number,
+      borderRadius: number
+    ) => {
+      // Draw shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.beginPath();
+      ctx.roundRect(x + 2, y + 2, width, height, borderRadius);
+      ctx.fill();
+
+      // Draw main block
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.roundRect(x, y, width, height, borderRadius);
+      ctx.fill();
+
+      // Draw border
+      ctx.strokeStyle = borderColor;
+      ctx.lineWidth = borderWidth;
+      ctx.beginPath();
+      ctx.roundRect(x, y, width, height, borderRadius);
+      ctx.stroke();
+
+      // Add shine effect
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.beginPath();
+      ctx.roundRect(x + borderWidth, y + borderWidth, width / 3, height / 3, borderRadius);
+      ctx.fill();
+    };
 
     const drawLavaEffect = () => {
       time += 0.005;
@@ -60,15 +113,44 @@ const LavaEffect: React.FC = () => {
         const oscillation = Math.sin(time + index * 0.2) * 5;
         const drawX = block.x + oscillation;
 
-        ctx.fillStyle = block.color;
-        ctx.fillRect(drawX, block.y, block.width, block.height);
+        // Draw retro-styled block
+        drawRetroBlock(
+          ctx,
+          drawX,
+          block.y,
+          block.width,
+          block.height,
+          block.color,
+          block.borderColor,
+          block.borderWidth,
+          block.borderRadius
+        );
 
+        // Draw connecting lines with glow effect
         if (index > 0) {
           ctx.beginPath();
           ctx.moveTo(blocks[index - 1].x + blockSize / 2, blocks[index - 1].y + blockSize / 2);
           ctx.lineTo(drawX + blockSize / 2, block.y + blockSize / 2);
-          ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+          
+          // Create gradient for line
+          const gradient = ctx.createLinearGradient(
+            blocks[index - 1].x + blockSize / 2,
+            blocks[index - 1].y + blockSize / 2,
+            drawX + blockSize / 2,
+            block.y + blockSize / 2
+          );
+          gradient.addColorStop(0, blocks[index - 1].color);
+          gradient.addColorStop(1, block.color);
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 3;
           ctx.stroke();
+
+          // Add glow effect
+          ctx.shadowColor = block.color;
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
         }
       });
     };
@@ -86,7 +168,12 @@ const LavaEffect: React.FC = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
+  return (
+    <canvas 
+      ref={canvasRef} 
+      className="absolute inset-0 w-full h-full rounded-lg border-2 border-black shadow-lg" 
+    />
+  );
 };
 
 export default LavaEffect;
