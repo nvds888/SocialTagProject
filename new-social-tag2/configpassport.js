@@ -8,6 +8,17 @@ const SpotifyStrategy = require('passport-spotify').Strategy;
 const axios = require('axios');
 const User = require('./modelsUser');
 
+// Add this function at the top of configpassport.js
+async function checkForExistingConnection(profile, provider) {
+  const query = {};
+  query[`${provider}.id`] = profile.id;
+  const existingUser = await User.findOne(query);
+  
+  if (existingUser) {
+    throw new Error(`This ${provider} account is already connected to another user`);
+  }
+}
+
 // Twitter Strategy
 passport.use(new TwitterStrategy({
   consumerKey: process.env.TWITTER_CONSUMER_KEY,
@@ -157,20 +168,40 @@ passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
   callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/github/callback`,
-  scope: ['user:email']
+  scope: ['user:email'],
+  passReqToCallback: true  // Add this to get access to the request object
 },
-async (accessToken, refreshToken, profile, done) => {
+async (req, accessToken, refreshToken, profile, done) => {
   try {
-    let user = await User.findOne({ $or: [{ 'github.id': profile.id }, { 'twitter.id': { $exists: true } }] });
-    if (!user) {
-      user = new User();
+    // If user is already logged in, add GitHub to their account
+    if (req.user) {
+      await checkForExistingConnection(profile, 'github');
+      const existingUser = await User.findById(req.user._id);
+      existingUser.github = {
+        id: profile.id,
+        username: profile.username,
+        email: profile.emails[0].value,
+        token: accessToken
+      };
+      await existingUser.save();
+      return done(null, existingUser);
     }
-    user.github = {
-      id: profile.id,
-      username: profile.username,
-      email: profile.emails[0].value,
-      token: accessToken
-    };
+    
+    // If not logged in, look for user with this GitHub account
+    let user = await User.findOne({ 'github.id': profile.id });
+    
+    // If no user found with this GitHub, create new user
+    if (!user) {
+      user = new User({
+        github: {
+          id: profile.id,
+          username: profile.username,
+          email: profile.emails[0].value,
+          token: accessToken
+        }
+      });
+    }
+    
     await user.save();
     return done(null, user);
   } catch (error) {
