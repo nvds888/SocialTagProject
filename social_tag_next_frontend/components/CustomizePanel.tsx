@@ -492,67 +492,160 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
             
             <div className="space-y-4">
               <div>
-                <Button
-                  onClick={() => toggleTab('cardStyle')}
-                  className="w-full flex justify-between items-center py-2 px-4"
-                  variant="outline"
-                >
-                  <span>Choose Your Card Style</span>
-                  {openTab === 'cardStyle' ? <ChevronUp /> : <ChevronDown />}
-                </Button>
-                <AnimatePresence>
-                  {openTab === 'cardStyle' && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="grid grid-cols-3 gap-4 mt-4">
-                        {cardStyles.map((c) => (
-                          <div key={c.name} className="relative">
-                            <Button
-                              variant="outline"
-                              className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
-                                cardStyle === c.name 
-                                  ? 'bg-[#ACA1D0] text-white' 
-                                  : 'bg-white text-black hover:bg-gray-100'
-                              } ${c.premium && !purchasedItems.includes(c.name) ? 'opacity-50' : ''}`}
-                              onClick={() => handleItemSelection('cardStyle', c.name)}
-                            >
-                              <span className="block truncate pr-6">{c.name}</span>
-                              {c.premium && !purchasedItems.includes(c.name) && (
-                                <span className="absolute top-1 right-1 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Buy Now</span>
-                              )}
-                            </Button>
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="absolute top-1/2 right-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
-                                  >
-                                    <Info className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent 
-                                  side="bottom" 
-                                  className="w-64 h-40 p-0" 
-                                  sideOffset={5}
-                                >
-                                  <div className="w-full h-full relative overflow-hidden rounded-md">
-                                    {renderPreview('cardStyle', c.name)}
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              <Button
+  onClick={() => toggleTab('cardStyle')}
+  className="w-full flex justify-between items-center py-2 px-4"
+  variant="outline"
+>
+  <span>Choose Your Card Style</span>
+  {openTab === 'cardStyle' ? <ChevronUp /> : <ChevronDown />}
+</Button>
+<AnimatePresence>
+  {openTab === 'cardStyle' && (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: 'auto', opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      className="overflow-hidden"
+    >
+      <div className="space-y-6 mt-4">
+        {/* Regular Card Styles */}
+        <div>
+          <h4 className="text-lg font-semibold mb-4">Standard Card Styles</h4>
+          <div className="grid grid-cols-3 gap-4">
+            {cardStyles
+              .filter(c => !c.specialEdition)
+              .map((c) => (
+                <div key={c.name} className="relative">
+                  <Button
+                    variant="outline"
+                    className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
+                      cardStyle === c.name 
+                        ? 'bg-[#ACA1D0] text-white' 
+                        : 'bg-white text-black hover:bg-gray-100'
+                    } ${c.premium && !purchasedItems.includes(c.name) ? 'opacity-50' : ''}`}
+                    onClick={() => handleItemSelection('cardStyle', c.name)}
+                  >
+                    <span className="block truncate pr-6">{c.name}</span>
+                    {c.premium && !purchasedItems.includes(c.name) && (
+                      <span className="absolute top-1 right-1 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-semibold shadow-sm">Buy Now</span>
+                    )}
+                  </Button>
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="absolute top-1/2 right-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
+                        >
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent 
+                        side="bottom" 
+                        className="w-64 h-40 p-0" 
+                        sideOffset={5}
+                      >
+                        <div className="w-full h-full relative overflow-hidden rounded-md">
+                          {renderPreview('cardStyle', c.name)}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        {/* Special Edition Card Styles Section */}
+        <div className="border-t pt-4">
+          <h4 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+            <span>Special Edition Card Styles</span>
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-6 w-6 p-0"
+                  >
+                    <Info className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="w-64 p-2">
+                  Special Edition card styles are exclusive designs unlocked with reward points. Earn points through various activities to unlock unique styles!
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </h4>
+          <div className="grid grid-cols-3 gap-4">
+            {cardStyles
+              .filter(c => c.specialEdition)
+              .map((c) => (
+                <div key={c.name} className="relative">
+                  <Button
+                    variant="outline"
+                    className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
+                      cardStyle === c.name 
+                        ? 'bg-[#ACA1D0] text-white' 
+                        : 'bg-white text-black hover:bg-gray-100'
+                    } ${rewardPoints < (c.requiredPoints || 300) ? 'opacity-50' : ''}`}
+                    onClick={() => handleItemSelection('cardStyle', c.name)}
+                    disabled={rewardPoints < (c.requiredPoints || 300)}
+                  >
+                    <span className="block truncate pr-6">{c.name}</span>
+                    <span className="absolute top-1 right-1 text-xs bg-[#40E0D0] text-white px-2 py-1 rounded-full font-semibold shadow-sm">Special Edition</span>
+                  </Button>
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="absolute top-1/2 right-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
+                        >
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent 
+                        side="bottom" 
+                        className="w-64 h-40 p-0" 
+                        sideOffset={5}
+                      >
+                        <div className="w-full h-full relative overflow-hidden rounded-md">
+                          {renderPreview('cardStyle', c.name)}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="absolute top-1/2 left-2 transform -translate-y-1/2 p-0 h-6 w-6 bg-transparent text-black opacity-60 hover:opacity-100 transition-opacity"
+                        >
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="w-64 p-2" sideOffset={5}>
+                        {rewardPoints >= (c.requiredPoints || 300)
+                          ? "You've unlocked this Special Edition card style!" 
+                          : `Unlock this Special Edition card style by earning ${(c.requiredPoints || 300) - rewardPoints} more reward points.`
+                        }
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
               </div>
 
               <div>
