@@ -367,7 +367,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             {!connectedAccount ? (
               <button 
                 onClick={handleConnectPera}
-                className="bg-white text-black px-4 py-2 rounded-none hover:bg-[#ACA1D0] transition-colors flex items-center"
+                className="bg-white text-black px-4 py-2 rounded-full hover:bg-[#40E0D0] transition-colors flex items-center"
               >
                 <Wallet size={18} className="mr-2" />
                 Connect Pera
@@ -375,7 +375,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             ) : (
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="bg-[#ACA1D0] text-black px-4 py-2 rounded-full hover:bg-[#ACA1D0] transition-colors flex items-center">
+                  <button className="bg-[#ACA1D0] text-black px-4 py-2 rounded-full hover:bg-[#40E0D0] transition-colors flex items-center">
                     <Wallet size={18} className="mr-2" />
                     {connectedAccount.substring(0, 4)}...{connectedAccount.substring(connectedAccount.length - 4)}
                   </button>
