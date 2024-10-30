@@ -272,7 +272,8 @@ router.get('/spotify', (req, res, next) => {
   
   passport.authenticate('spotify', { 
     scope: ['user-read-private', 'user-read-email'],
-    state: token // Pass token as state parameter
+    state: token, // Pass token as state parameter
+    showDialog: true // Force Spotify to show login dialog
   })(req, res, next);
 });
 

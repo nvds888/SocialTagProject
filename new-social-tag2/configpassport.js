@@ -251,21 +251,23 @@ passport.use(new SpotifyStrategy({
   clientID: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
   callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/spotify/callback`,
-  passReqToCallback: true  // Add this
+  passReqToCallback: true
 },
 async (req, accessToken, refreshToken, expires_in, profile, done) => {
   try {
+    // Get token from state parameter
     const token = req.query.state;
     console.log('Processing Spotify auth with linking token:', token);
 
-    // Find linking token
+    // Find valid linking token
     const linkingToken = await LinkingToken.findOne({
       token: token,
-      used: false
+      used: false,
+      createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) }
     });
 
     if (!linkingToken) {
-      console.error('Invalid or expired linking token');
+      console.error('Invalid, expired, or used linking token');
       return done(null, false, { message: 'Invalid linking token' });
     }
 
