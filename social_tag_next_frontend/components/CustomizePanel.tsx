@@ -208,6 +208,9 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         if (itemType === 'theme') {
           setTheme(itemName)
           localStorage.setItem(`theme_${user.twitter?.username}`, itemName)
+        } else {
+          setCardStyle(itemName);
+          localStorage.setItem(`cardStyle_${user.twitter?.username}`, itemName);
         }
       } else {
         toast({
