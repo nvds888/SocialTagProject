@@ -517,11 +517,26 @@ router.get('/public-profile/:username', async (req, res) => {
 
 router.get('/leaderboard', async (req, res) => {
   try {
-    const users = await User.find({}, 'twitter.username nfd profileViews purchasedItems verifications profileNFT reverifyCount baseVerifyPoints');
+    // Only fetch users who have at least one verification
+    const users = await User.find(
+      { 'verifications.0': { $exists: true } }, // This checks if there's at least one element in verifications array
+      'twitter.username nfd profileViews purchasedItems verifications profileNFT reverifyCount baseVerifyPoints'
+    );
+    
     const leaderboardData = users.map(user => ({
       twitterUsername: user.twitter?.username || 'Unknown',
       nfdName: user.nfd?.name || null,
-      rewardPoints: calculateRewardPoints(user.profileViews, user.purchasedItems, user.verifications, user.profileNFT, user.nfd, user.reverifyCount, user.baseVerifyPoints)
+      rewardPoints: calculateRewardPoints(
+        user.profileViews, 
+        user.purchasedItems, 
+        user.verifications, 
+        user.profileNFT, 
+        user.nfd, 
+        user.reverifyCount, 
+        user.baseVerifyPoints
+      ),
+      verified: true, // Adding this field for clarity in the frontend
+      lastVerified: user.verifications[user.verifications.length - 1].timestamp
     }));
 
     // Sort the leaderboard data by reward points in descending order
