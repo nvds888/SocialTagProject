@@ -86,17 +86,17 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
 
   return (
     <Card className="w-full max-w-md mx-auto bg-[#1A1A1A] rounded-lg shadow-2xl overflow-hidden h-[600px] flex flex-col transform transition-all duration-300 hover:scale-105 relative">
-      {/* Orange Accent Elements */}
+      {/* Orange Accents */}
       <div className="absolute top-0 right-0 orange-accent"></div>
       <div className="absolute bottom-0 left-0 orange-accent rotate-180"></div>
       
       {/* Decorative Oranges */}
-      <div className="absolute top-4 left-4 transform -rotate-15 opacity-10 text-2xl">🍊</div>
-      <div className="absolute top-4 right-4 transform rotate-15 opacity-10 text-2xl">🍊</div>
-      <div className="absolute bottom-4 left-4 transform rotate-15 opacity-10 text-2xl">🍊</div>
-      <div className="absolute bottom-4 right-4 transform -rotate-15 opacity-10 text-2xl">🍊</div>
+      <div className="absolute top-4 left-4 transform -rotate-15 orange-decoration">🍊</div>
+      <div className="absolute top-4 right-4 transform rotate-15 orange-decoration">🍊</div>
+      <div className="absolute bottom-4 left-4 transform rotate-15 orange-decoration">🍊</div>
+      <div className="absolute bottom-4 right-4 transform -rotate-15 orange-decoration">🍊</div>
       
-      {/* Subtle Pattern Overlay */}
+      {/* Pattern Overlay */}
       <div className="absolute inset-0 z-0 opacity-5 carbon-pattern"></div>
       
       <CardContent className="p-6 flex flex-col h-full relative z-20">
@@ -168,7 +168,7 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col items-center mb-4">
+        <div className="flex flex-col items-center mb-6">
           <div 
             className={`w-32 h-32 rounded-lg overflow-hidden mb-4 relative ${
               profileNFT ? 'cursor-pointer' : ''
@@ -210,7 +210,18 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           </p>
         </div>
 
-        <div className="flex justify-center space-x-6 mb-6">
+        <div className="flex-grow"></div>
+
+        {email && (
+          <Button
+            variant="outline"
+            className="w-full text-lg mb-4 bg-[#2A2A2A] hover:bg-[#333333] text-gray-200 border border-[#333333] font-mono transition-all"
+          >
+            {email}
+          </Button>
+        )}
+
+        <div className="flex justify-center space-x-6 mt-auto">
           <TooltipProvider>
             {socialIcons.map(({ platform, icon: Icon, data, field, url }) => (
               <Tooltip key={platform}>
@@ -241,14 +252,7 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           </TooltipProvider>
         </div>
 
-        {email && (
-          <Button
-            variant="outline"
-            className="w-full text-lg bg-[#2A2A2A] hover:bg-[#333333] text-gray-200 border border-[#333333] font-mono transition-all mt-auto"
-          >
-            {email}
-          </Button>
-        )}
+        <div className="h-12"></div>
       </CardContent>
       
       <style jsx>{`
@@ -260,18 +264,28 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
         .orange-accent {
           width: 120px;
           height: 120px;
-          background: radial-gradient(circle at center, transparent 30%, rgba(255, 140, 66, 0.1) 60%, transparent 70%);
+          background: radial-gradient(circle at center, transparent 30%, rgba(255, 140, 66, 0.2) 60%, transparent 70%);
           filter: blur(20px);
           transform: translate(50%, -50%);
           animation: pulse 3s ease-in-out infinite;
         }
 
+        .orange-decoration {
+          font-size: 32px;
+          opacity: 0.3;
+          filter: brightness(1.5);
+          text-shadow: 0 0 10px rgba(255, 140, 66, 0.5);
+          animation: floatOrange 6s ease-in-out infinite;
+          animation-delay: var(--delay, 0s);
+          z-index: 10;
+        }
+
         @keyframes pulse {
           0%, 100% {
-            opacity: 0.3;
+            opacity: 0.4;
           }
           50% {
-            opacity: 0.6;
+            opacity: 0.7;
           }
         }
 
@@ -279,7 +293,7 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           content: '';
           position: absolute;
           inset: -2px;
-          background: linear-gradient(45deg, transparent, rgba(255, 140, 66, 0.1), transparent);
+          background: linear-gradient(45deg, transparent, rgba(255, 140, 66, 0.2), transparent);
           mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           mask-composite: xor;
           pointer-events: none;
@@ -295,35 +309,29 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           }
         }
 
-        /* Decorative orange rotations */
         @keyframes floatOrange {
           0%, 100% {
             transform: translate(0, 0) rotate(0deg);
+            filter: brightness(1.5);
           }
           50% {
             transform: translate(5px, -5px) rotate(10deg);
+            filter: brightness(2);
           }
         }
 
-        /* Apply float animation to decorative oranges */
-        div[class*="transform rotate"] {
-          animation: floatOrange 6s ease-in-out infinite;
-          animation-delay: var(--delay, 0s);
-        }
-
-        div[class*="transform rotate"]:nth-child(2) {
+        .orange-decoration:nth-child(2) {
           --delay: 1.5s;
         }
 
-        div[class*="transform rotate"]:nth-child(3) {
+        .orange-decoration:nth-child(3) {
           --delay: 3s;
         }
 
-        div[class*="transform rotate"]:nth-child(4) {
+        .orange-decoration:nth-child(4) {
           --delay: 4.5s;
         }
 
-        /* Subtle shine effect */
         .shine-effect {
           position: absolute;
           top: 0;
@@ -333,7 +341,7 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           background: linear-gradient(
             to right,
             transparent,
-            rgba(255, 140, 66, 0.05),
+            rgba(255, 140, 66, 0.1),
             transparent
           );
           transform: skewX(-25deg);
@@ -352,17 +360,14 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           }
         }
 
-        /* Hover effects */
         .profile-container:hover::before {
           animation: borderRotate 2s linear infinite;
         }
 
-        /* Button hover effect */
         button:hover {
-          box-shadow: 0 0 15px rgba(255, 140, 66, 0.2);
+          box-shadow: 0 0 15px rgba(255, 140, 66, 0.3);
         }
 
-        /* Social icons hover animation */
         .social-icon {
           transition: transform 0.3s ease, color 0.3s ease;
         }
