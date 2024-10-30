@@ -294,7 +294,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
   const renderVerificationHistory = () => {
     if (!user?.verifications || user.verifications.length === 0) {
-      return <p className="text-gray-300">No verification history available.</p>;
+      return <p className="text-gray-500">No verification history available.</p>;
     }
 
     return (
