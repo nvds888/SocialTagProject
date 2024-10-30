@@ -294,7 +294,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
   const renderVerificationHistory = () => {
     if (!user?.verifications || user.verifications.length === 0) {
-      return <p className="text-red-500">No verification history available.</p>;
+      return <p className="text-gray-300">No verification history available.</p>;
     }
 
     return (
@@ -476,7 +476,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   <div className="flex justify-center w-full">  {/* Add this wrapper div */}
     <motion.button 
       onClick={handleVerifyConfirm} 
-      className={`max-w-max bg-green-500 text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
+      className={`max-w-max bg-[#40E0D0] text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-[#40E0D0] transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
       disabled={!canVerify || verifying}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
@@ -486,7 +486,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   </div>
 )}
 {!canVerify && !isVerified && (
-  <p className="mt-4 text-red-500 text-center">Connect at least two accounts to verify your profile.</p>
+  <p className="mt-4 text-red-400 text-center">Connect at least two accounts to verify your profile.</p>
 )}
            {isVerified && (
   <motion.div 
