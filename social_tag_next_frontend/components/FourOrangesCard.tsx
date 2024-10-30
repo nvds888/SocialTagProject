@@ -90,6 +90,12 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
       <div className="absolute top-0 right-0 orange-accent"></div>
       <div className="absolute bottom-0 left-0 orange-accent rotate-180"></div>
       
+      {/* Decorative Oranges */}
+      <div className="absolute top-4 left-4 transform -rotate-15 opacity-10 text-2xl">🍊</div>
+      <div className="absolute top-4 right-4 transform rotate-15 opacity-10 text-2xl">🍊</div>
+      <div className="absolute bottom-4 left-4 transform rotate-15 opacity-10 text-2xl">🍊</div>
+      <div className="absolute bottom-4 right-4 transform -rotate-15 opacity-10 text-2xl">🍊</div>
+      
       {/* Subtle Pattern Overlay */}
       <div className="absolute inset-0 z-0 opacity-5 carbon-pattern"></div>
       
@@ -162,7 +168,7 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col items-center mb-6">
+        <div className="flex flex-col items-center mb-4">
           <div 
             className={`w-32 h-32 rounded-lg overflow-hidden mb-4 relative ${
               profileNFT ? 'cursor-pointer' : ''
@@ -197,23 +203,14 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           {jobTitle && <p className="text-xl text-gray-400 font-mono">{jobTitle}</p>}
         </div>
 
-        <div className="mb-6 flex-grow">
+        <div className="mb-4">
           <h3 className="text-2xl font-semibold text-[#FF8C42] mb-2 font-mono">About me:</h3>
           <p className="text-gray-300 text-lg font-mono leading-relaxed">
             {bio ? truncateBio(bio, 25) : "No bio provided yet."}
           </p>
         </div>
 
-        {email && (
-          <Button
-            variant="outline"
-            className="w-full text-lg mb-6 bg-[#2A2A2A] hover:bg-[#333333] text-gray-200 border border-[#333333] font-mono transition-all"
-          >
-            {email}
-          </Button>
-        )}
-
-        <div className="flex justify-center space-x-6 mt-auto">
+        <div className="flex justify-center space-x-6 mb-6">
           <TooltipProvider>
             {socialIcons.map(({ platform, icon: Icon, data, field, url }) => (
               <Tooltip key={platform}>
@@ -243,6 +240,15 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
             ))}
           </TooltipProvider>
         </div>
+
+        {email && (
+          <Button
+            variant="outline"
+            className="w-full text-lg bg-[#2A2A2A] hover:bg-[#333333] text-gray-200 border border-[#333333] font-mono transition-all mt-auto"
+          >
+            {email}
+          </Button>
+        )}
       </CardContent>
       
       <style jsx>{`
@@ -257,6 +263,16 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           background: radial-gradient(circle at center, transparent 30%, rgba(255, 140, 66, 0.1) 60%, transparent 70%);
           filter: blur(20px);
           transform: translate(50%, -50%);
+          animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.6;
+          }
         }
 
         .profile-container::before {
@@ -279,25 +295,32 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           }
         }
 
-        /* Orange decorative elements */
-        .card::before {
-          content: '🍊';
-          position: absolute;
-          top: 20px;
-          left: 20px;
-          font-size: 24px;
-          opacity: 0.1;
-          transform: rotate(-15deg);
+        /* Decorative orange rotations */
+        @keyframes floatOrange {
+          0%, 100% {
+            transform: translate(0, 0) rotate(0deg);
+          }
+          50% {
+            transform: translate(5px, -5px) rotate(10deg);
+          }
         }
 
-        .card::after {
-          content: '🍊';
-          position: absolute;
-          bottom: 20px;
-          right: 20px;
-          font-size: 24px;
-          opacity: 0.1;
-          transform: rotate(15deg);
+        /* Apply float animation to decorative oranges */
+        div[class*="transform rotate"] {
+          animation: floatOrange 6s ease-in-out infinite;
+          animation-delay: var(--delay, 0s);
+        }
+
+        div[class*="transform rotate"]:nth-child(2) {
+          --delay: 1.5s;
+        }
+
+        div[class*="transform rotate"]:nth-child(3) {
+          --delay: 3s;
+        }
+
+        div[class*="transform rotate"]:nth-child(4) {
+          --delay: 4.5s;
         }
 
         /* Subtle shine effect */
