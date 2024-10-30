@@ -72,23 +72,24 @@ async (req, token, tokenSecret, profile, done) => {
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_APP_ID,
   clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook/callback`,  // Update this to match others
+  callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook/callback`,
   profileFields: ['id', 'displayName', 'email'],
-  passReqToCallback: true  // Add this
+  passReqToCallback: true
 },
 async (req, accessToken, refreshToken, profile, done) => {
   try {
     const token = req.query.state;
     console.log('Processing Facebook auth with linking token:', token);
 
-    // Find linking token
+    // Find valid linking token with 5-minute validation
     const linkingToken = await LinkingToken.findOne({
       token: token,
-      used: false
+      used: false,
+      createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) }
     });
 
     if (!linkingToken) {
-      console.error('Invalid or expired linking token');
+      console.error('Invalid, expired, or used linking token');
       return done(null, false, { message: 'Invalid linking token' });
     }
 
@@ -104,7 +105,7 @@ async (req, accessToken, refreshToken, profile, done) => {
     user.facebook = {
       id: profile.id,
       name: profile.displayName,
-      email: profile.emails[0].value,
+      email: profile.emails[0]?.value,
       token: accessToken
     };
 
@@ -148,20 +149,21 @@ passport.use('linkedin', new LinkedInStrategy({
   clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
   callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/auth/linkedin/callback`,
   scope: ['openid', 'profile', 'email'],
-  passReqToCallback: true  // Add this
+  passReqToCallback: true
 }, async (req, accessToken, refreshToken, profile, done) => {
   try {
-    const token = req.query.state;  // Get from state parameter
+    const token = req.query.state;
     console.log('Processing LinkedIn auth with linking token:', token);
 
-    // Find linking token
+    // Find valid linking token with 5-minute validation
     const linkingToken = await LinkingToken.findOne({
       token: token,
-      used: false
+      used: false,
+      createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) }
     });
 
     if (!linkingToken) {
-      console.error('Invalid or expired linking token');
+      console.error('Invalid, expired, or used linking token');
       return done(null, false, { message: 'Invalid linking token' });
     }
 
@@ -202,17 +204,18 @@ passport.use(new GitHubStrategy({
 },
 async (req, accessToken, refreshToken, profile, done) => {
   try {
-    const token = req.query.state;  // Get from state instead of session
+    const token = req.query.state;
     console.log('Processing GitHub auth with linking token:', token);
 
-    // Find linking token
+    // Find valid linking token with 5-minute validation
     const linkingToken = await LinkingToken.findOne({
       token: token,
-      used: false
+      used: false,
+      createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) }
     });
 
     if (!linkingToken) {
-      console.error('Invalid or expired linking token');
+      console.error('Invalid, expired, or used linking token');
       return done(null, false, { message: 'Invalid linking token' });
     }
 
@@ -232,10 +235,7 @@ async (req, accessToken, refreshToken, profile, done) => {
       token: accessToken
     };
 
-    // Save user but DON'T mark token as used yet
     await user.save();
-    
-    // Add token to user object for the callback
     user.linkingToken = linkingToken;
     
     console.log('Successfully added GitHub to user:', linkingToken.twitterUsername);
