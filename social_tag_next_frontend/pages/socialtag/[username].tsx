@@ -195,7 +195,7 @@ export default function PublicProfilePage() {
     Default: ProfileCard,
     'Frosted Glass': FrostedGlassCard,
     Holographic: HolographicCard,
-    'FourOranges': FourOrangesCard,
+    'Four Oranges': FourOrangesCard,
   }[profile.cardStyle] || ProfileCard
 
   return (
