@@ -20,6 +20,7 @@ import AbstractDataFlow from '../../components/AbstractDataFlow'
 import PeraWalletBackground from '../../components/PeraWalletBackground'
 import NFTicketBackground from '../../components/NFTicketBackground'
 import SustainableCoffeeBackground from '../../components/SustainableCoffeeBackground'
+import FourOrangesCard from '../../components/FourOrangesCard'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
@@ -193,7 +194,8 @@ export default function PublicProfilePage() {
   const CardComponent = {
     Default: ProfileCard,
     'Frosted Glass': FrostedGlassCard,
-    Holographic: HolographicCard
+    Holographic: HolographicCard,
+    FourOranges: FourOrangesCard,
   }[profile.cardStyle] || ProfileCard
 
   return (
