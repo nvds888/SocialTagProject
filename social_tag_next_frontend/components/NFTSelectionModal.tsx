@@ -65,17 +65,27 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         }
       }
 
-      // Case 3: Handle ARC3 NFTs (Test1, WarriorCroc)
+      // Case 3: Handle ARC3 NFTs
       if (nft.url?.includes('#arc3')) {
         try {
-          const baseUrl = nft.url.split('#')[0];
-          const ipfsUrl = baseUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
-          console.log('Fetching ARC3 metadata from:', ipfsUrl);
-          const response = await axios.get(ipfsUrl);
+          let baseUrl = nft.url.split('#')[0];
+          // Handle direct IPFS URLs
+          if (baseUrl.startsWith('ipfs://')) {
+            baseUrl = `https://ipfs.io/ipfs/${baseUrl.slice(7)}`;
+          }
+          console.log('Fetching ARC3 metadata from:', baseUrl);
+          
+          const response = await axios.get(baseUrl);
+          console.log('ARC3 metadata response:', response.data);
+          
           if (response.data.image) {
-            return response.data.image.startsWith('ipfs://')
-              ? `https://ipfs.io/ipfs/${response.data.image.slice(7)}`
-              : response.data.image;
+            const imageUrl = response.data.image;
+            if (imageUrl.startsWith('ipfs://')) {
+              const ipfsHash = imageUrl.slice(7);
+              console.log('Converting IPFS image URL:', ipfsHash);
+              return `https://ipfs.io/ipfs/${ipfsHash}`;
+            }
+            return imageUrl;
           }
         } catch (error) {
           console.warn('Failed to fetch ARC3 metadata:', error);
@@ -85,33 +95,40 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       // Case 4: Handle template-ipfs URLs
       if (nft.url?.startsWith('template-ipfs://')) {
         try {
-          // Try multiple potential CID sources
           const cid = nft.reserve || nft['metadata-hash'];
           if (!cid) return '/placeholder-nft.png';
 
           const response = await axios.get(`https://ipfs.io/ipfs/${cid}`);
+          console.log('Template IPFS response:', response.data);
+          
           if (response.data.image) {
-            return response.data.image.startsWith('ipfs://')
-              ? `https://ipfs.io/ipfs/${response.data.image.slice(7)}`
-              : response.data.image;
+            const imageUrl = response.data.image;
+            if (imageUrl.startsWith('ipfs://')) {
+              return `https://ipfs.io/ipfs/${imageUrl.slice(7)}`;
+            }
+            return imageUrl;
           }
         } catch (error) {
           console.warn('Failed to fetch template IPFS metadata:', error);
         }
       }
 
-      // Case 5: Handle direct IPFS URLs with fragments (Wright Brothers)
+      // Case 5: Handle direct IPFS URLs
       if (nft.url?.startsWith('ipfs://')) {
-        const ipfsPath = nft.url.split('#')[0].slice(7); // Remove fragment and 'ipfs://'
+        const ipfsPath = nft.url.split('#')[0].slice(7);
         const url = `https://ipfs.io/ipfs/${ipfsPath}`;
         
-        // Try to fetch metadata first
         try {
+          // Try to fetch as metadata first
           const response = await axios.get(url);
+          console.log('IPFS response:', response.data);
+          
           if (response.data.image) {
-            return response.data.image.startsWith('ipfs://')
-              ? `https://ipfs.io/ipfs/${response.data.image.slice(7)}`
-              : response.data.image;
+            const imageUrl = response.data.image;
+            if (imageUrl.startsWith('ipfs://')) {
+              return `https://ipfs.io/ipfs/${imageUrl.slice(7)}`;
+            }
+            return imageUrl;
           }
         } catch {
           // If metadata fetch fails, try using the URL directly
@@ -128,9 +145,10 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
             // Try to fetch metadata first
             const response = await axios.get(url);
             if (response.data.image) {
-              return response.data.image.startsWith('ipfs://')
-                ? `https://ipfs.io/ipfs/${response.data.image.slice(7)}`
-                : response.data.image;
+              if (response.data.image.startsWith('ipfs://')) {
+                return `https://ipfs.io/ipfs/${response.data.image.slice(7)}`;
+              }
+              return response.data.image;
             }
           } catch {
             // If metadata fetch fails, return the direct URL
@@ -210,7 +228,6 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
     }
   }, [isOpen, nfts]);
 
-  // Rest of the component remains exactly the same...
   return (
     <AnimatePresence>
       {isOpen && (
