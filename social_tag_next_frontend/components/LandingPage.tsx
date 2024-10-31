@@ -24,6 +24,7 @@ export default function LandingPage() {
   const [username, setUsername] = useState<string | null>(null)
   const featuresRef = useRef<HTMLElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -36,6 +37,34 @@ export default function LandingPage() {
       }
     }
     checkAuthStatus()
+  }, [])
+
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.5,
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && videoRef.current) {
+          videoRef.current.play()
+        } else if (videoRef.current) {
+          videoRef.current.pause()
+        }
+      })
+    }, options)
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current)
+    }
+
+    return () => {
+      if (videoRef.current) {
+        observer.unobserve(videoRef.current)
+      }
+    }
   }, [])
 
   const handleCreateProfileClick = () => {
@@ -184,19 +213,31 @@ export default function LandingPage() {
                 <p className="text-gray-600 mb-4">
                 SocialTag has a vision for a more authentic online social world. In an era where URL links are thrown at you from every corner of the web, it&apos;s crucial for users to have a way to prove if someone really has access to account X or Y. SocialTag enables users to link multiple accounts together and handles verification securely on the blockchain.
                 </p>
-              
                 <p className="text-gray-600">
                 Through this blockchain-based verification, users gain undeniable proof of authenticity, showcasing their identity across platforms with integrity. SocialTag offers a new approach to the traditional link-sharing experience - one that emphasizes trust and transparency.
                 </p>
               </div>
-              <div className="about-image md:w-1/2">
-                <Image 
-                  src="/placeholder.svg?height=300&width=500" 
-                  alt="About SocialTag" 
-                  width={500} 
-                  height={300} 
-                  className="rounded-lg shadow-lg"
-                />
+              <div className="about-video md:w-1/2 relative rounded-lg overflow-hidden shadow-lg">
+                <video
+                  ref={videoRef}
+                  className="w-full h-auto rounded-lg"
+                  playsInline
+                  muted
+                  loop
+                  preload="metadata"
+                >
+                  <source src="/SocialTag-Veed.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+                <noscript>
+                  <Image 
+                    src="/placeholder.svg?height=300&width=500" 
+                    alt="About SocialTag" 
+                    width={500} 
+                    height={300} 
+                    className="rounded-lg shadow-lg"
+                  />
+                </noscript>
               </div>
             </div>
           </section>
@@ -269,7 +310,7 @@ export default function LandingPage() {
             >
               &times;
             </button>
-            </motion.div>
+          </motion.div>
         </div>
       )}
 
