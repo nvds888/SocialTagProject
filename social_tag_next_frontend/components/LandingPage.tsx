@@ -8,12 +8,16 @@ import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagra
 import { motion } from 'framer-motion'
 import SpotifyIcon from '@/components/SpotifyIcon' 
 import Leaderboard from '@/components/Leaderboard'
+import LavaEffect from '@/components/LavaEffect'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
-const FeatureIcon = ({ Icon }: { Icon: React.ElementType }) => (
-  <div className="icon-wrapper bg-gray-100 rounded-full p-4">
-    <Icon size={32} className="feature-icon text-black" />
+const FeatureIcon = ({ Icon, color }: { Icon: React.ElementType; color: string }) => (
+  <div className="icon-wrapper relative group">
+    <div className={`absolute inset-0 bg-${color} opacity-10 rounded-full blur-xl transition-all duration-300 group-hover:opacity-20 group-hover:blur-2xl`} />
+    <div className="relative transform transition-all duration-300 group-hover:scale-110">
+      <Icon size={48} className="feature-icon text-white" strokeWidth={1.5} />
+    </div>
   </div>
 )
 
@@ -178,68 +182,89 @@ export default function LandingPage() {
             <ChevronDown size={32} className="bounce mx-auto text-black" />
           </div>
 
-          {/* About Section - Now Above Features */}
+          {/* About Section */}
           <section ref={aboutRef} className="about-section mb-20">
-  <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-4xl mx-auto">
-    <div className="max-w-2xl mx-auto">
-      <div className="relative rounded-lg overflow-hidden shadow-2xl">
-        <video
-          ref={videoRef}
-          className="w-full h-auto rounded-lg"
-          playsInline
-          muted
-          loop
-          controls
-          preload="metadata"
-        >
-          <source src="/SocialTag-Veed.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        <noscript>
-          <Image 
-            src="/placeholder.svg?height=300&width=600" 
-            alt="About SocialTag" 
-            width={600} 
-            height={300} 
-            className="rounded-lg shadow-lg"
-          />
-        </noscript>
-      </div>
-    </div>
-  </div>
-</section>
+            <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-4xl mx-auto">
+              <div className="max-w-2xl mx-auto">
+                <div className="relative rounded-lg overflow-hidden shadow-2xl">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-auto rounded-lg"
+                    playsInline
+                    muted
+                    loop
+                    controls
+                    preload="metadata"
+                  >
+                    <source src="/SocialTag-Veed.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  <noscript>
+                    <Image 
+                      src="/placeholder.svg?height=300&width=600" 
+                      alt="About SocialTag" 
+                      width={600} 
+                      height={300} 
+                      className="rounded-lg shadow-lg"
+                    />
+                  </noscript>
+                </div>
+              </div>
+            </div>
+          </section>
 
-          {/* Features Section */}
-          <section ref={featuresRef} className="features-section mb-20 px-4">
-            <h2 className="section-title text-3xl font-bold text-center mb-12 text-black">Key Features</h2>
-            <div className="feature-cards grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-              <motion.div 
-                className="feature-card bg-[#FFB951] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
-              >
-                <FeatureIcon Icon={CheckCircle} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Authentic You</h3>
-                <p className="text-gray-800">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
-              </motion.div>
-              <motion.div 
-                className="feature-card bg-[#40E0D0] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
-              >
-                <FeatureIcon Icon={User} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Customize Your &apos;Tag&apos;</h3>
-                <p className="text-gray-800">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
-              </motion.div>
-              <motion.div 
-                className="feature-card bg-[#FF6B6B] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }} 
-              >
-                <FeatureIcon Icon={Coins} />
-                <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Reward Points</h3>
-                <p className="text-gray-800">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
-              </motion.div>
+          {/* Modernized Features Section */}
+          <section ref={featuresRef} className="features-section relative mb-20 min-h-[600px] overflow-hidden">
+            <div className="absolute inset-0">
+              <LavaEffect />
+            </div>
+            
+            <div className="relative z-10 px-4 py-16">
+              <h2 className="section-title text-4xl font-bold text-center mb-16 text-white">
+                Key Features
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <motion.div 
+                  className="feature-card backdrop-blur-md bg-[#FFB951]/10 p-8 rounded-2xl border border-[#FFB951]/30 shadow-xl hover:shadow-2xl transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <FeatureIcon Icon={CheckCircle} color="#FFB951" />
+                  <h3 className="text-xl font-semibold mb-4 text-white mt-6">Authentic You</h3>
+                  <p className="text-gray-200">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
+                </motion.div>
+
+                <motion.div 
+                  className="feature-card backdrop-blur-md bg-[#40E0D0]/10 p-8 rounded-2xl border border-[#40E0D0]/30 shadow-xl hover:shadow-2xl transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <FeatureIcon Icon={User} color="#40E0D0" />
+                  <h3 className="text-xl font-semibold mb-4 text-white mt-6">Customize Your &apos;Tag&apos;</h3>
+                  <p className="text-gray-200">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
+                </motion.div>
+
+                <motion.div 
+                  className="feature-card backdrop-blur-md bg-[#FF6B6B]/10 p-8 rounded-2xl border border-[#FF6B6B]/30 shadow-xl hover:shadow-2xl transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <FeatureIcon Icon={Coins} color="#FF6B6B" />
+                  <h3 className="text-xl font-semibold mb-4 text-white mt-6">Earn Reward Points</h3>
+                  <p className="text-gray-200">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
+                </motion.div>
+              </div>
             </div>
           </section>
         </main>
+
         <footer className="landing-footer text-center p-6 bg-black text-white">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -288,42 +313,42 @@ export default function LandingPage() {
 
       {showPopup && (
         <div className="popup-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <motion.div 
-            className="popup-content bg-white text-black p-8 rounded-lg relative max-w-md w-full"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
+        <motion.div 
+          className="popup-content bg-white text-black p-8 rounded-lg relative max-w-md w-full"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <h3 className="text-2xl font-bold mb-6 text-center">Sign Up / In</h3>
+          <button
+            className="twitter-auth-button bg-[#FF6B6B] text-white w-full px-4 py-3 rounded-none flex items-center justify-center text-lg font-semibold hover:bg-opacity-80 transition-colors"
+            onClick={handleTwitterAuth}
           >
-            <h3 className="text-2xl font-bold mb-6 text-center">Sign Up / In</h3>
-            <button
-              className="twitter-auth-button bg-[#FF6B6B] text-white w-full px-4 py-3 rounded-none flex items-center justify-center text-lg font-semibold hover:bg-opacity-80 transition-colors"
-              onClick={handleTwitterAuth}
-            >
-              <Twitter size={24} className="mr-2" />
-              Proceed with X
-            </button>
-            <button
-              className="close-popup absolute top-2 right-2 text-2xl text-black hover:text-gray-600 transition-colors"
-              onClick={() => setShowPopup(false)}
-            >
-              &times;
-            </button>
-          </motion.div>
-        </div>
-      )}
+            <Twitter size={24} className="mr-2" />
+            Proceed with X
+          </button>
+          <button
+            className="close-popup absolute top-2 right-2 text-2xl text-black hover:text-gray-600 transition-colors"
+            onClick={() => setShowPopup(false)}
+          >
+            &times;
+          </button>
+        </motion.div>
+      </div>
+    )}
 
-<Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
+    <Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
 
-<style jsx>{`
-  .bounce {
-    animation: bounce 2s infinite;
-  }
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
-  }
-`}</style>
-</div>
+    <style jsx>{`
+      .bounce {
+        animation: bounce 2s infinite;
+      }
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+      }
+    `}</style>
+  </div>
 )
 }
