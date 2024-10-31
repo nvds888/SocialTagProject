@@ -179,35 +179,36 @@ export default function LandingPage() {
           </div>
 
           {/* About Section - Now Above Features */}
-          <section ref={aboutRef} className="about-section mb-20 mx-4">
-            <div className="bg-[#9B8AC4] rounded-3xl px-4 py-20">
-              <div className="max-w-4xl mx-auto">
-                <div className="relative rounded-lg overflow-hidden shadow-2xl">
-                  <video
-                    ref={videoRef}
-                    className="w-full h-auto rounded-lg"
-                    playsInline
-                    muted
-                    loop
-                    controls
-                    preload="metadata"
-                  >
-                    <source src="/SocialTag-Veed.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                  <noscript>
-                    <Image 
-                      src="/placeholder.svg?height=400&width=800" 
-                      alt="About SocialTag" 
-                      width={800} 
-                      height={400} 
-                      className="rounded-lg shadow-lg"
-                    />
-                  </noscript>
-                </div>
-              </div>
-            </div>
-          </section>
+          <section ref={aboutRef} className="about-section mb-20">
+  <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-3xl mx-auto">
+    <h2 className="section-title text-3xl font-bold text-center mb-8 text-white">About SocialTag</h2>
+    <div className="max-w-2xl mx-auto">
+      <div className="relative rounded-lg overflow-hidden shadow-2xl">
+        <video
+          ref={videoRef}
+          className="w-full h-auto rounded-lg"
+          playsInline
+          muted
+          loop
+          controls
+          preload="metadata"
+        >
+          <source src="/SocialTag-Veed.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <noscript>
+          <Image 
+            src="/placeholder.svg?height=300&width=600" 
+            alt="About SocialTag" 
+            width={600} 
+            height={300} 
+            className="rounded-lg shadow-lg"
+          />
+        </noscript>
+      </div>
+    </div>
+  </div>
+</section>
 
           {/* Features Section */}
           <section ref={featuresRef} className="features-section mb-20 px-4">
