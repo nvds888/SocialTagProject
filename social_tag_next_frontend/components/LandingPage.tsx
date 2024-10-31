@@ -180,8 +180,7 @@ export default function LandingPage() {
 
           {/* About Section - Now Above Features */}
           <section ref={aboutRef} className="about-section mb-20">
-  <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-3xl mx-auto">
-    <h2 className="section-title text-3xl font-bold text-center mb-8 text-white">About SocialTag</h2>
+  <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-3.5xl mx-auto">
     <div className="max-w-2xl mx-auto">
       <div className="relative rounded-lg overflow-hidden shadow-2xl">
         <video
