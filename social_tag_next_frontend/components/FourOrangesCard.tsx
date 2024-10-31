@@ -90,11 +90,13 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
       <div className="absolute top-0 right-0 orange-accent"></div>
       <div className="absolute bottom-0 left-0 orange-accent rotate-180"></div>
       
-      {/* Decorative Oranges */}
-      <div className="absolute top-4 left-4 transform -rotate-15 orange-decoration">🍊</div>
-      <div className="absolute top-4 right-4 transform rotate-15 orange-decoration">🍊</div>
-      <div className="absolute bottom-4 left-4 transform rotate-15 orange-decoration">🍊</div>
-      <div className="absolute bottom-4 right-4 transform -rotate-15 orange-decoration">🍊</div>
+      {/* Grouped Decorative Oranges */}
+      <div className="absolute bottom-4 left-4 orange-group">
+        <div className="orange-decoration">🍊</div>
+        <div className="orange-decoration">🍊</div>
+        <div className="orange-decoration">🍊</div>
+        <div className="orange-decoration">🍊</div>
+      </div>
       
       {/* Pattern Overlay */}
       <div className="absolute inset-0 z-0 opacity-5 carbon-pattern"></div>
@@ -170,13 +172,13 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
 
         <div className="flex flex-col items-center mb-6">
           <div 
-            className={`w-32 h-32 rounded-lg overflow-hidden mb-4 relative ${
+            className={`w-32 h-32 rounded-full overflow-hidden mb-4 relative ${
               profileNFT ? 'cursor-pointer' : ''
             } border-2 border-[#333333] profile-container`}
             onClick={profileNFT ? handleNFTClick : undefined}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#2A2A2A] to-[#1A1A1A]"></div>
-            <div className="absolute inset-[2px] rounded-lg overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#2A2A2A] to-[#1A1A1A] rounded-full"></div>
+            <div className="absolute inset-[2px] rounded-full overflow-hidden">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -270,14 +272,22 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           animation: pulse 3s ease-in-out infinite;
         }
 
+        .orange-group {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 4px;
+          width: fit-content;
+          transform: rotate(-15deg);
+          z-index: 30;
+        }
+
         .orange-decoration {
           font-size: 32px;
-          opacity: 0.3;
-          filter: brightness(1.5);
-          text-shadow: 0 0 10px rgba(255, 140, 66, 0.5);
+          opacity: 0.4;
+          filter: brightness(2);
+          text-shadow: 0 0 10px rgba(255, 140, 66, 0.8);
           animation: floatOrange 6s ease-in-out infinite;
           animation-delay: var(--delay, 0s);
-          z-index: 10;
         }
 
         @keyframes pulse {
@@ -298,6 +308,7 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           mask-composite: xor;
           pointer-events: none;
           animation: borderRotate 4s linear infinite;
+          border-radius: 50%;
         }
 
         @keyframes borderRotate {
@@ -311,25 +322,33 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
 
         @keyframes floatOrange {
           0%, 100% {
-            transform: translate(0, 0) rotate(0deg);
-            filter: brightness(1.5);
-          }
-          50% {
-            transform: translate(5px, -5px) rotate(10deg);
+            transform: translate(0, 0) scale(1);
             filter: brightness(2);
           }
+          50% {
+            transform: translate(2px, -2px) scale(1.1);
+            filter: brightness(2.5);
+          }
+        }
+
+        .orange-decoration:nth-child(1) {
+          --delay: 0s;
+          animation-duration: 4s;
         }
 
         .orange-decoration:nth-child(2) {
-          --delay: 1.5s;
+          --delay: 1s;
+          animation-duration: 4.5s;
         }
 
         .orange-decoration:nth-child(3) {
-          --delay: 3s;
+          --delay: 2s;
+          animation-duration: 5s;
         }
 
         .orange-decoration:nth-child(4) {
-          --delay: 4.5s;
+          --delay: 3s;
+          animation-duration: 5.5s;
         }
 
         .shine-effect {
@@ -358,6 +377,14 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
           100% {
             left: 200%;
           }
+        }
+
+        .profile-container {
+          transition: transform 0.3s ease;
+        }
+
+        .profile-container:hover {
+          transform: scale(1.05);
         }
 
         .profile-container:hover::before {
