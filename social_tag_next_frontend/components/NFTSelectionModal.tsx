@@ -41,6 +41,14 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
 
   const getImageUrl = async (nft: NFT): Promise<string> => {
     try {
+      console.log('Processing NFT:', nft);
+
+      // Skip NFDs
+      if (nft.name?.toLowerCase().includes('nfd') || nft.name?.toLowerCase().includes('.algo')) {
+        console.log('Skipping NFD:', nft.name);
+        return '';
+      }
+
       // Case 1: Direct image URL already exists
       if (nft.image && !nft.image.includes('ipfs://')) {
         return nft.image;
@@ -57,10 +65,31 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         }
       }
 
-      // Case 3: Handle template-ipfs URLs
+      // Case 3: Handle ARC3 NFTs (Test1, WarriorCroc)
+      if (nft.url?.includes('#arc3')) {
+        try {
+          const baseUrl = nft.url.split('#')[0];
+          const ipfsUrl = baseUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
+          console.log('Fetching ARC3 metadata from:', ipfsUrl);
+          const response = await axios.get(ipfsUrl);
+          if (response.data.image) {
+            return response.data.image.startsWith('ipfs://')
+              ? `https://ipfs.io/ipfs/${response.data.image.slice(7)}`
+              : response.data.image;
+          }
+        } catch (error) {
+          console.warn('Failed to fetch ARC3 metadata:', error);
+        }
+      }
+
+      // Case 4: Handle template-ipfs URLs
       if (nft.url?.startsWith('template-ipfs://')) {
         try {
-          const response = await axios.get(`https://ipfs.io/ipfs/${nft.reserve}`);
+          // Try multiple potential CID sources
+          const cid = nft.reserve || nft['metadata-hash'];
+          if (!cid) return '/placeholder-nft.png';
+
+          const response = await axios.get(`https://ipfs.io/ipfs/${cid}`);
           if (response.data.image) {
             return response.data.image.startsWith('ipfs://')
               ? `https://ipfs.io/ipfs/${response.data.image.slice(7)}`
@@ -71,20 +100,46 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         }
       }
 
-      // Case 4: Handle direct IPFS URLs
+      // Case 5: Handle direct IPFS URLs with fragments (Wright Brothers)
       if (nft.url?.startsWith('ipfs://')) {
-        return `https://ipfs.io/ipfs/${nft.url.slice(7)}`;
-      }
-
-      // Case 5: Handle IPFS CID template
-      if (nft.url?.includes('{ipfscid')) {
-        const cid = nft['metadata-hash'] || nft.reserve;
-        if (cid) {
-          return `https://ipfs.io/ipfs/${cid}`;
+        const ipfsPath = nft.url.split('#')[0].slice(7); // Remove fragment and 'ipfs://'
+        const url = `https://ipfs.io/ipfs/${ipfsPath}`;
+        
+        // Try to fetch metadata first
+        try {
+          const response = await axios.get(url);
+          if (response.data.image) {
+            return response.data.image.startsWith('ipfs://')
+              ? `https://ipfs.io/ipfs/${response.data.image.slice(7)}`
+              : response.data.image;
+          }
+        } catch {
+          // If metadata fetch fails, try using the URL directly
+          return url;
         }
       }
 
-      // Case 6: Handle direct URL with metadata
+      // Case 6: Handle IPFS CID template
+      if (nft.url?.includes('{ipfscid')) {
+        const cid = nft['metadata-hash'] || nft.reserve;
+        if (cid) {
+          const url = `https://ipfs.io/ipfs/${cid}`;
+          try {
+            // Try to fetch metadata first
+            const response = await axios.get(url);
+            if (response.data.image) {
+              return response.data.image.startsWith('ipfs://')
+                ? `https://ipfs.io/ipfs/${response.data.image.slice(7)}`
+                : response.data.image;
+            }
+          } catch {
+            // If metadata fetch fails, return the direct URL
+            return url;
+          }
+        }
+      }
+
+      // Case 7: Handle direct URL with metadata
       if (nft.url && !nft.url.includes('ipfs://') && !nft.url.includes('{ipfscid')) {
         try {
           const response = await axios.get(nft.url);
@@ -99,7 +154,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         }
       }
 
-      // Case 7: Check if the URL itself is a direct image link
+      // Case 8: Check if the URL itself is a direct image link
       if (nft.url && (
         nft.url.endsWith('.jpg') || 
         nft.url.endsWith('.jpeg') || 
@@ -121,13 +176,16 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
     setLoadingStates(prev => ({ ...prev, [nft.id]: true }));
     try {
       const image = await getImageUrl(nft);
-      setResolvedNFTs(prev => {
-        const existing = prev.find(n => n.id === nft.id);
-        if (existing) {
-          return prev.map(n => n.id === nft.id ? { ...n, image } : n);
-        }
-        return [...prev, { ...nft, image }];
-      });
+      // Only add NFT if it has a valid image and is not an NFD
+      if (image && !nft.name?.toLowerCase().includes('nfd') && !nft.name?.toLowerCase().includes('.algo')) {
+        setResolvedNFTs(prev => {
+          const existing = prev.find(n => n.id === nft.id);
+          if (existing) {
+            return prev.map(n => n.id === nft.id ? { ...n, image } : n);
+          }
+          return [...prev, { ...nft, image }];
+        });
+      }
     } finally {
       setLoadingStates(prev => ({ ...prev, [nft.id]: false }));
     }
@@ -139,13 +197,20 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       setResolvedNFTs([]);
       setLoadingStates({});
       
+      // Filter out NFDs before processing
+      const filteredNFTs = nfts.filter(nft => 
+        !nft.name?.toLowerCase().includes('nfd') && 
+        !nft.name?.toLowerCase().includes('.algo')
+      );
+      
       // Resolve all NFTs in parallel
-      nfts.forEach(nft => {
+      filteredNFTs.forEach(nft => {
         resolveNFTImage(nft);
       });
     }
   }, [isOpen, nfts]);
 
+  // Rest of the component remains exactly the same...
   return (
     <AnimatePresence>
       {isOpen && (
