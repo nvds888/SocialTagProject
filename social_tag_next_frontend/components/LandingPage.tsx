@@ -179,36 +179,35 @@ export default function LandingPage() {
           </div>
 
           {/* About Section - Now Above Features */}
-          <section ref={aboutRef} className="about-section mb-20">
-  <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-5xl mx-auto">
-    <h2 className="section-title text-3xl font-bold text-center mb-8 text-white">About SocialTag</h2>
-    <div className="max-w-4xl mx-auto">
-      <div className="relative rounded-lg overflow-hidden shadow-2xl">
-        <video
-          ref={videoRef}
-          className="w-full h-auto rounded-lg"
-          playsInline
-          muted
-          loop
-          controls
-          preload="metadata"
-        >
-          <source src="/SocialTag-Veed.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        <noscript>
-          <Image 
-            src="/placeholder.svg?height=400&width=800" 
-            alt="About SocialTag" 
-            width={800} 
-            height={400} 
-            className="rounded-lg shadow-lg"
-          />
-        </noscript>
-      </div>
-    </div>
-  </div>
-</section>
+          <section ref={aboutRef} className="about-section mb-20 mx-4">
+            <div className="bg-[#9B8AC4] rounded-3xl px-4 py-20">
+              <div className="max-w-4xl mx-auto">
+                <div className="relative rounded-lg overflow-hidden shadow-2xl">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-auto rounded-lg"
+                    playsInline
+                    muted
+                    loop
+                    controls
+                    preload="metadata"
+                  >
+                    <source src="/SocialTag-Veed.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  <noscript>
+                    <Image 
+                      src="/placeholder.svg?height=400&width=800" 
+                      alt="About SocialTag" 
+                      width={800} 
+                      height={400} 
+                      className="rounded-lg shadow-lg"
+                    />
+                  </noscript>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* Features Section */}
           <section ref={featuresRef} className="features-section mb-20 px-4">
@@ -231,7 +230,7 @@ export default function LandingPage() {
                 <p className="text-gray-800">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
               </motion.div>
               <motion.div 
-                className="feature-card bg-[#9B8AC4] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
+                className="feature-card bg-[#FF6B6B] p-10 rounded-xl text-left transition-all duration-300 shadow-lg"
                 whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }} 
               >
                 <FeatureIcon Icon={Coins} />
