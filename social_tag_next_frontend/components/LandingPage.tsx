@@ -22,7 +22,7 @@ export default function LandingPage() {
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [username, setUsername] = useState<string | null>(null)
-  const [isMuted, setIsMuted] = useState(true)
+  const [isMuted] = useState(true)
   const featuresRef = useRef<HTMLElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -221,32 +221,30 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="about-video md:w-1/2 relative rounded-lg overflow-hidden shadow-lg">
-                <div className="relative">
-                  <video
-                    ref={videoRef}
-                    className="w-full h-auto rounded-lg"
-                    playsInline
-                    muted={isMuted}
-                    loop
-                    controls
-                    preload="metadata"
-                  >
-                    <source src="/SocialTag-Veed.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                  
-                  
-                  <noscript>
-                    <Image 
-                      src="/placeholder.svg?height=300&width=500" 
-                      alt="About SocialTag" 
-                      width={500} 
-                      height={300} 
-                      className="rounded-lg shadow-lg"
-                    />
-                  </noscript>
-                </div>
-              </div>
+  <div className="relative">
+    <video
+      ref={videoRef}
+      className="w-full h-auto rounded-lg"
+      playsInline
+      muted
+      loop
+      controls
+      preload="metadata"
+    >
+      <source src="/SocialTag-Veed.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+    <noscript>
+      <Image 
+        src="/placeholder.svg?height=300&width=500" 
+        alt="About SocialTag" 
+        width={500} 
+        height={300} 
+        className="rounded-lg shadow-lg"
+      />
+    </noscript>
+  </div>
+</div>
             </div>
           </section>
         </main>
