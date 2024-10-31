@@ -22,7 +22,6 @@ export default function LandingPage() {
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [username, setUsername] = useState<string | null>(null)
-  const [isMuted] = useState(true)
   const featuresRef = useRef<HTMLElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -50,9 +49,7 @@ export default function LandingPage() {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting && videoRef.current) {
-          if (isMuted) {
-            videoRef.current.play()
-          }
+          videoRef.current.play()
         } else if (videoRef.current) {
           videoRef.current.pause()
         }
@@ -68,7 +65,7 @@ export default function LandingPage() {
         observer.unobserve(videoRef.current)
       }
     }
-  }, [isMuted])
+  }, [])
 
   const handleCreateProfileClick = () => {
     setShowPopup(true)
@@ -180,6 +177,40 @@ export default function LandingPage() {
             <p className="mb-2 text-gray-600">Scroll to learn more</p>
             <ChevronDown size={32} className="bounce mx-auto text-black" />
           </div>
+
+          {/* About Section - Now Above Features */}
+          <section ref={aboutRef} className="about-section mb-20 mx-4">
+            <div className="bg-[#9B8AC4] rounded-3xl px-4 py-20">
+              <h2 className="section-title text-3xl font-bold text-center mb-12 text-white">About SocialTag</h2>
+              <div className="max-w-4xl mx-auto">
+                <div className="relative rounded-lg overflow-hidden shadow-2xl">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-auto rounded-lg"
+                    playsInline
+                    muted
+                    loop
+                    controls
+                    preload="metadata"
+                  >
+                    <source src="/SocialTag-Veed.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  <noscript>
+                    <Image 
+                      src="/placeholder.svg?height=400&width=800" 
+                      alt="About SocialTag" 
+                      width={800} 
+                      height={400} 
+                      className="rounded-lg shadow-lg"
+                    />
+                  </noscript>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Features Section */}
           <section ref={featuresRef} className="features-section mb-20 px-4">
             <h2 className="section-title text-3xl font-bold text-center mb-12 text-black">Key Features</h2>
             <div className="feature-cards grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -207,44 +238,6 @@ export default function LandingPage() {
                 <h3 className="text-xl font-semibold mb-2 text-black mt-6">Earn Reward Points</h3>
                 <p className="text-gray-800">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
               </motion.div>
-            </div>
-          </section>
-          <section ref={aboutRef} className="about-section mb-20 px-4">
-            <h2 className="section-title text-3xl font-bold text-center mb-12 text-black">About SocialTag</h2>
-            <div className="about-content flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto">
-              <div className="about-text md:w-1/2 mb-8 md:mb-0 md:pr-8">
-                <p className="text-gray-600 mb-4">
-                SocialTag has a vision for a more authentic online social world. In an era where URL links are thrown at you from every corner of the web, it&apos;s crucial for users to have a way to prove if someone really has access to account X or Y. SocialTag enables users to link multiple accounts together and handles verification securely on the blockchain.
-                </p>
-                <p className="text-gray-600">
-                Through this blockchain-based verification, users gain undeniable proof of authenticity, showcasing their identity across platforms with integrity. SocialTag offers a new approach to the traditional link-sharing experience - one that emphasizes trust and transparency.
-                </p>
-              </div>
-              <div className="about-video md:w-1/2 relative rounded-lg overflow-hidden shadow-lg">
-  <div className="relative">
-    <video
-      ref={videoRef}
-      className="w-full h-auto rounded-lg"
-      playsInline
-      muted
-      loop
-      controls
-      preload="metadata"
-    >
-      <source src="/SocialTag-Veed.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-    <noscript>
-      <Image 
-        src="/placeholder.svg?height=300&width=500" 
-        alt="About SocialTag" 
-        width={500} 
-        height={300} 
-        className="rounded-lg shadow-lg"
-      />
-    </noscript>
-  </div>
-</div>
             </div>
           </section>
         </main>
@@ -320,18 +313,18 @@ export default function LandingPage() {
         </div>
       )}
 
-      <Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
+<Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
 
-      <style jsx>{`
-        .bounce {
-          animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-10px); }
-          60% { transform: translateY(-5px); }
-        }
-      `}</style>
-    </div>
-  )
+<style jsx>{`
+  .bounce {
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+`}</style>
+</div>
+)
 }
