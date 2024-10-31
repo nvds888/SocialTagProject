@@ -22,6 +22,7 @@ export default function LandingPage() {
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [username, setUsername] = useState<string | null>(null)
+  const [isMuted, setIsMuted] = useState(true)
   const featuresRef = useRef<HTMLElement>(null)
   const aboutRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -49,7 +50,9 @@ export default function LandingPage() {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting && videoRef.current) {
-          videoRef.current.play()
+          if (isMuted) {
+            videoRef.current.play()
+          }
         } else if (videoRef.current) {
           videoRef.current.pause()
         }
@@ -65,7 +68,14 @@ export default function LandingPage() {
         observer.unobserve(videoRef.current)
       }
     }
-  }, [])
+  }, [isMuted])
+
+  const handleMuteToggle = () => {
+    setIsMuted(!isMuted)
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted
+    }
+  }
 
   const handleCreateProfileClick = () => {
     setShowPopup(true)
@@ -218,26 +228,47 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="about-video md:w-1/2 relative rounded-lg overflow-hidden shadow-lg">
-                <video
-                  ref={videoRef}
-                  className="w-full h-auto rounded-lg"
-                  playsInline
-                  muted
-                  loop
-                  preload="metadata"
-                >
-                  <source src="/SocialTag-Veed.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-                <noscript>
-                  <Image 
-                    src="/placeholder.svg?height=300&width=500" 
-                    alt="About SocialTag" 
-                    width={500} 
-                    height={300} 
-                    className="rounded-lg shadow-lg"
-                  />
-                </noscript>
+                <div className="relative">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-auto rounded-lg"
+                    playsInline
+                    muted={isMuted}
+                    loop
+                    controls
+                    preload="metadata"
+                  >
+                    <source src="/SocialTag-Veed.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  
+                  <button
+                    onClick={handleMuteToggle}
+                    className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-opacity z-10"
+                    aria-label={isMuted ? 'Unmute' : 'Mute'}
+                  >
+                    {isMuted ? (
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                      </svg>
+                    ) : (
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                      </svg>
+                    )}
+                  </button>
+                  
+                  <noscript>
+                    <Image 
+                      src="/placeholder.svg?height=300&width=500" 
+                      alt="About SocialTag" 
+                      width={500} 
+                      height={300} 
+                      className="rounded-lg shadow-lg"
+                    />
+                  </noscript>
+                </div>
               </div>
             </div>
           </section>
