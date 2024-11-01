@@ -234,7 +234,7 @@ export default function LandingPage() {
                 >
                   <FeatureIcon Icon={CheckCircle} color="#FFB951" />
                   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Authentic You</h3>
-                  <p className="text-black">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
+                  <p className="text-gray-600">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
                 </motion.div>
 
                 <motion.div 
@@ -246,7 +246,7 @@ export default function LandingPage() {
                 >
                   <FeatureIcon Icon={User} color="#40E0D0" />
                   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Customize Your &apos;Tag&apos;</h3>
-                  <p className="text-black">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
+                  <p className="text-gray-600">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
                 </motion.div>
 
                 <motion.div 
@@ -258,7 +258,7 @@ export default function LandingPage() {
                 >
                   <FeatureIcon Icon={Coins} color="#FF6B6B" />
                   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Earn Reward Points</h3>
-                  <p className="text-black">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
+                  <p className="text-gray-600">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
                 </motion.div>
               </div>
             </div>
