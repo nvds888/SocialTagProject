@@ -184,7 +184,7 @@ export default function LandingPage() {
 
           {/* About Section */}
           <section ref={aboutRef} className="about-section mb-20">
-          <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-4xl mx-auto border-2 border-black shadow-lg">
+          <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-4xl mx-auto border-3 border-black shadow-lg">
               <div className="max-w-2xl mx-auto">
                 <div className="relative rounded-lg overflow-hidden shadow-2xl">
                   <video
@@ -233,8 +233,8 @@ export default function LandingPage() {
                   whileHover={{ y: -5 }}
                 >
                   <FeatureIcon Icon={CheckCircle} color="#FFB951" />
-                  <h3 className="text-xl font-semibold mb-4 text-white mt-6">Authentic You</h3>
-                  <p className="text-gray-200">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
+                  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Authentic You</h3>
+                  <p className="text-black">Safeguard your online presence with API authentication and blockchain verification, ensuring your identity is always authentic. No blockchain expertise or wallet required to get started.</p>
                 </motion.div>
 
                 <motion.div 
@@ -245,8 +245,8 @@ export default function LandingPage() {
                   whileHover={{ y: -5 }}
                 >
                   <FeatureIcon Icon={User} color="#40E0D0" />
-                  <h3 className="text-xl font-semibold mb-4 text-white mt-6">Customize Your &apos;Tag&apos;</h3>
-                  <p className="text-gray-200">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
+                  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Customize Your &apos;Tag&apos;</h3>
+                  <p className="text-black">Take charge of your online presence. Choose from diverse cards and backgrounds to convey your authentic self. Use an NFT as your profile picture, link your NFDomain, and unlock even more ways to personalize!</p>
                 </motion.div>
 
                 <motion.div 
@@ -257,8 +257,8 @@ export default function LandingPage() {
                   whileHover={{ y: -5 }}
                 >
                   <FeatureIcon Icon={Coins} color="#FF6B6B" />
-                  <h3 className="text-xl font-semibold mb-4 text-white mt-6">Earn Reward Points</h3>
-                  <p className="text-gray-200">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
+                  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Earn Reward Points</h3>
+                  <p className="text-black">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
                 </motion.div>
               </div>
             </div>
