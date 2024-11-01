@@ -681,7 +681,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       variant="outline"
                       className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
                         theme === t.name 
-                          ? 'bg-[#ACA1D0] text-white' 
+                          ? 'bg-[#8B7AB4] text-white' 
                           : 'bg-white text-black hover:bg-gray-100'
                       } ${t.premium && !purchasedItems.includes(t.name) ? 'opacity-50' : ''}`}
                       onClick={() => handleItemSelection('theme', t.name)}
@@ -1016,13 +1016,13 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
             <div className="flex justify-end space-x-4 mt-6">
   <Button
    onClick={onClose}
-   className="bg-[#FFB951] text-black hover:bg-[#FFB951]/90 border-black"
+   className="bg-white text-black hover:bg-gray-300 border-2 border-black"
     >Cancel
     </Button>
   <Button 
     onClick={handleSaveSettings} 
     disabled={saving}
-    className="bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-black disabled:bg-[#FF6B6B]/50"
+    className="bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-2 border-black disabled:bg-[#FF6B6B]/50"
   >
     {saving ? 'Saving...' : 'Save Changes'}
   </Button>

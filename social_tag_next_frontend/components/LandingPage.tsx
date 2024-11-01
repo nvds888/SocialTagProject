@@ -184,7 +184,7 @@ export default function LandingPage() {
 
           {/* About Section */}
           <section ref={aboutRef} className="about-section mb-20">
-          <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-4xl mx-auto border-4 border-black shadow-lg">
+          <div className="bg-[#8B7AB4] rounded-3xl px-8 py-12 max-w-4xl mx-auto border-4 border-black shadow-lg">
               <div className="max-w-2xl mx-auto">
                 <div className="relative rounded-lg overflow-hidden shadow-2xl">
                   <video
