@@ -750,7 +750,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       variant="outline"
                       className={`w-full py-2 px-4 h-auto text-left transition-all duration-200 overflow-hidden ${
                         theme === t.name 
-                          ? 'bg-[#ACA1D0] text-white' 
+                          ? 'bg-[#8B7AB4] text-white' 
                           : 'bg-white text-black hover:bg-gray-100'
                       } ${rewardPoints < (t.requiredPoints || 300) ? 'opacity-50' : ''}`}
                       onClick={() => handleItemSelection('theme', t.name)}

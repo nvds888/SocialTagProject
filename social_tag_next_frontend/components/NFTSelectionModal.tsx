@@ -278,7 +278,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                         alt={nft.name}
                         className="w-full h-24 object-cover"
                         onError={(e) => {
-                          e.currentTarget.src = '/placeholder-nft.png';
+                          e.currentTarget.src = '/SocialTag.jpg';
                         }}
                         loading="lazy"
                       />
