@@ -59,12 +59,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl border-2 border-black"
+            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-black rounded-lg shadow-xl"
           >
             <Card className="w-full border-none bg-transparent">
-              <CardHeader className="flex flex-row justify-between items-center bg-[#1F2937] p-4 border-b-2 border-black">
+              <CardHeader className="flex flex-row justify-between items-center bg-black p-4 border-b-2 border-[#40E0D0]">
                 <div>
-                  <CardTitle className="text-3xl font-bold text-[#40E0D0] tracking-wide">
+                  <CardTitle className="text-3xl font-bold text-[#FF6B6B] tracking-wide">
                     VERIFIED LEADERBOARD
                   </CardTitle>
                   <p className="text-white text-sm mt-1">
@@ -74,14 +74,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
                 <Button 
                   variant="ghost" 
                   onClick={onClose} 
-                  className="text-white hover:bg-[#FF6B6B] hover:text-black border-2 border-black rounded-lg transition-all"
+                  className="text-[#40E0D0] hover:bg-[#FF6B6B] hover:text-black border-2 border-[#40E0D0] rounded-lg transition-all"
                 >
                   <X size={24} />
                 </Button>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 bg-black">
                 {loading && (
-                  <div className="text-center py-8 text-black font-bold animate-pulse">
+                  <div className="text-center py-8 text-[#40E0D0] font-bold animate-pulse">
                     LOADING...
                   </div>
                 )}
@@ -91,20 +91,20 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
                   </div>
                 )}
                 {!loading && !error && leaderboard.length === 0 && (
-                  <div className="text-center py-8 text-black font-bold">
+                  <div className="text-center py-8 text-[#40E0D0] font-bold">
                     No verified users found
                   </div>
                 )}
                 {!loading && !error && leaderboard.length > 0 && (
-                  <div className="border-2 border-black m-4 rounded-lg overflow-hidden">
+                  <div className="border-2 border-[#40E0D0] m-4 rounded-lg overflow-hidden">
                     <Table>
                       <TableHeader>
-                        <TableRow className="bg-[#1F2937] border-b-2 border-black">
-                          <TableHead className="text-[#40E0D0] font-bold">RANK</TableHead>
-                          <TableHead className="text-[#40E0D0] font-bold">USERNAME</TableHead>
-                          <TableHead className="text-[#40E0D0] font-bold">NFDOMAIN</TableHead>
-                          <TableHead className="text-[#40E0D0] font-bold text-right">POINTS</TableHead>
-                          <TableHead className="text-[#40E0D0] font-bold text-center">PROFILE</TableHead>
+                        <TableRow className="bg-black border-b-2 border-[#40E0D0]">
+                          <TableHead className="text-[#FF6B6B] font-bold">RANK</TableHead>
+                          <TableHead className="text-[#FF6B6B] font-bold">USERNAME</TableHead>
+                          <TableHead className="text-[#FF6B6B] font-bold">NFDOMAIN</TableHead>
+                          <TableHead className="text-[#FF6B6B] font-bold text-right">POINTS</TableHead>
+                          <TableHead className="text-[#FF6B6B] font-bold text-center">PROFILE</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -112,11 +112,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
                           <TableRow 
                             key={entry.twitterUsername} 
                             className={`
-                              border-b-2 border-black hover:bg-gray-100 transition-colors
-                              ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                              border-b-2 border-[#40E0D0] transition-colors
+                              ${index % 2 === 0 ? 'bg-black' : 'bg-gray-900'}
                             `}
                           >
-                            <TableCell className="font-bold text-black border-r-2 border-black">
+                            <TableCell className="font-bold text-[#40E0D0] border-r-2 border-[#40E0D0]">
                               {index + 1}
                               {index < 3 && (
                                 <span className="ml-2">
@@ -126,7 +126,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
                                 </span>
                               )}
                             </TableCell>
-                            <TableCell className="text-[#FFB951] border-r-2 border-black">
+                            <TableCell className="text-[#FFB951] border-r-2 border-[#40E0D0]">
                               <div className="flex items-center space-x-2">
                                 <a 
                                   href={`https://x.com/${entry.twitterUsername}`} 
@@ -145,16 +145,16 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
                                 </svg>
                               </div>
                             </TableCell>
-                            <TableCell className="text-black border-r-2 border-black">
+                            <TableCell className="text-white border-r-2 border-[#40E0D0]">
                               {entry.nfdName || 'N/A'}
                             </TableCell>
-                            <TableCell className="text-right border-r-2 border-black">
-                              <div className="inline-flex items-center bg-[#40E0D0] rounded-lg px-3 py-1 border-2 border-black">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 text-black">
+                            <TableCell className="text-right border-r-2 border-[#40E0D0]">
+                              <div className="inline-flex items-center bg-[#FF6B6B] rounded-lg px-3 py-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 text-white">
                                   <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
                                   <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
                                 </svg>
-                                <span className="font-bold text-black">
+                                <span className="font-bold text-white">
                                   {entry.rewardPoints.toLocaleString()}
                                 </span>
                               </div>
@@ -164,7 +164,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
                                 href={`/socialtag/${entry.twitterUsername}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center bg-[#FFB951] text-black px-3 py-1 rounded-lg border-2 border-black hover:brightness-110 transition-all"
+                                className="inline-flex items-center bg-[#40E0D0] text-black px-3 py-1 rounded-lg hover:brightness-110 transition-all"
                               >
                                 View <ExternalLink size={16} className="ml-1" />
                               </a>
