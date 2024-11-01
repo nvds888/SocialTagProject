@@ -861,13 +861,13 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     <Button 
       onClick={handleFetchNFTs} 
       disabled={isLoadingNFTs} 
-      className={`w-full bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`w-full bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#FFB951]/90 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
     >
       {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
     </Button>
     <Button 
       onClick={handleCreateNFT} 
-      className="w-full bg-[#40E0D0] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black"
+      className="w-full bg-[#40E0D0] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#40E0D0]/90 transition-all border-2 border-black"
     >
       <ExternalLink size={16} className="mr-2" />
       Create NFT
@@ -875,7 +875,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     <Button 
       onClick={handleFetchNFDs} 
       disabled={isLoadingNFDs} 
-      className={`w-full bg-[#FF6B6B] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`w-full bg-[#FF6B6B] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#FF6B6B]/90 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
     >
       {isLoadingNFDs ? 'Loading...' : 'Select NFD'}
     </Button>
@@ -1016,13 +1016,13 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
             <div className="flex justify-end space-x-4 mt-6">
   <Button
    onClick={onClose}
-   className="bg-[#FFB951] text-black hover:brightness-110 border-black"
+   className="bg-[#FFB951] text-black hover:bg-[#FFB951]/90 border-black"
     >Cancel
     </Button>
   <Button 
     onClick={handleSaveSettings} 
     disabled={saving}
-    className="bg-[#FF6B6B] text-black hover:brightness-110 border-black disabled:bg-[#FF6B6B]/50"
+    className="bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-black disabled:bg-[#FF6B6B]/50"
   >
     {saving ? 'Saving...' : 'Save Changes'}
   </Button>
