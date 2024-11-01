@@ -184,7 +184,7 @@ export default function LandingPage() {
 
           {/* About Section */}
           <section ref={aboutRef} className="about-section mb-20">
-            <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-4xl mx-auto">
+          <div className="bg-[#9B8AC4] rounded-3xl px-8 py-12 max-w-4xl mx-auto border-2 border-black shadow-lg">
               <div className="max-w-2xl mx-auto">
                 <div className="relative rounded-lg overflow-hidden shadow-2xl">
                   <video
@@ -226,7 +226,7 @@ export default function LandingPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
                 <motion.div 
-                  className="feature-card backdrop-blur-md bg-[#FFB951]/10 p-8 rounded-2xl border border-[#FFB951]/30 shadow-xl hover:shadow-2xl transition-all duration-300"
+                  className="feature-card backdrop-blur-md bg-[#FFB951]/40 p-8 rounded-2xl border border-[#FFB951]/50 shadow-xl hover:shadow-2xl transition-all duration-300"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 }}
@@ -238,7 +238,7 @@ export default function LandingPage() {
                 </motion.div>
 
                 <motion.div 
-                  className="feature-card backdrop-blur-md bg-[#40E0D0]/10 p-8 rounded-2xl border border-[#40E0D0]/30 shadow-xl hover:shadow-2xl transition-all duration-300"
+                  className="feature-card backdrop-blur-md bg-[#40E0D0]/40 p-8 rounded-2xl border border-[#40E0D0]/50 shadow-xl hover:shadow-2xl transition-all duration-300"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
@@ -250,7 +250,7 @@ export default function LandingPage() {
                 </motion.div>
 
                 <motion.div 
-                  className="feature-card backdrop-blur-md bg-[#FF6B6B]/10 p-8 rounded-2xl border border-[#FF6B6B]/30 shadow-xl hover:shadow-2xl transition-all duration-300"
+                  className="feature-card backdrop-blur-md bg-[#FF6B6B]/40 p-8 rounded-2xl border border-[#FF6B6B]/50 shadow-xl hover:shadow-2xl transition-all duration-300"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
