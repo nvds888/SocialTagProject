@@ -196,7 +196,7 @@ export default function LandingPage() {
                     controls
                     preload="metadata"
                   >
-                    <source src="/socialtagintro.mp4" type="video/mp4" />
+                    <source src="/Socialtag_landing.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                   <noscript>
