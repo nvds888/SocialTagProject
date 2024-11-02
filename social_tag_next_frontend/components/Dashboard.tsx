@@ -20,6 +20,7 @@ import VerificationDialog from '@/components/VerificationDialog'
 import ReVerificationDialog from '@/components/ReVerificationDialog'
 import Leaderboard from '@/components/Leaderboard'
 import { NFT, Verification } from '@/types/User'
+import WelcomeVideoModal from '@/components/WelcomeVideoModal'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
@@ -103,6 +104,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [isReVerificationDialogOpen, setIsReVerificationDialogOpen] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [showWelcomeVideo, setShowWelcomeVideo] = useState(false)
 
   const router = useRouter()
 
@@ -143,6 +145,14 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       setConnectedAccount(null);
     }
   }, []);
+
+  useEffect(() => {
+    const hasSeenVideo = localStorage.getItem('hasSeenWelcomeVideo');
+    if (!hasSeenVideo && user) {
+      setShowWelcomeVideo(true);
+      localStorage.setItem('hasSeenWelcomeVideo', 'true');
+    }
+  }, [user]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && peraWallet) {
@@ -562,6 +572,10 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       />
       <Leaderboard isOpen={showLeaderboard} onClose={handleCloseLeaderboard} />
       <Toaster />
+      <WelcomeVideoModal 
+  isOpen={showWelcomeVideo} 
+  onClose={() => setShowWelcomeVideo(false)} 
+/>
     </div>
   )
 }
