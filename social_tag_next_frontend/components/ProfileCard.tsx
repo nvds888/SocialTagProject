@@ -119,13 +119,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 )}
-                {nfd && nfd.name && nfd.id && (
+                {nfd?.name && (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <button 
             onClick={handleNFDClick} 
-            className="ml-2 bg-transparent] rounded-lg p-1 w-6 h-6 flex items-center justify-center border-2 border-black"
+            className="ml-2 bg-[#FF6B6B] rounded-lg p-1 w-6 h-6 flex items-center justify-center border-2 border-black"
           >
             <img src="https://pbs.twimg.com/profile_images/1517337727066427399/EvCOXfoQ_400x400.png" alt="NFD" className="w-4.5 h-4.5" />
           </button>
