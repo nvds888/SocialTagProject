@@ -475,17 +475,18 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               />
             </div>
             {!isVerified && (
-  <div className="flex justify-center w-full">  {/* Add this wrapper div */}
-    <motion.button 
-      onClick={handleVerifyConfirm} 
-      className={`max-w-max bg-[#50FF82] text-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-[#50FF82] transition-colors relative overflow-hidden ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
-      disabled={!canVerify || verifying}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      {verifying ? 'Verifying...' : 'Verify Profile'}
-    </motion.button>
-  </div>
+  <div className="flex justify-center w-full">
+  <motion.button
+    onClick={handleVerifyConfirm}
+    className={`max-w-max bg-[#FF6B6B] text-black px-6 py-3 rounded-lg text-lg font-semibold hover:brightness-110 transition-all border-2 border-black shadow-md flex items-center justify-center ${canVerify ? '' : 'opacity-50 cursor-not-allowed'}`}
+    disabled={!canVerify || verifying}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    <RefreshCw size={16} className="mr-2" />
+    {verifying ? 'Verifying...' : 'Verify Profile'}
+  </motion.button>
+</div>
 )}
 {!canVerify && !isVerified && (
   <p className="mt-4 text-red-400 text-center">Connect at least two accounts to verify your profile.</p>
