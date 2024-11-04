@@ -168,7 +168,7 @@ export default function LandingPage() {
             >
               Sign Up / In
             </motion.button>
-            <div className="social-icons flex justify-center space-x-4 mb-6">
+            <div className="social-icons flex justify-center space-x-4 mb-4">
               <Twitter size={24} className="text-black" />
               <Github size={24} className="text-black" />
               <SpotifyIcon size={24} />
@@ -177,7 +177,7 @@ export default function LandingPage() {
               <Instagram size={24} className="text-black" />
             </div>
             <div className="payment-options flex items-center justify-center space-x-4 mb-8">
-              <span className="text-gray-600 font-bold">Pay with:</span>
+              <span className="text-black font-bold">Pay with:</span>
               <div className="flex space-x-3">
                 <div className="relative w-6 h-6 rounded-full overflow-hidden">
                   <Image 
