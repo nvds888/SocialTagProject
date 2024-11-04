@@ -258,7 +258,7 @@ export default function LandingPage() {
                 >
                   <FeatureIcon Icon={Coins} color="#FF6B6B" />
                   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Earn Reward Points</h3>
-                  <p className="text-gray-600">Earn reward points for a multitude of actions on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
+                  <p className="text-gray-600">Earn reward points for everything you do on the platform. Your rewards can be used to unlock special edition items in the marketplace and to excel on the leaderboard!</p>
                 </motion.div>
               </div>
             </div>
