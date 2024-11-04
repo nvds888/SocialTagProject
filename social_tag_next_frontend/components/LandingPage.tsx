@@ -155,8 +155,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-             Deploy your public profile: your personalized, blockchain-verified SocialTag.
-             Fully customizable, secure, and built with integrity. 
+             Deploy your authentic public profile: your personalized and blockchain-verified Social&apos;Tag&apos;.
              Think of it as Linktree, but redefined with trust and transparency.
             </motion.p>
             <motion.button
