@@ -82,7 +82,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     console.log("NFD Click triggered");
     console.log("NFD data:", nfd);
     if (nfd && nfd.id) {
-      const url = `https://explorer.perawallet.app/asset/${nfd.id}`;
+      const url = `https://app.nf.domains/name/${nfd.id}`;
       console.log("Opening URL:", url);
       window.open(url, '_blank', 'noopener,noreferrer');
     } else {
@@ -175,9 +175,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                   <TooltipTrigger asChild>
                     <div className="w-full h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
                       {profileNFT ? (
-                        <img src={profileNFT.image} alt={profileNFT.name} className="w-full h-full object-cover" />
+                        <image src={profileNFT.image} alt={profileNFT.name} className="w-full h-full object-cover" />
                       ) : profileImage ? (
-                        <img src={profileImage} alt={username} className="w-full h-full object-cover" />
+                        <image src={profileImage} alt={username} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-white text-4xl font-bold">
                           {username ? username.charAt(0).toUpperCase() : '?'}

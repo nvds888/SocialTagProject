@@ -81,7 +81,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     event.preventDefault()
     event.stopPropagation()
     if (nfd && nfd.id) {
-      window.open(`https://explorer.perawallet.app/asset/${nfd.id}`, '_blank', 'noopener,noreferrer')
+      window.open(`https://app.nf.domains/name/${nfd.id}`, '_blank', 'noopener,noreferrer')
     }
   }
 

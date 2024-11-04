@@ -83,7 +83,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     console.log("NFD Click triggered");
     console.log("NFD data:", nfd);
     if (nfd && nfd.id) {
-      const url = `https://explorer.perawallet.app/asset/${nfd.id}`;
+      const url = `https://app.nf.domains/name/${nfd.id}`;
       console.log("Opening URL:", url);
       window.open(url, '_blank', 'noopener,noreferrer');
     } else {
@@ -130,7 +130,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                           onClick={handleNFDClick} 
                           className="ml-2 bg-orange-600 rounded-full p-1 w-6 h-6 flex items-center justify-center"
                         >
-                          <img src="https://pbs.twimg.com/profile_images/1517337727066427399/EvCOXfoQ_400x400.png" alt="NFD" className="w-4.5 h-4.5" />
+                          <image src="https://pbs.twimg.com/profile_images/1517337727066427399/EvCOXfoQ_400x400.png" alt="NFD" className="w-4.5 h-4.5" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
@@ -172,9 +172,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                     onClick={profileNFT ? handleNFTClick : undefined}
                   >
                     {profileNFT ? (
-                      <img src={profileNFT.image} alt={profileNFT.name} className="w-full h-full object-cover" />
+                      <image src={profileNFT.image} alt={profileNFT.name} className="w-full h-full object-cover" />
                     ) : profileImage ? (
-                      <img src={profileImage} alt={username} className="w-full h-full object-cover" />
+                      <image src={profileImage} alt={username} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
                         {username ? username.charAt(0).toUpperCase() : '?'}
