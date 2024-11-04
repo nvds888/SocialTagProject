@@ -105,17 +105,10 @@ const tryFetchWithGateways = async (ipfsHash: string): Promise<string> => {
   throw new Error('All IPFS gateways failed');
 };
 
-// Define a type for the expected metadata structure
-interface Metadata {
-  // Add properties based on the expected metadata structure
-  image?: string;
-  // ... other properties
-}
-
-const fetchMetadataWithRetry = async (url: string, retries = MAX_RETRIES): Promise<Metadata> => {
+const fetchMetadataWithRetry = async (url: string, retries = MAX_RETRIES): Promise<any> => {
   try {
     const response = await axios.get(url);
-    return response.data; // Ensure this matches the Metadata type
+    return response.data;
   } catch (error) {
     if (retries > 0) {
       await delay(RETRY_DELAY);
