@@ -83,7 +83,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     console.log("NFD Click triggered");
     console.log("NFD data:", nfd);
     if (nfd && nfd.id) {
-      const url = `https://app.nf.domains/name/${nfd.id}`;
+      const url = `https://app.nf.domains/name/${nfd.name}`;
       console.log("Opening URL:", url);
       window.open(url, '_blank', 'noopener,noreferrer');
     } else {
