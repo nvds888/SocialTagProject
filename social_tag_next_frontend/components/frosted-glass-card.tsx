@@ -172,9 +172,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                     onClick={profileNFT ? handleNFTClick : undefined}
                   >
                     {profileNFT ? (
-                      <image src={profileNFT.image} alt={profileNFT.name} className="w-full h-full object-cover" />
+                      <img src={profileNFT.image} alt={profileNFT.name} className="w-full h-full object-cover" />
                     ) : profileImage ? (
-                      <image src={profileImage} alt={username} className="w-full h-full object-cover" />
+                      <img src={profileImage} alt={username} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
                         {username ? username.charAt(0).toUpperCase() : '?'}
