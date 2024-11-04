@@ -176,6 +176,27 @@ export default function LandingPage() {
               <Facebook size={24} className="text-black" />
               <Instagram size={24} className="text-black" />
             </div>
+            <div className="payment-options flex items-center justify-center space-x-4 mb-8">
+              <span className="text-gray-600">Pay with:</span>
+              <div className="flex space-x-3">
+                <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                  <Image 
+                    src="/usdc-logo.png"
+                    alt="USDC"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                  <Image 
+                    src="/jaws-ora.png"
+                    alt="JAWS"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
           <div className="scroll-indicator text-center mb-12">
             <p className="mb-2 text-gray-600">Scroll to learn more</p>
