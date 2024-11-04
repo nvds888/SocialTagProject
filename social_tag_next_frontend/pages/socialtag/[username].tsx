@@ -21,6 +21,7 @@ import PeraWalletBackground from '../../components/PeraWalletBackground'
 import NFTicketBackground from '../../components/NFTicketBackground'
 import SustainableCoffeeBackground from '../../components/SustainableCoffeeBackground'
 import FourOrangesCard from '../../components/FourOrangesCard'
+import NeutralCard from '../../components/NeutralCard'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
@@ -195,6 +196,7 @@ export default function PublicProfilePage() {
     Default: ProfileCard,
     'Frosted Glass': FrostedGlassCard,
     Holographic: HolographicCard,
+    NeutralCard: NeutralCard,
     'Four Oranges': FourOrangesCard,
   }[profile.cardStyle] || ProfileCard
 

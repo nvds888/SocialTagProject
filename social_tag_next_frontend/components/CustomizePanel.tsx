@@ -29,6 +29,7 @@ import AbstractDataFlow from '@/components/AbstractDataFlow'
 import NFTicketBackground from '@/components/NFTicketBackground'
 import SustainableCoffeeBackground from '@/components/SustainableCoffeeBackground'
 import FourOrangesCard from '@/components/FourOrangesCard'
+import NeutralCard from '@/components/NeutralCard'
 import PeraWalletBackground from '@/components/PeraWalletBackground'
 import DefaultCard from '@/components/ProfileCard'
 import FrostedGlassCard from '@/components/frosted-glass-card'
@@ -116,6 +117,7 @@ const themes: ThemeItem[] = [
 
 const cardStyles: CardStyleItem[] = [
   { name: 'Default', component: DefaultCard as React.FC<ProfileCardProps>, premium: false },
+  { name: 'Neutral', component: NeutralCard as React.FC<ProfileCardProps>, premium: false },
   { name: 'Frosted Glass', component: FrostedGlassCard as React.FC<ProfileCardProps>, premium: true },
   { name: 'Holographic', component: HolographicCard as React.FC<ProfileCardProps>, premium: true },
   { name: 'Four Oranges', component: FourOrangesCard as React.FC<ProfileCardProps>, premium: false, specialEdition: true, requiredPoints: 600 },
