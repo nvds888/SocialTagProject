@@ -130,24 +130,24 @@ const FourOrangesCard: React.FC<ProfileCardProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 )}
-                {nfd && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleNFDClick} 
-                          className="ml-2 bg-[#2A2A2A] rounded-lg p-1 w-6 h-6 flex items-center justify-center border border-[#333333]"
-                        >
-                          <img src="https://pbs.twimg.com/profile_images/1517337727066427399/EvCOXfoQ_400x400.png" alt="NFD" className="w-4.5 h-4.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">
-                        <p>NFD: {nfd.name} - Click to view</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-              </div>
+                {nfd?.name && (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button 
+            onClick={handleNFDClick} 
+            className="ml-2 bg-[#2A2A2A] rounded-lg p-1 w-6 h-6 flex items-center justify-center border border-[#333333]"
+          >
+            <img src="https://pbs.twimg.com/profile_images/1517337727066427399/EvCOXfoQ_400x400.png" alt="NFD" className="w-4.5 h-4.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>NFD: {nfd.name} - Click to view</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )}
+</div>
             </div>
           )}
           <div className="flex items-center">
