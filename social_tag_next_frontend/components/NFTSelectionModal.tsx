@@ -5,19 +5,7 @@ import { X } from 'lucide-react'
 import axios from 'axios'
 
 const IPFS_ENDPOINT = "https://ipfs.algonode.xyz/ipfs/";
-
-// Utility function to convert any IPFS URL to use Algonode gateway
-const convertToAlgoNodeIPFS = (url: string) => {
-  if (url.startsWith('ipfs://')) {
-    return `${IPFS_ENDPOINT}${url.slice(7)}`;
-  }
-  // If it's already an IPFS gateway URL, convert it
-  const ipfsMatch = url.match(/\/ipfs\/([a-zA-Z0-9]+)/);
-  if (ipfsMatch && ipfsMatch[1]) {
-    return `${IPFS_ENDPOINT}${ipfsMatch[1]}`;
-  }
-  return url;
-};
+const LOADING_TIMEOUT = 5000; // 5 seconds timeout
 
 interface NFT {
   id: string;
@@ -53,11 +41,16 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
 }) => {
   const [resolvedNFTs, setResolvedNFTs] = useState<(NFT & { image: string })[]>([]);
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
-  const [debugLog, setDebugLog] = useState<string[]>([]);
 
-  const addDebugLog = (message: string) => {
-    console.log(message);
-    setDebugLog(prev => [...prev, `${new Date().toISOString()}: ${message}`]);
+  const convertToAlgoNodeIPFS = (url: string) => {
+    if (url.startsWith('ipfs://')) {
+      return `${IPFS_ENDPOINT}${url.slice(7)}`;
+    }
+    const ipfsMatch = url.match(/\/ipfs\/([a-zA-Z0-9]+)/);
+    if (ipfsMatch && ipfsMatch[1]) {
+      return `${IPFS_ENDPOINT}${ipfsMatch[1]}`;
+    }
+    return url;
   };
 
   const isNFD = (nft: NFT): boolean => {
@@ -66,114 +59,39 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
 
   const getImageUrl = async (nft: NFT): Promise<string> => {
     try {
-      addDebugLog(`Processing NFT: ${nft.name} (ID: ${nft.id})`);
+      if (isNFD(nft)) return '';
 
-      if (isNFD(nft)) {
-        addDebugLog(`Skipping NFD: ${nft.name}`);
-        return '';
-      }
-
-      // Case 1: Direct image URL
       if (nft.image) {
-        const imageUrl = convertToAlgoNodeIPFS(nft.image);
-        addDebugLog(`Using direct image URL: ${imageUrl}`);
-        return imageUrl;
+        return convertToAlgoNodeIPFS(nft.image);
       }
 
-      // Case 2: Metadata object
-      if (nft.metadata) {
-        const metadataImage = nft.metadata.image || nft.metadata.image_url || nft.metadata.animation_url;
-        if (metadataImage) {
-          const imageUrl = convertToAlgoNodeIPFS(metadataImage);
-          addDebugLog(`Using metadata image URL: ${imageUrl}`);
-          return imageUrl;
-        }
+      if (nft.metadata?.image || nft.metadata?.image_url || nft.metadata?.animation_url) {
+        return convertToAlgoNodeIPFS(nft.metadata.image || nft.metadata.image_url || nft.metadata.animation_url);
       }
 
-      // Case 3: ARC3 handling
       if (nft.url?.includes('#arc3')) {
         try {
           let baseUrl = nft.url.split('#')[0];
-          if (baseUrl.startsWith('ipfs://')) {
-            baseUrl = `${IPFS_ENDPOINT}${baseUrl.slice(7)}`;
-          }
-          addDebugLog(`Fetching ARC3 metadata from: ${baseUrl}`);
-          
+          baseUrl = baseUrl.startsWith('ipfs://') ? `${IPFS_ENDPOINT}${baseUrl.slice(7)}` : baseUrl;
           const response = await axios.get(baseUrl);
           if (response.data.image) {
-            const imageUrl = convertToAlgoNodeIPFS(response.data.image);
-            addDebugLog(`Using ARC3 image: ${imageUrl}`);
-            return imageUrl;
+            return convertToAlgoNodeIPFS(response.data.image);
           }
-        } catch (error) {
-          addDebugLog(`ARC3 metadata fetch failed: ${error}`);
-        }
+        } catch (error) {}
       }
 
-      // Case 4: Template-ipfs handling
-      if (nft.url?.startsWith('template-ipfs://')) {
-        const cid = nft.reserve || nft['metadata-hash'];
-        if (cid) {
-          try {
-            const url = `${IPFS_ENDPOINT}${cid}`;
-            addDebugLog(`Trying template-ipfs URL: ${url}`);
-            const response = await axios.get(url);
-            if (response.data.image) {
-              const imageUrl = convertToAlgoNodeIPFS(response.data.image);
-              addDebugLog(`Using template-ipfs image: ${imageUrl}`);
-              return imageUrl;
-            }
-          } catch (error) {
-            addDebugLog(`Template-ipfs fetch failed: ${error}`);
-          }
-        }
-      }
-
-      // Case 5: Direct IPFS URL
       if (nft.url?.startsWith('ipfs://')) {
-        const ipfsPath = nft.url.split('#')[0].slice(7);
-        const url = `${IPFS_ENDPOINT}${ipfsPath}`;
-        addDebugLog(`Trying direct IPFS URL: ${url}`);
-        
-        try {
-          const response = await axios.get(url);
-          if (response.data.image) {
-            const imageUrl = convertToAlgoNodeIPFS(response.data.image);
-            addDebugLog(`Using IPFS metadata image: ${imageUrl}`);
-            return imageUrl;
-          }
-        } catch {
-          addDebugLog(`Using IPFS URL directly: ${url}`);
-          return url;
-        }
+        return `${IPFS_ENDPOINT}${nft.url.split('#')[0].slice(7)}`;
       }
 
-      // Case 6: Simple URL with image extension
       if (nft.url && !nft.url.includes('ipfs://')) {
         if (nft.url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-          addDebugLog(`Using direct image URL from url field: ${nft.url}`);
           return nft.url;
         }
       }
 
-      // Case 7: Try metadata URL directly
-      if (nft.url && !nft.url.includes('ipfs://')) {
-        try {
-          const response = await axios.get(nft.url);
-          if (response.data.image) {
-            const imageUrl = convertToAlgoNodeIPFS(response.data.image);
-            addDebugLog(`Using metadata URL image: ${imageUrl}`);
-            return imageUrl;
-          }
-        } catch (error) {
-          addDebugLog(`Metadata URL fetch failed: ${error}`);
-        }
-      }
-
-      addDebugLog(`No image found for NFT: ${nft.name}, using placeholder`);
       return '/placeholder-nft.png';
     } catch (error) {
-      addDebugLog(`Error resolving NFT image: ${error}`);
       return '/placeholder-nft.png';
     }
   };
@@ -200,18 +118,32 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
     if (isOpen && nfts.length > 0) {
       setResolvedNFTs([]);
       setLoadingStates({});
-      setDebugLog([]);
       
       const filteredNFTs = nfts.filter(nft => !isNFD(nft));
-      addDebugLog(`Processing ${filteredNFTs.length} non-NFD NFTs out of ${nfts.length} total`);
       
-      filteredNFTs.forEach(nft => {
-        resolveNFTImage(nft);
+      // Create an array of promises for loading NFTs
+      const loadingPromises = filteredNFTs.map(nft => {
+        return new Promise<void>((resolve) => {
+          resolveNFTImage(nft).finally(() => resolve());
+        });
+      });
+
+      // Set a timeout for all loading operations
+      const timeoutPromise = new Promise<void>((resolve) => {
+        setTimeout(resolve, LOADING_TIMEOUT);
+      });
+
+      // Race between loading all NFTs and timeout
+      Promise.race([
+        Promise.all(loadingPromises),
+        timeoutPromise
+      ]).finally(() => {
+        // Clear any remaining loading states after timeout
+        setLoadingStates({});
       });
     }
   }, [isOpen, nfts]);
 
-  // Rest of the component remains the same...
   return (
     <AnimatePresence>
       {isOpen && (
@@ -219,89 +151,90 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm"
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white p-4 rounded-lg max-w-xl w-full max-h-[80vh] overflow-y-auto"
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="relative w-full max-w-2xl m-4 bg-white rounded-xl shadow-2xl"
           >
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-bold text-black">Select NFT as Profile Image</h2>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="h-4 w-4" />
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Select NFT Profile Picture
+              </h2>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
               </Button>
             </div>
 
-            {/* Stats Panel */}
-            <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
-              <p>Total NFTs: {nfts.length}</p>
-              <p>Non-NFD NFTs: {nfts.filter(nft => !isNFD(nft)).length}</p>
-              <p>Resolved NFTs: {resolvedNFTs.length}</p>
-            </div>
-
-            {isLoading ? (
-              <div className="flex items-center justify-center h-48">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
-              </div>
-            ) : resolvedNFTs.length === 0 ? (
-              <p className="text-center text-gray-500">Processing NFTs...</p>
-            ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-3">
-                {resolvedNFTs.map((nft) => (
-                  <motion.div
-                    key={nft.id}
-                    className={`cursor-pointer relative rounded-lg overflow-hidden transition-all duration-200 ${
-                      selectedNFT?.id === nft.id ? 'ring-2 ring-black' : 'hover:shadow-lg'
-                    }`}
-                    onClick={() => onSelectNFT(nft)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {loadingStates[nft.id] ? (
-                      <div className="w-full h-24 bg-gray-100 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black"></div>
-                      </div>
-                    ) : (
-                      <img
-                        src={nft.image}
-                        alt={nft.name}
-                        className="w-full h-24 object-cover"
-                        onError={(e) => {
-                          addDebugLog(`Image load failed for: ${nft.name}`);
-                          e.currentTarget.src = '/placeholder-nft.png';
-                        }}
-                        loading="lazy"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-end justify-start p-1">
-                      <p className="text-white text-xs font-medium truncate w-full">
-                        {nft.name}
-                      </p>
-                    </div>
-                    {selectedNFT?.id === nft.id && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute top-1 right-1 bg-green-500 rounded-full p-0.5"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            )}
-
-            {/* Debug Log */}
-            <div className="mt-4 p-2 bg-gray-100 rounded max-h-40 overflow-y-auto text-xs">
-              <h3 className="font-bold mb-1">Debug Log:</h3>
-              {debugLog.map((log, index) => (
-                <div key={index} className="text-xs text-gray-600">{log}</div>
-              ))}
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center h-48 space-y-4">
+                  <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-gray-500">Loading your NFTs...</p>
+                </div>
+              ) : resolvedNFTs.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-48 space-y-2">
+                  <p className="text-gray-500">No NFTs found in your wallet</p>
+                  <p className="text-sm text-gray-400">Try connecting a different wallet</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                  {resolvedNFTs.map((nft) => (
+                    <motion.div
+                      key={nft.id}
+                      className={`
+                        group relative aspect-square rounded-lg overflow-hidden cursor-pointer
+                        ring-2 transition-all duration-200
+                        ${selectedNFT?.id === nft.id ? 'ring-blue-500' : 'ring-transparent hover:ring-gray-300'}
+                      `}
+                      onClick={() => onSelectNFT(nft)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {loadingStates[nft.id] ? (
+                        <div className="flex items-center justify-center w-full h-full bg-gray-100">
+                          <div className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      ) : (
+                        <>
+                          <img
+                            src={nft.image}
+                            alt={nft.name}
+                            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder-nft.png';
+                            }}
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <div className="absolute bottom-0 left-0 right-0 p-2">
+                              <p className="text-sm text-white font-medium truncate">
+                                {nft.name}
+                              </p>
+                            </div>
+                          </div>
+                          {selectedNFT?.id === nft.id && (
+                            <div className="absolute top-2 right-2">
+                              <div className="bg-blue-500 rounded-full p-1">
+                                <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>
