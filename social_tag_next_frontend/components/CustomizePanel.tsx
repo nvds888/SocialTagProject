@@ -29,6 +29,7 @@ import AbstractDataFlow from '@/components/AbstractDataFlow'
 import NFTicketBackground from '@/components/NFTicketBackground'
 import SustainableCoffeeBackground from '@/components/SustainableCoffeeBackground'
 import FourOrangesCard from '@/components/FourOrangesCard'
+import OrangeMemeBackground from '@/components/OrangeMemeBackground'
 import NeutralCard from '@/components/NeutralCard'
 import PeraWalletBackground from '@/components/PeraWalletBackground'
 import DefaultCard from '@/components/ProfileCard'
@@ -111,8 +112,9 @@ const themes: ThemeItem[] = [
   { name: 'ElectricPlasma', component: ElectricPlasma, premium: true },
   { name: 'AbstractDataFlow', component: AbstractDataFlow, premium: true },
   { name: 'PeraWallet', component: PeraWalletBackground, premium: false, specialEdition: true, requiredPoints: 300 },
-  { name: 'NFTicket', component: NFTicketBackground, premium: false, specialEdition: true, requiredPoints: 500 },
+  { name: 'NFTicket', component: NFTicketBackground, premium: false, specialEdition: true, requiredPoints: 600 },
   { name: 'SustainableCoffee', component: SustainableCoffeeBackground, premium: false, specialEdition: true, requiredPoints: 700 },
+  { name: 'OrangeMeme', component: OrangeMemeBackground, premium: false, specialEdition: true, requiredPoints: 1000 }
 ]
 
 const cardStyles: CardStyleItem[] = [

@@ -22,6 +22,7 @@ import NFTicketBackground from '../../components/NFTicketBackground'
 import SustainableCoffeeBackground from '../../components/SustainableCoffeeBackground'
 import FourOrangesCard from '../../components/FourOrangesCard'
 import NeutralCard from '../../components/NeutralCard'
+import OrangeMemeBackground from '../../components/OrangeMemeBackground'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
@@ -187,7 +188,8 @@ export default function PublicProfilePage() {
     AbstractDataFlow: AbstractDataFlow,
     NFTicket: NFTicketBackground,
     SustainableCoffee: SustainableCoffeeBackground,
-    PeraWallet: PeraWalletBackground
+    PeraWallet: PeraWalletBackground,
+    OrangeMeme: OrangeMemeBackground
   }[profile.theme] || SocialTagBackground
 
   const isVerified = isProfileVerified(profile)

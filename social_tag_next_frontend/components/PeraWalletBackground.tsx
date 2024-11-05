@@ -15,85 +15,131 @@ const PeraWalletBackground: React.FC = () => {
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 
-    const peraYellow = '#FFEE55'
+    // More accurate Pera colors
+    const peraYellow = '#FFE800'
     const peraBlack = '#000000'
-
+    
     const logos: {
       x: number
       y: number
       size: number
       speed: number
       rotation: number
-    }[] = []
+      opacity: number
+    }[] = Array.from({ length: 6 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 30 + 35,
+      speed: Math.random() * 0.15 + 0.05,
+      rotation: Math.random() * Math.PI * 2,
+      opacity: Math.random() * 0.2 + 0.1
+    }))
 
-    for (let i = 0; i < 10; i++) {
-      logos.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 60 + 40,
-        speed: Math.random() * 0.5 + 0.1,
-        rotation: Math.random() * Math.PI * 2
-      })
-    }
+    // Curved background lines
+    const curves: {
+      startX: number
+      startY: number
+      controlX: number
+      controlY: number
+      endX: number
+      endY: number
+      opacity: number
+      phase: number
+    }[] = Array.from({ length: 8 }, () => ({
+      startX: Math.random() * canvas.width,
+      startY: Math.random() * canvas.height,
+      controlX: Math.random() * canvas.width,
+      controlY: Math.random() * canvas.height,
+      endX: Math.random() * canvas.width,
+      endY: Math.random() * canvas.height,
+      opacity: Math.random() * 0.03 + 0.01,
+      phase: Math.random() * Math.PI * 2
+    }))
 
-    function drawPeraLogo(x: number, y: number, size: number, rotation: number) {
+    function drawPeraLogo(x: number, y: number, size: number, rotation: number, opacity: number) {
       if (!ctx) return
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(rotation)
+      ctx.globalAlpha = opacity
 
-      const petalCount = 6
-      const centerSize = size * 0.2
-
-      // Draw petals
-      ctx.fillStyle = peraBlack
-      for (let i = 0; i < petalCount; i++) {
-        const angle = (i / petalCount) * Math.PI * 2
-        ctx.save()
-        ctx.rotate(angle)
+      // Draw the dots in a circular pattern
+      const dots = 6
+      const radius = size / 2
+      const dotSize = size * 0.12
+      
+      for (let i = 0; i < dots; i++) {
+        const angle = (i / dots) * Math.PI * 2
+        const dotX = Math.cos(angle) * radius
+        const dotY = Math.sin(angle) * radius
+        
         ctx.beginPath()
-        ctx.ellipse(size * 0.3, 0, size * 0.2, size * 0.1, 0, 0, Math.PI * 2)
+        ctx.arc(dotX, dotY, dotSize, 0, Math.PI * 2)
+        ctx.fillStyle = peraYellow
         ctx.fill()
-        ctx.restore()
       }
 
-      // Draw center
+      // Center dot
       ctx.beginPath()
-      ctx.arc(0, 0, centerSize, 0, Math.PI * 2)
+      ctx.arc(0, 0, dotSize, 0, Math.PI * 2)
+      ctx.fillStyle = peraYellow
       ctx.fill()
 
       ctx.restore()
     }
 
-    function drawPeraWalletText() {
-      if (!ctx || !canvas) return
-      ctx.font = 'bold 24px Arial'
-      ctx.fillStyle = '#000000'
-      ctx.textAlign = 'right'
-      ctx.textBaseline = 'bottom'
-      ctx.fillText('Pera Wallet', canvas.width - 20, canvas.height - 20)
+    function drawCurvedLines(time: number) {
+      if (!ctx) return
+      
+      curves.forEach(curve => {
+        ctx.beginPath()
+        
+        // Animate control points for subtle movement
+        const offsetX = Math.sin(curve.phase + time * 0.0005) * 50
+        const offsetY = Math.cos(curve.phase + time * 0.0005) * 50
+        
+        ctx.moveTo(curve.startX, curve.startY)
+        ctx.quadraticCurveTo(
+          curve.controlX + offsetX,
+          curve.controlY + offsetY,
+          curve.endX,
+          curve.endY
+        )
+        
+        ctx.strokeStyle = `rgba(255, 232, 0, ${curve.opacity})`
+        ctx.lineWidth = 1
+        ctx.stroke()
+      })
     }
 
+    let animationTime = 0
     function animate() {
       if (!ctx || !canvas) return
-      ctx.fillStyle = peraYellow
+      
+      // Clear and fill background
+      ctx.fillStyle = peraBlack
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+      // Draw animated curved lines
+      drawCurvedLines(animationTime)
+
+      // Animate and draw logos
       logos.forEach(logo => {
-        drawPeraLogo(logo.x, logo.y, logo.size, logo.rotation)
+        drawPeraLogo(logo.x, logo.y, logo.size, logo.rotation, logo.opacity)
 
+        // Update position with more subtle movement
         logo.y += logo.speed
-        logo.x += Math.sin(logo.y * 0.05) * 0.5
-        logo.rotation += 0.005
+        logo.x += Math.sin(logo.y * 0.01) * 0.15
+        logo.rotation += 0.0008
 
+        // Reset position when out of view
         if (logo.y > canvas.height + logo.size) {
           logo.y = -logo.size
           logo.x = Math.random() * canvas.width
         }
       })
 
-      drawPeraWalletText()
-
+      animationTime++
       requestAnimationFrame(animate)
     }
 
@@ -104,6 +150,7 @@ const PeraWalletBackground: React.FC = () => {
       canvas.height = window.innerHeight
     }
 
+    window.addEventListener('resize', handleResize)
     window.addEventListener('resize', handleResize)
 
     return () => {
