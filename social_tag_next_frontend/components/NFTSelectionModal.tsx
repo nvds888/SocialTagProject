@@ -38,154 +38,125 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
 }) => {
   const [resolvedNFTs, setResolvedNFTs] = useState<(NFT & { image: string })[]>([]);
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+  const [debugLog, setDebugLog] = useState<string[]>([]);
+
+  const addDebugLog = (message: string) => {
+    console.log(message);
+    setDebugLog(prev => [...prev, `${new Date().toISOString()}: ${message}`]);
+  };
 
   const getImageUrl = async (nft: NFT): Promise<string> => {
     try {
-      console.log('Processing NFT:', nft);
+      addDebugLog(`Processing NFT: ${nft.name} (ID: ${nft.id})`);
+      addDebugLog(`NFT Data: ${JSON.stringify({
+        url: nft.url,
+        metadata: nft.metadata,
+        image: nft.image,
+        'metadata-hash': nft['metadata-hash'],
+        reserve: nft.reserve
+      }, null, 2)}`);
 
-      // Skip NFDs
+      // Remove NFD filtering to show all NFTs
+      // Instead of filtering out, just log them
       if (nft.name?.toLowerCase().includes('nfd') || nft.name?.toLowerCase().includes('.algo')) {
-        console.log('Skipping NFD:', nft.name);
-        return '';
+        addDebugLog(`Note: This is an NFD/Algo domain: ${nft.name}`);
       }
 
-      // Case 1: Direct image URL already exists
+      // Case 1: Direct image URL
       if (nft.image && !nft.image.includes('ipfs://')) {
+        addDebugLog(`Found direct image URL: ${nft.image}`);
         return nft.image;
       }
 
-      // Case 2: Check metadata object if it exists
+      // Case 2: Metadata object
       if (nft.metadata) {
         const metadataImage = nft.metadata.image || nft.metadata.image_url || nft.metadata.animation_url;
         if (metadataImage) {
           if (metadataImage.startsWith('ipfs://')) {
-            return `https://ipfs.io/ipfs/${metadataImage.slice(7)}`;
+            const ipfsUrl = `https://ipfs.io/ipfs/${metadataImage.slice(7)}`;
+            addDebugLog(`Converting IPFS metadata image to: ${ipfsUrl}`);
+            return ipfsUrl;
           }
+          addDebugLog(`Using metadata image URL: ${metadataImage}`);
           return metadataImage;
         }
       }
 
-      // Case 3: Handle ARC3 NFTs
+      // Case 3: ARC3 NFTs
       if (nft.url?.includes('#arc3')) {
         try {
           let baseUrl = nft.url.split('#')[0];
-          // Handle direct IPFS URLs
           if (baseUrl.startsWith('ipfs://')) {
             baseUrl = `https://ipfs.io/ipfs/${baseUrl.slice(7)}`;
           }
-          console.log('Fetching ARC3 metadata from:', baseUrl);
+          addDebugLog(`Fetching ARC3 metadata from: ${baseUrl}`);
           
           const response = await axios.get(baseUrl);
-          console.log('ARC3 metadata response:', response.data);
+          addDebugLog(`ARC3 metadata response: ${JSON.stringify(response.data)}`);
           
           if (response.data.image) {
             const imageUrl = response.data.image;
             if (imageUrl.startsWith('ipfs://')) {
-              const ipfsHash = imageUrl.slice(7);
-              console.log('Converting IPFS image URL:', ipfsHash);
-              return `https://ipfs.io/ipfs/${ipfsHash}`;
+              const ipfsUrl = `https://ipfs.io/ipfs/${imageUrl.slice(7)}`;
+              addDebugLog(`Converting ARC3 IPFS image to: ${ipfsUrl}`);
+              return ipfsUrl;
             }
             return imageUrl;
           }
         } catch (error) {
-          console.warn('Failed to fetch ARC3 metadata:', error);
+          addDebugLog(`Failed to fetch ARC3 metadata: ${error}`);
         }
       }
 
-      // Case 4: Handle template-ipfs URLs
-      if (nft.url?.startsWith('template-ipfs://')) {
-        try {
-          const cid = nft.reserve || nft['metadata-hash'];
-          if (!cid) return '/placeholder-nft.png';
-
-          const response = await axios.get(`https://ipfs.io/ipfs/${cid}`);
-          console.log('Template IPFS response:', response.data);
-          
-          if (response.data.image) {
-            const imageUrl = response.data.image;
-            if (imageUrl.startsWith('ipfs://')) {
-              return `https://ipfs.io/ipfs/${imageUrl.slice(7)}`;
-            }
-            return imageUrl;
-          }
-        } catch (error) {
-          console.warn('Failed to fetch template IPFS metadata:', error);
-        }
-      }
-
-      // Case 5: Handle direct IPFS URLs
+      // Case 4: Direct IPFS URLs
       if (nft.url?.startsWith('ipfs://')) {
         const ipfsPath = nft.url.split('#')[0].slice(7);
         const url = `https://ipfs.io/ipfs/${ipfsPath}`;
+        addDebugLog(`Trying direct IPFS URL: ${url}`);
         
         try {
-          // Try to fetch as metadata first
           const response = await axios.get(url);
-          console.log('IPFS response:', response.data);
-          
           if (response.data.image) {
             const imageUrl = response.data.image;
             if (imageUrl.startsWith('ipfs://')) {
-              return `https://ipfs.io/ipfs/${imageUrl.slice(7)}`;
+              const finalUrl = `https://ipfs.io/ipfs/${imageUrl.slice(7)}`;
+              addDebugLog(`Resolved IPFS image URL: ${finalUrl}`);
+              return finalUrl;
             }
             return imageUrl;
           }
-        } catch {
-          // If metadata fetch fails, try using the URL directly
+        } catch (error) {
+          addDebugLog(`Failed to fetch IPFS metadata, trying direct URL: ${url}`);
           return url;
         }
       }
 
-      // Case 6: Handle IPFS CID template
-      if (nft.url?.includes('{ipfscid')) {
-        const cid = nft['metadata-hash'] || nft.reserve;
-        if (cid) {
-          const url = `https://ipfs.io/ipfs/${cid}`;
+      // Case 5: Try alternate IPFS gateways if primary fails
+      const alternateGateways = [
+        'https://ipfs.io/ipfs/',
+        'https://cloudflare-ipfs.com/ipfs/',
+        'https://gateway.pinata.cloud/ipfs/'
+      ];
+
+      for (const gateway of alternateGateways) {
+        if (nft.url?.includes('ipfs://')) {
+          const ipfsHash = nft.url.replace('ipfs://', '');
+          const url = `${gateway}${ipfsHash}`;
           try {
-            // Try to fetch metadata first
-            const response = await axios.get(url);
-            if (response.data.image) {
-              if (response.data.image.startsWith('ipfs://')) {
-                return `https://ipfs.io/ipfs/${response.data.image.slice(7)}`;
-              }
-              return response.data.image;
-            }
-          } catch {
-            // If metadata fetch fails, return the direct URL
+            addDebugLog(`Trying alternate gateway: ${url}`);
+            await axios.head(url);
             return url;
+          } catch (error) {
+            addDebugLog(`Gateway ${gateway} failed`);
           }
         }
       }
 
-      // Case 7: Handle direct URL with metadata
-      if (nft.url && !nft.url.includes('ipfs://') && !nft.url.includes('{ipfscid')) {
-        try {
-          const response = await axios.get(nft.url);
-          if (response.data.image) {
-            if (response.data.image.startsWith('ipfs://')) {
-              return `https://ipfs.io/ipfs/${response.data.image.slice(7)}`;
-            }
-            return response.data.image;
-          }
-        } catch (error) {
-          console.warn('Failed to fetch NFT metadata:', error);
-        }
-      }
-
-      // Case 8: Check if the URL itself is a direct image link
-      if (nft.url && (
-        nft.url.endsWith('.jpg') || 
-        nft.url.endsWith('.jpeg') || 
-        nft.url.endsWith('.png') || 
-        nft.url.endsWith('.gif') || 
-        nft.url.endsWith('.svg')
-      )) {
-        return nft.url;
-      }
-
+      // Fallback to placeholder but still show the NFT
+      addDebugLog(`Using placeholder for NFT: ${nft.name}`);
       return '/placeholder-nft.png';
     } catch (error) {
-      console.error('Error resolving NFT image:', error);
+      addDebugLog(`Error resolving NFT image: ${error}`);
       return '/placeholder-nft.png';
     }
   };
@@ -194,16 +165,14 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
     setLoadingStates(prev => ({ ...prev, [nft.id]: true }));
     try {
       const image = await getImageUrl(nft);
-      // Only add NFT if it has a valid image and is not an NFD
-      if (image && !nft.name?.toLowerCase().includes('nfd') && !nft.name?.toLowerCase().includes('.algo')) {
-        setResolvedNFTs(prev => {
-          const existing = prev.find(n => n.id === nft.id);
-          if (existing) {
-            return prev.map(n => n.id === nft.id ? { ...n, image } : n);
-          }
-          return [...prev, { ...nft, image }];
-        });
-      }
+      // Always add NFT to resolved list, even if using placeholder
+      setResolvedNFTs(prev => {
+        const existing = prev.find(n => n.id === nft.id);
+        if (existing) {
+          return prev.map(n => n.id === nft.id ? { ...n, image } : n);
+        }
+        return [...prev, { ...nft, image }];
+      });
     } finally {
       setLoadingStates(prev => ({ ...prev, [nft.id]: false }));
     }
@@ -211,18 +180,14 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
 
   useEffect(() => {
     if (isOpen && nfts.length > 0) {
-      // Reset states when modal opens with new NFTs
       setResolvedNFTs([]);
       setLoadingStates({});
+      setDebugLog([]); // Reset debug log
       
-      // Filter out NFDs before processing
-      const filteredNFTs = nfts.filter(nft => 
-        !nft.name?.toLowerCase().includes('nfd') && 
-        !nft.name?.toLowerCase().includes('.algo')
-      );
+      addDebugLog(`Processing ${nfts.length} NFTs`);
       
-      // Resolve all NFTs in parallel
-      filteredNFTs.forEach(nft => {
+      // Process all NFTs without filtering
+      nfts.forEach(nft => {
         resolveNFTImage(nft);
       });
     }
@@ -250,12 +215,19 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               </Button>
             </div>
 
+            {/* Debug Panel */}
+            <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+              <p>Total NFTs: {nfts.length}</p>
+              <p>Resolved NFTs: {resolvedNFTs.length}</p>
+              <p>Loading: {Object.values(loadingStates).filter(Boolean).length}</p>
+            </div>
+
             {isLoading ? (
               <div className="flex items-center justify-center h-48">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
               </div>
             ) : resolvedNFTs.length === 0 ? (
-              <p className="text-center text-gray-500">No NFTs found in your wallet.</p>
+              <p className="text-center text-gray-500">Processing NFTs...</p>
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-3">
                 {resolvedNFTs.map((nft) => (
@@ -278,7 +250,8 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                         alt={nft.name}
                         className="w-full h-24 object-cover"
                         onError={(e) => {
-                          e.currentTarget.src = '/SocialTag.jpg';
+                          addDebugLog(`Image load failed for: ${nft.name}`);
+                          e.currentTarget.src = '/placeholder-nft.png';
                         }}
                         loading="lazy"
                       />
@@ -303,6 +276,14 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                 ))}
               </div>
             )}
+
+            {/* Debug Log Panel */}
+            <div className="mt-4 p-2 bg-gray-100 rounded max-h-40 overflow-y-auto text-xs">
+              <h3 className="font-bold mb-1">Debug Log:</h3>
+              {debugLog.map((log, index) => (
+                <div key={index} className="text-xs text-gray-600">{log}</div>
+              ))}
+            </div>
           </motion.div>
         </motion.div>
       )}
