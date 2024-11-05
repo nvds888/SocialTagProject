@@ -66,7 +66,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       }
 
       if (nft.metadata?.image || nft.metadata?.image_url || nft.metadata?.animation_url) {
-        return convertToAlgoNodeIPFS(nft.metadata.image || nft.metadata.image_url || nft.metadata.animation_url);
+        return convertToAlgoNodeIPFS(nft.metadata.image || nft.metadata.image_url || nft.metadata.animation_url || '');
       }
 
       if (nft.url?.includes('#arc3')) {
