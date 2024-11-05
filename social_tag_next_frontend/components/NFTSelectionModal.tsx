@@ -121,24 +121,20 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       
       const filteredNFTs = nfts.filter(nft => !isNFD(nft));
       
-      // Create an array of promises for loading NFTs
       const loadingPromises = filteredNFTs.map(nft => {
         return new Promise<void>((resolve) => {
           resolveNFTImage(nft).finally(() => resolve());
         });
       });
 
-      // Set a timeout for all loading operations
       const timeoutPromise = new Promise<void>((resolve) => {
         setTimeout(resolve, LOADING_TIMEOUT);
       });
 
-      // Race between loading all NFTs and timeout
       Promise.race([
         Promise.all(loadingPromises),
         timeoutPromise
       ]).finally(() => {
-        // Clear any remaining loading states after timeout
         setLoadingStates({});
       });
     }
@@ -157,10 +153,10 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="relative w-full max-w-2xl m-4 bg-white rounded-xl shadow-2xl"
+            className="relative w-full max-w-lg m-4 bg-white rounded-xl shadow-2xl"
           >
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <div className="flex items-center justify-between p-3 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">
                 Select NFT Profile Picture
               </h2>
               <Button 
@@ -169,23 +165,23 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </Button>
             </div>
 
-            <div className="p-4 max-h-[60vh] overflow-y-auto">
+            <div className="p-4 max-h-[50vh] overflow-y-auto">
               {isLoading ? (
-                <div className="flex flex-col items-center justify-center h-48 space-y-4">
-                  <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                <div className="flex flex-col items-center justify-center h-40 space-y-3">
+                  <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
                   <p className="text-sm text-gray-500">Loading your NFTs...</p>
                 </div>
               ) : resolvedNFTs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-48 space-y-2">
+                <div className="flex flex-col items-center justify-center h-40 space-y-2">
                   <p className="text-gray-500">No NFTs found in your wallet</p>
                   <p className="text-sm text-gray-400">Try connecting a different wallet</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {resolvedNFTs.map((nft) => (
                     <motion.div
                       key={nft.id}
@@ -200,7 +196,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                     >
                       {loadingStates[nft.id] ? (
                         <div className="flex items-center justify-center w-full h-full bg-gray-100">
-                          <div className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                          <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
                         </div>
                       ) : (
                         <>
@@ -215,7 +211,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             <div className="absolute bottom-0 left-0 right-0 p-2">
-                              <p className="text-sm text-white font-medium truncate">
+                              <p className="text-xs text-white font-medium truncate">
                                 {nft.name}
                               </p>
                             </div>
@@ -223,7 +219,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                           {selectedNFT?.id === nft.id && (
                             <div className="absolute top-2 right-2">
                               <div className="bg-blue-500 rounded-full p-1">
-                                <svg className="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                               </div>
