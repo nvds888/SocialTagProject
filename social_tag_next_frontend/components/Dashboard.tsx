@@ -353,42 +353,53 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         <header className="flex justify-between items-center p-6 bg-white shadow-md">
           <h1 className="text-4xl font-bold">SocialTag</h1>
           <nav className="flex items-center space-x-4">
-            <Link href="/" className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors">Home</Link>
-            <Button
-              onClick={handleOpenLeaderboard}
-              className="bg-[#FF6B6B] text-black px-4 py-2 rounded-none hover:bg-opacity-90 transition-colors flex items-center"
-            >
-              Leaderboard
-            </Button>
-            <Button
-              onClick={() => setIsCustomizePanelOpen(true)}
-              className="bg-[#FFB951] text-black px-4 py-2 rounded-none hover:bg-opacity-90 transition-colors"
-            >
-              My Studio
-            </Button>
-            {!connectedAccount ? (
-              <button 
-                onClick={handleConnectPera}
-                className="bg-[#40E0D0] text-black px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors flex items-center"
-              >
-                <Wallet size={18} className="mr-2" />
-                Connect Pera
-              </button>
-            ) : (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="bg-[#40E0D0] text-black px-4 py-2 rounded-none hover:bg-[#40E0D0] transition-colors flex items-center">
-                    <Wallet size={18} className="mr-2" />
-                    {connectedAccount.substring(0, 4)}...{connectedAccount.substring(connectedAccount.length - 4)}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full bg-white border-none text-black shadow-lg">
-                  <button 
-                    onClick={handleDisconnectWalletClick}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors"
-                  >
-                    Disconnect
-                  </button>
+          <Link 
+  href="/" 
+  className="bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+>
+  Home
+</Link>
+
+<Button
+  onClick={handleOpenLeaderboard}
+  className="bg-[#FF6B6B] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#FF6B6B]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
+>
+  Leaderboard
+</Button>
+
+<Button
+  onClick={() => setIsCustomizePanelOpen(true)}
+  className="bg-[#FFB951] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#FFB951]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+>
+  My Studio
+</Button>
+
+{!connectedAccount ? (
+  <button
+    onClick={handleConnectPera}
+    className="bg-[#40E0D0] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
+  >
+    <Wallet size={18} className="mr-2" />
+    Connect Pera
+  </button>
+) : (
+  // Connected Wallet Popover
+  <Popover>
+    <PopoverTrigger asChild>
+      <button 
+        className="bg-[#40E0D0] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
+      >
+        <Wallet size={18} className="mr-2" />
+        {connectedAccount.substring(0, 4)}...{connectedAccount.substring(connectedAccount.length - 4)}
+      </button>
+    </PopoverTrigger>
+    <PopoverContent className="w-full bg-white border-2 border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] rounded-lg p-0 mt-2">
+      <button
+        onClick={handleDisconnectWalletClick}
+        className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors rounded-lg"
+      >
+        Disconnect
+      </button>
                 </PopoverContent>
               </Popover>
             )}
