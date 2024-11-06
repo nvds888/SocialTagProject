@@ -97,24 +97,28 @@ export default function LandingPage() {
           <h1 className="logo text-4xl font-bold text-black">SocialTag</h1>
 
           <div className="header-buttons flex space-x-4">
-            <button 
-              onClick={openLeaderboard} 
-              className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors flex items-center"
-            >
-              <strong>Leaderboard</strong>
-            </button>
-            {isAuthenticated ? (
-              <Link href={`/dashboard/${username}`} className="nav-button bg-white text-black px-4 py-2 rounded-full hover:bg-opacity-50 transition-colors">
-                <strong>My Dashboard</strong>
-              </Link>
-            ) : (
-              <button 
-                onClick={handleDashboardClick}
-                className="nav-button bg-transparent text-black px-4 py-2 rounded-none hover:bg-opacity-50 transition-colors"
-              >
-                <strong>Sign In</strong>
-              </button>
-            )}
+          <button
+  onClick={openLeaderboard}
+  className="nav-button bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
+>
+  <strong>Leaderboard</strong>
+</button>
+
+{isAuthenticated ? (
+  <Link 
+    href={`/dashboard/${username}`} 
+    className="nav-button bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+  >
+    <strong>My Dashboard</strong>
+  </Link>
+) : (
+  <button
+    onClick={handleDashboardClick}
+    className="nav-button bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+  >
+    <strong>Sign In</strong>
+  </button>
+)}
           </div>
         </header>
         <main className="landing-main">
