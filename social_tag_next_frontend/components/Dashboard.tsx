@@ -362,7 +362,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             </Button>
             <Button
               onClick={() => setIsCustomizePanelOpen(true)}
-              className="bg-white text-black px-4 py-2 rounded-none hover:bg-white transition-colors"
+              className="bg-[#FFB951] text-black px-4 py-2 rounded-none hover:bg-[#FFB951] transition-colors"
             >
               My Studio
             </Button>
