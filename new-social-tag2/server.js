@@ -26,7 +26,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
   const corsOptions = {
     origin: [
-      'https://social-tag.vercel.app',
+      'https://social-tag.xyz',
       process.env.NEXT_PUBLIC_FRONTEND_URL
     ],
     credentials: true,
