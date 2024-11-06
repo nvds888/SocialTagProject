@@ -7,9 +7,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "SocialTag",
   icons: [
-    { rel: "icon", url: "/SocialTag.jpg" },
-    { rel: "shortcut icon", url: "/SocialTag.jpg" },
-    { rel: "apple-touch-icon", url: "/SocialTag.jpg" },
+    { rel: "icon", url: "/SocialTag.png" },
+    { rel: "shortcut icon", url: "/SocialTag.png" },
+    { rel: "apple-touch-icon", url: "/SocialTag.png" },
   ],
 };
 
