@@ -981,11 +981,11 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     <ul className="space-y-2">
       <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black mb-2">
         <CheckCircle size={16} className="mr-2 text-black" />
-        <span>Verification Hash: <strong>+100 points</strong></span>
+        <span>Verification: <strong>+100 points</strong></span>
       </li>
       <li className="flex items-center bg-[#FFB951] p-2 rounded-lg border-2 border-black mb-2">
         <CheckCircle size={16} className="mr-2 text-black" />
-        <span>Each account in verification: <strong>+25 points</strong></span>
+        <span>Every account included in verification: <strong>+25 points</strong></span>
       </li>
       <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black mb-2">
         <CheckCircle size={16} className="mr-2 text-black" />
@@ -993,7 +993,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       </li>
       <li className="flex items-center bg-[#FFB951] p-2 rounded-lg border-2 border-black mb-2">
         <CheckCircle size={16} className="mr-2 text-black" />
-        <span>Unique profile views (we use cookies): <strong>+15 points</strong></span>
+        <span>Unique profile views: <strong>+15 points</strong></span>
       </li>
       <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black">
         <CheckCircle size={16} className="mr-2 text-black" />
