@@ -204,10 +204,19 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       : cardStyles.find(c => c.name === itemName)
 
     if (selectedItem?.premium && !purchasedItems.includes(itemName)) {
+      // Check if wallet is connected before showing purchase modal
+      if (!connectedWalletAddress) {
+        toast({
+          title: "Wallet Not Connected",
+          description: "Please connect your Pera Wallet to make purchases.",
+          variant: "destructive",
+        });
+        return;
+      }
       setSelectedItem({ type: itemType, name: itemName })
       setShowPurchaseModal(true)
     } else if (selectedItem?.specialEdition) {
-      const requiredPoints = selectedItem.requiredPoints || 300 // Default to 300 if not specified
+      const requiredPoints = selectedItem.requiredPoints || 300
       if (rewardPoints >= requiredPoints) {
         if (itemType === 'theme') {
           setTheme(itemName)
@@ -219,7 +228,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       } else {
         toast({
           title: "Not enough reward points",
-          description: "You need at least ${requiredPoints} reward points to use this Special Edition background.",
+          description: `You need at least ${requiredPoints} reward points to use this Special Edition background.`,
           variant: "destructive",
         })
       }
@@ -236,9 +245,20 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
   const handlePurchaseConfirmation = async (paymentType: 'USDC' | 'ORA') => {
     if (selectedItem) {
+      // Double check wallet connection before proceeding with purchase
+      if (!connectedWalletAddress) {
+        toast({
+          title: "Wallet Not Connected",
+          description: "Please connect your Pera Wallet to make purchases.",
+          variant: "destructive",
+        });
+        setShowPurchaseModal(false);
+        return;
+      }
+
       setProcessingPaymentType(paymentType); 
       try {
-        // Check if the wallet is connected
+        // Rest of the purchase logic remains the same...
         let accounts: string[] = [];
         try {
           accounts = await peraWallet.reconnectSession();
@@ -247,7 +267,11 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         }
   
         if (accounts.length === 0) {
-          setError('Failed to connect to Pera Wallet');
+          toast({
+            title: "Connection Failed",
+            description: "Failed to connect to Pera Wallet. Please try again.",
+            variant: "destructive",
+          });
           return;
         }
   
