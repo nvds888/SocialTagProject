@@ -6,9 +6,11 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "SocialTag",
-  icons: {
-    icon: '/SocialTag.jpg',
-  },
+  icons: [
+    { rel: "icon", url: "/SocialTag.jpg" },
+    { rel: "shortcut icon", url: "/SocialTag.jpg" },
+    { rel: "apple-touch-icon", url: "/SocialTag.jpg" },
+  ],
 };
 
 export default function RootLayout({
