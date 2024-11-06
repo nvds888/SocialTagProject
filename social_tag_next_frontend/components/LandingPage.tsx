@@ -164,14 +164,14 @@ export default function LandingPage() {
              Think of it as Linktree, but redefined with trust and transparency.
             </motion.p>
             <motion.button
-              className="create-profile-button bg-[#FF6B6B] text-white px-8 py-3 rounded-none text-lg font-semibold hover:bg-opacity-90 transition-colors relative overflow-hidden mb-6"
-              onClick={handleCreateProfileClick}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.4 }}
-            >
-              Sign Up / In
-            </motion.button>
+  className="create-profile-button bg-[#FF6B6B] text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[#FF6B6B]/90 transition-all border-2 border-black relative overflow-hidden mb-6"
+  onClick={handleCreateProfileClick}
+  initial={{ opacity: 0, scale: 0.9 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.3, delay: 0.4 }}
+>
+  Sign Up / In
+</motion.button>
             <div className="social-icons flex justify-center space-x-4 mb-4">
               <Twitter size={24} className="text-black" />
               <Github size={24} className="text-black" />
@@ -337,30 +337,30 @@ export default function LandingPage() {
       </div>
 
       {showPopup && (
-        <div className="popup-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-        <motion.div 
-          className="popup-content bg-white text-black p-8 rounded-lg relative max-w-md w-full"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <h3 className="text-2xl font-bold mb-6 text-center">Sign Up / In</h3>
-          <button
-            className="twitter-auth-button bg-[#FF6B6B] text-white w-full px-4 py-3 rounded-none flex items-center justify-center text-lg font-semibold hover:bg-opacity-80 transition-colors"
-            onClick={handleTwitterAuth}
-          >
-            <Twitter size={24} className="mr-2" />
-            Proceed with X
-          </button>
-          <button
-            className="close-popup absolute top-2 right-2 text-2xl text-black hover:text-gray-600 transition-colors"
-            onClick={() => setShowPopup(false)}
-          >
-            &times;
-          </button>
-        </motion.div>
-      </div>
-    )}
+  <div className="popup-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <motion.div
+      className="popup-content bg-white text-black p-8 rounded-lg relative max-w-md w-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0)]"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <h3 className="text-2xl font-bold mb-6 text-center">Sign Up / In</h3>
+      <button
+        className="twitter-auth-button bg-[#FF6B6B] text-black w-full px-4 py-3 rounded-lg border-2 border-black hover:bg-[#FF6B6B]/90 transition-all flex items-center justify-center text-lg font-semibold"
+        onClick={handleTwitterAuth}
+      >
+        <Twitter size={24} className="mr-2" />
+        Proceed with X
+      </button>
+      <button
+        className="close-popup absolute top-4 right-4 text-black hover:bg-gray-100 transition-all w-8 h-8 rounded-lg border-2 border-black flex items-center justify-center"
+        onClick={() => setShowPopup(false)}
+      >
+        ×
+      </button>
+    </motion.div>
+  </div>
+)}
 
     <Leaderboard isOpen={showLeaderboard} onClose={closeLeaderboard} />
 
