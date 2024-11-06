@@ -362,7 +362,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
 <Button
   onClick={handleOpenLeaderboard}
-  className="bg-[#FF6B6B] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#FF6B6B]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
+  className="bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
 >
   Leaderboard
 </Button>

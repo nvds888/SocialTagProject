@@ -164,7 +164,7 @@ export default function LandingPage() {
              Think of it as Linktree, but redefined with trust and transparency.
             </motion.p>
             <motion.button
-  className="create-profile-button bg-[#FF6B6B] text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[#FF6B6B]/90 transition-all border-2 border-black relative overflow-hidden mb-6"
+  className="create-profile-button bg-[#FF6B6B] text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[#FF6B6B]/90 transition-all border-2 border-black relative overflow-hidden mb-6"
   onClick={handleCreateProfileClick}
   initial={{ opacity: 0, scale: 0.9 }}
   animate={{ opacity: 1, scale: 1 }}
@@ -346,7 +346,7 @@ export default function LandingPage() {
     >
       <h3 className="text-2xl font-bold mb-6 text-center">Sign Up / In</h3>
       <button
-        className="twitter-auth-button bg-[#FF6B6B] text-white w-full px-4 py-3 rounded-lg border-2 border-black hover:bg-[#FF6B6B]/90 transition-all flex items-center justify-center text-lg font-semibold"
+        className="twitter-auth-button bg-[#FF6B6B] text-black w-full px-4 py-3 rounded-lg border-2 border-black hover:bg-[#FF6B6B]/90 transition-all flex items-center justify-center text-lg font-semibold"
         onClick={handleTwitterAuth}
       >
         <Twitter size={24} className="mr-2" />
