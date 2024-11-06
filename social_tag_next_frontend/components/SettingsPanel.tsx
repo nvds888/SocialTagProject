@@ -71,7 +71,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ user, onSettingsUpdate })
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="space-y-6 w-full max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg"
+      className="w-full max-w-3xl mx-auto bg-white p-6 rounded-lg border-4 border-black"
     >
       <h2 className="text-2xl font-bold mb-4 text-black">Settings</h2>
       
@@ -79,10 +79,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ user, onSettingsUpdate })
       <motion.div
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
+        className="mb-4"
       >
         <Button
           variant="outline"
-          className="w-full py-2 bg-[#40E0D0] text-black border-2 border-black rounded-lg hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+          className="w-full py-2 bg-white text-black border-2 border-black rounded-lg hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />
@@ -97,7 +98,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ user, onSettingsUpdate })
       >
         <Button
           variant="outline"
-          className="w-full py-2 bg-[#FF6B6B] text-black border-2 border-black rounded-lg hover:bg-[#FF6B6B]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+          className="w-full py-2 bg-white text-black border-2 border-black rounded-lg hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
           onClick={() => setShowDeletePopup(true)}
         >
           <Trash2 className="mr-2 h-4 w-4" />
@@ -135,7 +136,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ user, onSettingsUpdate })
                 <Button
                   variant="destructive"
                   onClick={handleDeleteAccount}
-                  className="bg-[#FF6B6B] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#FF6B6B]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                  className="bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                   disabled={isDeleting}
                 >
                   {isDeleting ? 'Deleting...' : 'Yes, delete my account'}
