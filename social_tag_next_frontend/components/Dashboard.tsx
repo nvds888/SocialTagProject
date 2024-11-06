@@ -356,20 +356,20 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             <Link href="/" className="bg-white text-black px-4 py-2 rounded-full hover:bg-white transition-colors">Home</Link>
             <Button
               onClick={handleOpenLeaderboard}
-              className="bg-[#FF6B6B] text-black px-4 py-2 rounded-full hover:bg-[#FF6B6B] transition-colors flex items-center"
+              className="bg-[#FF6B6B] text-black px-4 py-2 rounded-none hover:bg-opacity-90 transition-colors flex items-center"
             >
               Leaderboard
             </Button>
             <Button
               onClick={() => setIsCustomizePanelOpen(true)}
-              className="bg-[#FFB951] text-black px-4 py-2 rounded-none hover:bg-[#FFB951] transition-colors"
+              className="bg-[#FFB951] text-black px-4 py-2 rounded-none hover:bg-opacity-90 transition-colors"
             >
               My Studio
             </Button>
             {!connectedAccount ? (
               <button 
                 onClick={handleConnectPera}
-                className="bg-[#40E0D0] text-black px-4 py-2 rounded-full hover:bg-[#40E0D0] transition-colors flex items-center"
+                className="bg-[#40E0D0] text-black px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors flex items-center"
               >
                 <Wallet size={18} className="mr-2" />
                 Connect Pera
