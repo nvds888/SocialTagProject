@@ -411,9 +411,18 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   }
 
   const handleSelectNFD = (nfd: NFD) => {
-    setSelectedNFD(nfd)
-    setShowNFDModal(false)
-  }
+    if (!nfd || typeof nfd !== 'object') {
+      setSelectedNFD(null);
+      return;
+    }
+    
+    setSelectedNFD({
+      id: nfd.id?.toString() || 'unknown',
+      name: nfd.name?.toString() || 'Unnamed NFD',
+      assetId: nfd.assetId?.toString()
+    });
+    setShowNFDModal(false);
+  };
 
   const handleCreateNFT = () => {
     window.open('https://www.wen.tools/simple-mint', '_blank');
@@ -932,12 +941,14 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 )}
       </div>
       <div className="w-1/3">
-        {selectedNFD && (
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-black">{selectedNFD.name}</span>
-          </div>
-        )}
-      </div>
+  {selectedNFD && selectedNFD.name && (
+    <div className="flex items-center space-x-2">
+      <span className="text-sm text-black">
+        {typeof selectedNFD.name === 'string' ? selectedNFD.name : ''}
+      </span>
+    </div>
+  )}
+</div>
     </div>
   </div>
 </div>
