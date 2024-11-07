@@ -44,9 +44,24 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ user, onSettingsUpdate })
     sessionStorage.clear()
   }
 
-  const handleLogout = () => {
-    clearUserCache()
-    router.push('/')
+  const handleLogout = async () => {
+    try {
+      // Call logout endpoint to destroy session
+      await axios.post(`${API_BASE_URL}/auth/logout`, {}, { 
+        withCredentials: true 
+      });
+      
+      // Clear local storage cache
+      clearUserCache();
+      
+      // Redirect to home page
+      router.push('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      // Still redirect and clear cache even if logout fails
+      clearUserCache();
+      router.push('/');
+    }
   }
 
   const handleDeleteAccount = async () => {

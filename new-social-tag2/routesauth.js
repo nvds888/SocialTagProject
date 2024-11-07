@@ -53,6 +53,23 @@ router.post('/create-linking-token', async (req, res) => {
   }
 });
 
+router.post('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error('Error during logout:', err);
+      return res.status(500).json({ error: 'Error logging out' });
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+        return res.status(500).json({ error: 'Error destroying session' });
+      }
+      res.clearCookie('socialtagsession');  // Clear the session cookie
+      res.json({ success: true });
+    });
+  });
+});
+
 // Twitter Routes
 router.get('/twitter', async (req, res, next) => {
   try {
