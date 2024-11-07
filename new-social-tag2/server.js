@@ -92,6 +92,20 @@ app.get('/api/user', (req, res) => {
   }
 });
 
+app.get('/checkAuth', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({ 
+      isAuthenticated: true, 
+      username: req.user.twitter?.username || null 
+    });
+  } else {
+    res.json({ 
+      isAuthenticated: false, 
+      username: null 
+    });
+  }
+});
+
 // Pera Wallet routes
 app.get('/api/pera/account/:address', async (req, res) => {
   try {
