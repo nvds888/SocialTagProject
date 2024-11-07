@@ -121,26 +121,26 @@ export default function LandingPage() {
 )}
           </div>
 
-          {/* Add the banner here */}
-  {isAuthenticated && username && (
-    <motion.div 
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className="w-full bg-[#40E0D0] text-black py-3 px-4 flex items-center justify-center border-b-2 border-black"
-    >
-      <div className="flex items-center space-x-4">
-        <User size={20} />
-        <span>Welcome back, <strong>@{username}</strong>!</span>
-        <Link 
-          href={`/dashboard/${username}`}
-          className="bg-white text-black px-4 py-1 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
-        >
-          Return to Dashboard
-        </Link>
-      </div>
-    </motion.div>
-  )}
-  
+          {/* the sessionkeeper banner  */}
+          {isAuthenticated && username && (
+  <motion.div 
+    initial={{ y: -100 }}
+    animate={{ y: 0 }}
+    className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 bg-[#40E0D0] text-black py-2 px-4 flex items-center justify-center border-2 border-black rounded-b-lg shadow-md"
+  >
+    <div className="flex items-center space-x-4">
+      <User size={16} />
+      <span className="text-sm">Welcome back, <strong>@{username}</strong>!</span>
+      <Link 
+        href={`/dashboard/${username}`}
+        className="bg-white text-black px-3 py-1 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] text-sm"
+      >
+        Return to Dashboard
+      </Link>
+    </div>
+  </motion.div>
+)}
+
         </header>
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
