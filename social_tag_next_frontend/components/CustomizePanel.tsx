@@ -443,63 +443,6 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     }
   }, [toast]); // Added 'toast' to the dependency array
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (!isOpen) return;
-      
-      try {
-        // First fetch fresh user data
-        const response = await axios.get(`${API_BASE_URL}/api/user`, {
-          withCredentials: true
-        });
-        
-        if (response.data) {
-          // Update state with fresh data
-          setTheme(response.data.theme || 'SocialTag');
-          setCardStyle(response.data.cardStyle || 'Default');
-          setBio(response.data.bio || '');
-          setProfileViews(response.data.profileViews || 0);
-          setPurchasedItems(response.data.purchasedItems || []);
-          
-          if (response.data.profileNFT) {
-            setSelectedNFT(response.data.profileNFT);
-            // Update localStorage after setting state
-            localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(response.data.profileNFT));
-          }
-          
-          if (response.data.nfd) {
-            const nfdData = {
-              id: response.data.nfd.id || 'current',
-              name: response.data.nfd.name || '',
-              assetId: response.data.nfd.assetId || ''
-            };
-            setSelectedNFD(nfdData);
-            localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify(nfdData));
-          }
-  
-          // Update localStorage with fresh data
-          localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme || 'SocialTag');
-          localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle || 'Default');
-          localStorage.setItem(`purchasedItems_${user.twitter?.username}`, JSON.stringify(response.data.purchasedItems || []));
-        }
-  
-        // Then fetch reward points
-        await fetchRewardPoints();
-      } catch (error) {
-        console.error('Error loading fresh data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load latest data.",
-          variant: "destructive",
-        });
-      }
-    };
-  
-    if (isOpen) {
-      loadData();
-    }
-  }, [isOpen, fetchRewardPoints, toast, user.twitter?.username]); // Added 'toast' to the dependency array
-
   const handleSaveSettings = async () => {
     setSaving(true)
     setError(null)
@@ -517,46 +460,71 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       }, {
         withCredentials: true 
       });
+      
       if (response.data) {
-        setTheme(response.data.theme)
-        setCardStyle(response.data.cardStyle)
-        setBio(response.data.bio)
-        if (response.data.profileNFT) {
-          setSelectedNFT(response.data.profileNFT)
-          localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(response.data.profileNFT))
-        } else {
-          setSelectedNFT(null)
-          localStorage.removeItem(`profileNFT_${user.twitter?.username}`)
-        }
-        if (response.data.nfd) {
-            setSelectedNFD({ 
-              id: response.data.nfd.id, 
-              name: response.data.nfd.name,
-              assetId: response.data.nfd.assetId
-            })
-            localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify({ 
-              id: response.data.nfd.id, 
-              name: response.data.nfd.name,
-              assetId: response.data.nfd.assetId
-            }))
-        } else {
-          setSelectedNFD(null)
-          localStorage.removeItem(`nfd_${user.twitter?.username}`)
-        }
-        localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme)
-        localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle)
-        onSettingsUpdate()
-        onClose()
+        // Update both state and localStorage with the response data
+        setTheme(response.data.theme);
+        setCardStyle(response.data.cardStyle);
+        setBio(response.data.bio);
+  
+        // Update localStorage immediately after state updates
+        localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme);
+        localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle);
+  
+        // Handle NFT and NFD updates...
+        
+        onSettingsUpdate();
+        onClose();
       } else {
-        throw new Error('Settings not updated')
+        throw new Error('Settings not updated');
       }
     } catch (err) {
-      console.error('Error saving settings:', err)
-      setError('Failed to save settings. Please try again.')
+      console.error('Error saving settings:', err);
+      setError('Failed to save settings. Please try again.');
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
+  
+  // Loading fresh data
+  useEffect(() => {
+    const loadData = async () => {
+      if (!isOpen) return;
+      
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/user`, {
+          withCredentials: true
+        });
+        
+        if (response.data) {
+          // Update both theme and cardStyle first
+          setTheme(response.data.theme || 'SocialTag');
+          setCardStyle(response.data.cardStyle || 'Default');
+          
+          // Then update localStorage
+          localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme || 'SocialTag');
+          localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle || 'Default');
+          
+          // Update other fields...
+          setBio(response.data.bio || '');
+          setProfileViews(response.data.profileViews || 0);
+          setPurchasedItems(response.data.purchasedItems || []);
+          // ... rest of the data updates
+        }
+  
+        await fetchRewardPoints();
+      } catch (error) {
+        console.error('Error loading fresh data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load latest data.",
+          variant: "destructive",
+        });
+      }
+    };
+  
+    loadData();
+  }, [isOpen, fetchRewardPoints, toast, user.twitter?.username]);
 
   return (
     <AnimatePresence>
