@@ -156,43 +156,6 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const [profileViews, setProfileViews] = useState(user.profileViews || 0)
   const [rewardPoints, setRewardPoints] = useState(0)
 
-  useEffect(() => {
-    const cachedTheme = localStorage.getItem(`theme_${user.twitter?.username}`)
-    const cachedCardStyle = localStorage.getItem(`cardStyle_${user.twitter?.username}`)
-    const cachedProfileNFT = localStorage.getItem(`profileNFT_${user.twitter?.username}`)
-    const cachedNFD = localStorage.getItem(`nfd_${user.twitter?.username}`)
-    
-    setTheme(cachedTheme || user.theme || 'SocialTag')
-    setCardStyle(cachedCardStyle || user.cardStyle || 'Default')
-    setBio(user.bio || '')
-    setProfileViews(user.profileViews || 0)
-
-    if (cachedProfileNFT) {
-      setSelectedNFT(JSON.parse(cachedProfileNFT))
-    } else if (user.profileNFT) {
-      setSelectedNFT(user.profileNFT)
-      localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(user.profileNFT))
-    }
-
-    if (cachedNFD) {
-      setSelectedNFD(JSON.parse(cachedNFD))
-    } else if (user.nfd) {
-      setSelectedNFD({ id: 'current', name: user.nfd })
-      localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify({ id: 'current', name: user.nfd }))
-    }
-
-    const cachedItems = localStorage.getItem(`purchasedItems_${user.twitter?.username}`)
-    if (cachedItems) {
-      setPurchasedItems(JSON.parse(cachedItems))
-    } else if (user.purchasedItems) {
-      setPurchasedItems(user.purchasedItems)
-      localStorage.setItem(`purchasedItems_${user.twitter?.username}`, JSON.stringify(user.purchasedItems))
-    }
-
-    if (user.profileImage) {
-      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage, assetId: 'current' })
-    }
-  }, [user])
 
   const updatePurchasedItemsCache = (newItems: string[]) => {
     setPurchasedItems(newItems)
@@ -486,45 +449,66 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     }
   };
   
-  // Loading fresh data
-  useEffect(() => {
-    const loadData = async () => {
-      if (!isOpen) return;
+  // Remove the first useEffect that loads from localStorage/user props
+
+// Replace the loadData useEffect with this:
+useEffect(() => {
+  const loadData = async () => {
+    if (!isOpen) return;
+    
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/user`, {
+        withCredentials: true
+      });
       
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/user`, {
-          withCredentials: true
-        });
+      if (response.data) {
+        // Important: Only set defaults if no value exists in response
+        setTheme(response.data.theme || theme);
+        setCardStyle(response.data.cardStyle || cardStyle);
+        setBio(response.data.bio || bio);
+        setProfileViews(response.data.profileViews || 0);
+        setPurchasedItems(response.data.purchasedItems || []);
         
-        if (response.data) {
-          // Update both theme and cardStyle first
-          setTheme(response.data.theme || 'SocialTag');
-          setCardStyle(response.data.cardStyle || 'Default');
-          
-          // Then update localStorage
-          localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme || 'SocialTag');
-          localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle || 'Default');
-          
-          // Update other fields...
-          setBio(response.data.bio || '');
-          setProfileViews(response.data.profileViews || 0);
-          setPurchasedItems(response.data.purchasedItems || []);
-          // ... rest of the data updates
+        if (response.data.profileNFT) {
+          setSelectedNFT(response.data.profileNFT);
         }
-  
-        await fetchRewardPoints();
-      } catch (error) {
-        console.error('Error loading fresh data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load latest data.",
-          variant: "destructive",
-        });
+        
+        if (response.data.nfd) {
+          setSelectedNFD({
+            id: response.data.nfd.id || 'current',
+            name: response.data.nfd.name || '',
+            assetId: response.data.nfd.assetId || ''
+          });
+        }
+
+        // Only update localStorage if we have values
+        if (response.data.theme) {
+          localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme);
+        }
+        if (response.data.cardStyle) {
+          localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle);
+        }
+        if (response.data.purchasedItems) {
+          localStorage.setItem(`purchasedItems_${user.twitter?.username}`, 
+            JSON.stringify(response.data.purchasedItems));
+        }
       }
-    };
-  
+
+      await fetchRewardPoints();
+    } catch (error) {
+      console.error('Error loading fresh data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load latest data.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isOpen) {
     loadData();
-  }, [isOpen, fetchRewardPoints, toast, user.twitter?.username]);
+  }
+}, [isOpen, fetchRewardPoints, toast, user.twitter?.username, theme, cardStyle, bio]);
 
   return (
     <AnimatePresence>
