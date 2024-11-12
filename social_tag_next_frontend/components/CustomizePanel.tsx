@@ -155,7 +155,6 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const { toast } = useToast()
   const [profileViews, setProfileViews] = useState(user.profileViews || 0)
   const [rewardPoints, setRewardPoints] = useState(0)
-  const hasUpdated = React.useRef(false);
 
   useEffect(() => {
     const cachedTheme = localStorage.getItem(`theme_${user.twitter?.username}`)
@@ -445,21 +444,10 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   }, [toast]); // Added 'toast' to the dependency array
 
   useEffect(() => {
-    const initialOpen = async () => {
-      if (isOpen && !hasUpdated.current) {
-        await fetchRewardPoints();
-        onSettingsUpdate();
-        hasUpdated.current = true;
-      }
-    };
-    
-    initialOpen();
-  
-    return () => {
-      if (!isOpen) {
-        hasUpdated.current = false;
-      }
-    };
+    if (isOpen) {
+      fetchRewardPoints();
+      setTimeout(() => onSettingsUpdate(), 100);
+    }
   }, [isOpen, fetchRewardPoints, onSettingsUpdate]);
 
   const handleSaveSettings = async () => {
