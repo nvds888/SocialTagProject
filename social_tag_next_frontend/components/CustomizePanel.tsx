@@ -445,9 +445,10 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      onSettingsUpdate(); 
       fetchRewardPoints()
     }
-  }, [isOpen, fetchRewardPoints])
+  }, [isOpen, fetchRewardPoints, onSettingsUpdate])
 
   const handleSaveSettings = async () => {
     setSaving(true)
