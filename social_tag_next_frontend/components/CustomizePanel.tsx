@@ -155,6 +155,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const { toast } = useToast()
   const [profileViews, setProfileViews] = useState(user.profileViews || 0)
   const [rewardPoints, setRewardPoints] = useState(0)
+  const hasUpdated = React.useRef(false);
 
   useEffect(() => {
     const cachedTheme = localStorage.getItem(`theme_${user.twitter?.username}`)
@@ -445,12 +446,10 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
   useEffect(() => {
     const initialOpen = async () => {
-      if (isOpen) {
+      if (isOpen && !hasUpdated.current) {
         await fetchRewardPoints();
-        if (!localStorage.getItem('panelWasOpened')) {
-          localStorage.setItem('panelWasOpened', 'true');
-          onSettingsUpdate();
-        }
+        onSettingsUpdate();
+        hasUpdated.current = true;
       }
     };
     
@@ -458,7 +457,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   
     return () => {
       if (!isOpen) {
-        localStorage.removeItem('panelWasOpened');
+        hasUpdated.current = false;
       }
     };
   }, [isOpen, fetchRewardPoints, onSettingsUpdate]);
