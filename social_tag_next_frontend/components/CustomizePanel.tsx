@@ -444,11 +444,52 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   }, [toast]); // Added 'toast' to the dependency array
 
   useEffect(() => {
+    const loadFreshData = async () => {
+      if (!isOpen) return;
+      
+      try {
+        // First fetch reward points
+        await fetchRewardPoints();
+        
+        // Then fetch fresh user data
+        const response = await axios.get(`${API_BASE_URL}/api/user`, {
+          withCredentials: true
+        });
+        
+        if (response.data) {
+          // Update all state with fresh data
+          setTheme(response.data.theme || 'SocialTag');
+          setCardStyle(response.data.cardStyle || 'Default');
+          setBio(response.data.bio || '');
+          setProfileViews(response.data.profileViews || 0);
+          setPurchasedItems(response.data.purchasedItems || []);
+          
+          if (response.data.profileNFT) {
+            setSelectedNFT(response.data.profileNFT);
+          }
+          
+          if (response.data.nfd) {
+            setSelectedNFD({
+              id: response.data.nfd.id || 'current',
+              name: response.data.nfd.name || '',
+              assetId: response.data.nfd.assetId || ''
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading fresh data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load latest data.",
+          variant: "destructive",
+        });
+      }
+    };
+  
     if (isOpen) {
-      fetchRewardPoints();
-      setTimeout(() => onSettingsUpdate(), 100);
+      loadFreshData();
     }
-  }, [isOpen, fetchRewardPoints, onSettingsUpdate]);
+  }, [isOpen, fetchRewardPoints, toast]); // Added 'toast' to the dependency array
 
   const handleSaveSettings = async () => {
     setSaving(true)
