@@ -444,20 +444,24 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   }, [toast]); // Added 'toast' to the dependency array
 
   useEffect(() => {
-    if (isOpen) {
-      fetchRewardPoints();
-      onSettingsUpdate(); 
-      // Add a one-time update flag in localStorage to prevent loops
-      const hasUpdated = localStorage.getItem(`panel_opened_${user.twitter?.username}`);
-      if (!hasUpdated) {
-        localStorage.setItem(`panel_opened_${user.twitter?.username}`, 'true');
-        onSettingsUpdate();
+    const initialOpen = async () => {
+      if (isOpen) {
+        await fetchRewardPoints();
+        if (!localStorage.getItem('panelWasOpened')) {
+          localStorage.setItem('panelWasOpened', 'true');
+          onSettingsUpdate();
+        }
       }
-    } else {
-      // Clear the flag when panel closes
-      localStorage.removeItem(`panel_opened_${user.twitter?.username}`);
-    }
-  }, [isOpen, fetchRewardPoints, onSettingsUpdate, user.twitter?.username]);
+    };
+    
+    initialOpen();
+  
+    return () => {
+      if (!isOpen) {
+        localStorage.removeItem('panelWasOpened');
+      }
+    };
+  }, [isOpen, fetchRewardPoints, onSettingsUpdate]);
 
   const handleSaveSettings = async () => {
     setSaving(true)
