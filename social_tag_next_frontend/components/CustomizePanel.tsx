@@ -156,6 +156,43 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const [profileViews, setProfileViews] = useState(user.profileViews || 0)
   const [rewardPoints, setRewardPoints] = useState(0)
 
+  useEffect(() => {
+    const cachedTheme = localStorage.getItem(`theme_${user.twitter?.username}`)
+    const cachedCardStyle = localStorage.getItem(`cardStyle_${user.twitter?.username}`)
+    const cachedProfileNFT = localStorage.getItem(`profileNFT_${user.twitter?.username}`)
+    const cachedNFD = localStorage.getItem(`nfd_${user.twitter?.username}`)
+    
+    setTheme(cachedTheme || user.theme || 'SocialTag')
+    setCardStyle(cachedCardStyle || user.cardStyle || 'Default')
+    setBio(user.bio || '')
+    setProfileViews(user.profileViews || 0)
+
+    if (cachedProfileNFT) {
+      setSelectedNFT(JSON.parse(cachedProfileNFT))
+    } else if (user.profileNFT) {
+      setSelectedNFT(user.profileNFT)
+      localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(user.profileNFT))
+    }
+
+    if (cachedNFD) {
+      setSelectedNFD(JSON.parse(cachedNFD))
+    } else if (user.nfd) {
+      setSelectedNFD({ id: 'current', name: user.nfd })
+      localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify({ id: 'current', name: user.nfd }))
+    }
+
+    const cachedItems = localStorage.getItem(`purchasedItems_${user.twitter?.username}`)
+    if (cachedItems) {
+      setPurchasedItems(JSON.parse(cachedItems))
+    } else if (user.purchasedItems) {
+      setPurchasedItems(user.purchasedItems)
+      localStorage.setItem(`purchasedItems_${user.twitter?.username}`, JSON.stringify(user.purchasedItems))
+    }
+
+    if (user.profileImage) {
+      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage, assetId: 'current' })
+    }
+  }, [user])
 
   const updatePurchasedItemsCache = (newItems: string[]) => {
     setPurchasedItems(newItems)
