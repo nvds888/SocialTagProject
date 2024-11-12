@@ -89,7 +89,7 @@ router.get('/user', sessionCheck, async (req, res) => {
     verificationLink: latestVerification ? latestVerification.verificationLink : null,
     algorandTransactionId: latestVerification ? latestVerification.algorandTransactionId : null,
     stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null,
-    reverifyCount: user.reverifyCount || 0,
+    reverifyCount: req.user.reverifyCount || 0,
   });
 });
 
