@@ -445,10 +445,19 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      fetchRewardPoints();
       onSettingsUpdate(); 
-      fetchRewardPoints()
+      // Add a one-time update flag in localStorage to prevent loops
+      const hasUpdated = localStorage.getItem(`panel_opened_${user.twitter?.username}`);
+      if (!hasUpdated) {
+        localStorage.setItem(`panel_opened_${user.twitter?.username}`, 'true');
+        onSettingsUpdate();
+      }
+    } else {
+      // Clear the flag when panel closes
+      localStorage.removeItem(`panel_opened_${user.twitter?.username}`);
     }
-  }, [isOpen, fetchRewardPoints, onSettingsUpdate])
+  }, [isOpen, fetchRewardPoints, onSettingsUpdate, user.twitter?.username]);
 
   const handleSaveSettings = async () => {
     setSaving(true)
