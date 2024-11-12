@@ -446,7 +446,8 @@ router.post('/user/settings', sessionCheck, async (req, res) => {
         profileNFT,
         nfd: nfd ? {
           id: nfd.id,
-          name: nfd.name
+          name: nfd.name,
+          assetId: nfd.assetId
         } : null
       },
       { new: true }
@@ -504,9 +505,10 @@ router.get('/public-profile/:username', async (req, res) => {
       isVerified: !!latestVerification,
       reverifyCount: user.reverifyCount || 0,
       rewardPoints: rewardPoints,
-      nfd: user.nfd ? { 
-        name: user.nfd.name, 
-        id: user.nfd.id
+      nfd: user.nfd ? {
+        id: user.nfd.id,
+        name: user.nfd.name,
+        assetId: user.nfd.assetId
       } : null
     };
     console.log('Returning public profile:', publicProfile);

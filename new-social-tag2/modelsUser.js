@@ -76,6 +76,7 @@ const UserSchema = new mongoose.Schema({
   nfd: {
     id: String,
     name: String,
+    assetId: String
   },
   profileViews: {
     type: Number,
