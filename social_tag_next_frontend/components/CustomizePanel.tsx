@@ -444,20 +444,17 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   }, [toast]); // Added 'toast' to the dependency array
 
   useEffect(() => {
-    const loadFreshData = async () => {
+    const loadData = async () => {
       if (!isOpen) return;
       
       try {
-        // First fetch reward points
-        await fetchRewardPoints();
-        
-        // Then fetch fresh user data
+        // First fetch fresh user data
         const response = await axios.get(`${API_BASE_URL}/api/user`, {
           withCredentials: true
         });
         
         if (response.data) {
-          // Update all state with fresh data
+          // Update state with fresh data
           setTheme(response.data.theme || 'SocialTag');
           setCardStyle(response.data.cardStyle || 'Default');
           setBio(response.data.bio || '');
@@ -466,16 +463,28 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           
           if (response.data.profileNFT) {
             setSelectedNFT(response.data.profileNFT);
+            // Update localStorage after setting state
+            localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(response.data.profileNFT));
           }
           
           if (response.data.nfd) {
-            setSelectedNFD({
+            const nfdData = {
               id: response.data.nfd.id || 'current',
               name: response.data.nfd.name || '',
               assetId: response.data.nfd.assetId || ''
-            });
+            };
+            setSelectedNFD(nfdData);
+            localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify(nfdData));
           }
+  
+          // Update localStorage with fresh data
+          localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme || 'SocialTag');
+          localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle || 'Default');
+          localStorage.setItem(`purchasedItems_${user.twitter?.username}`, JSON.stringify(response.data.purchasedItems || []));
         }
+  
+        // Then fetch reward points
+        await fetchRewardPoints();
       } catch (error) {
         console.error('Error loading fresh data:', error);
         toast({
@@ -487,9 +496,9 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     };
   
     if (isOpen) {
-      loadFreshData();
+      loadData();
     }
-  }, [isOpen, fetchRewardPoints, toast]); // Added 'toast' to the dependency array
+  }, [isOpen, fetchRewardPoints, toast, user.twitter?.username]); // Added 'toast' to the dependency array
 
   const handleSaveSettings = async () => {
     setSaving(true)
