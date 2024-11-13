@@ -157,42 +157,57 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const [rewardPoints, setRewardPoints] = useState(0)
 
   useEffect(() => {
-    const cachedTheme = localStorage.getItem(`theme_${user.twitter?.username}`)
-    const cachedCardStyle = localStorage.getItem(`cardStyle_${user.twitter?.username}`)
-    const cachedProfileNFT = localStorage.getItem(`profileNFT_${user.twitter?.username}`)
-    const cachedNFD = localStorage.getItem(`nfd_${user.twitter?.username}`)
-    
-    setTheme(cachedTheme || user.theme || 'SocialTag')
-    setCardStyle(cachedCardStyle || user.cardStyle || 'Default')
-    setBio(user.bio || '')
-    setProfileViews(user.profileViews || 0)
-
+    if (!user) return;
+  
+    // Set theme from user data or localStorage
+    const cachedTheme = localStorage.getItem(`theme_${user.twitter?.username}`);
+    setTheme(cachedTheme || user.theme || 'SocialTag');
+  
+    // Set card style from user data or localStorage
+    const cachedCardStyle = localStorage.getItem(`cardStyle_${user.twitter?.username}`);
+    setCardStyle(cachedCardStyle || user.cardStyle || 'Default');
+  
+    // Set bio directly from user data
+    setBio(user.bio || '');
+  
+    // Set profile views
+    setProfileViews(user.profileViews || 0);
+  
+    // Handle NFT settings
+    const cachedProfileNFT = localStorage.getItem(`profileNFT_${user.twitter?.username}`);
     if (cachedProfileNFT) {
-      setSelectedNFT(JSON.parse(cachedProfileNFT))
+      setSelectedNFT(JSON.parse(cachedProfileNFT));
     } else if (user.profileNFT) {
-      setSelectedNFT(user.profileNFT)
-      localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(user.profileNFT))
+      setSelectedNFT(user.profileNFT);
+      localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(user.profileNFT));
     }
-
+  
+    // Handle NFD settings
+    const cachedNFD = localStorage.getItem(`nfd_${user.twitter?.username}`);
     if (cachedNFD) {
-      setSelectedNFD(JSON.parse(cachedNFD))
+      setSelectedNFD(JSON.parse(cachedNFD));
     } else if (user.nfd) {
-      setSelectedNFD({ id: 'current', name: user.nfd })
-      localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify({ id: 'current', name: user.nfd }))
+      setSelectedNFD({
+        id: user.nfd.id || 'current',
+        name: user.nfd.name || '',
+        assetId: user.nfd.assetId || ''
+      });
+      localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify({
+        id: user.nfd.id || 'current',
+        name: user.nfd.name || '',
+        assetId: user.nfd.assetId || ''
+      }));
     }
-
-    const cachedItems = localStorage.getItem(`purchasedItems_${user.twitter?.username}`)
+  
+    // Handle purchased items
+    const cachedItems = localStorage.getItem(`purchasedItems_${user.twitter?.username}`);
     if (cachedItems) {
-      setPurchasedItems(JSON.parse(cachedItems))
+      setPurchasedItems(JSON.parse(cachedItems));
     } else if (user.purchasedItems) {
-      setPurchasedItems(user.purchasedItems)
-      localStorage.setItem(`purchasedItems_${user.twitter?.username}`, JSON.stringify(user.purchasedItems))
+      setPurchasedItems(user.purchasedItems);
+      localStorage.setItem(`purchasedItems_${user.twitter?.username}`, JSON.stringify(user.purchasedItems));
     }
-
-    if (user.profileImage) {
-      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage, assetId: 'current' })
-    }
-  }, [user])
+  }, [user]);
 
   const updatePurchasedItemsCache = (newItems: string[]) => {
     setPurchasedItems(newItems)
@@ -202,10 +217,11 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const handleItemSelection = (itemType: 'theme' | 'cardStyle', itemName: string) => {
     const selectedItem = itemType === 'theme' 
       ? themes.find(t => t.name === itemName)
-      : cardStyles.find(c => c.name === itemName)
-
-    if (selectedItem?.premium && !purchasedItems.includes(itemName)) {
-      // Check if wallet is connected before showing purchase modal
+      : cardStyles.find(c => c.name === itemName);
+  
+    if (!selectedItem) return;
+  
+    if (selectedItem.premium && !purchasedItems.includes(itemName)) {
       if (!connectedWalletAddress) {
         toast({
           title: "Wallet Not Connected",
@@ -214,14 +230,17 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         });
         return;
       }
-      setSelectedItem({ type: itemType, name: itemName })
-      setShowPurchaseModal(true)
-    } else if (selectedItem?.specialEdition) {
-      const requiredPoints = selectedItem.requiredPoints || 300
+      setSelectedItem({ type: itemType, name: itemName });
+      setShowPurchaseModal(true);
+      return;
+    }
+  
+    if (selectedItem.specialEdition) {
+      const requiredPoints = selectedItem.requiredPoints || 300;
       if (rewardPoints >= requiredPoints) {
         if (itemType === 'theme') {
-          setTheme(itemName)
-          localStorage.setItem(`theme_${user.twitter?.username}`, itemName)
+          setTheme(itemName);
+          localStorage.setItem(`theme_${user.twitter?.username}`, itemName);
         } else {
           setCardStyle(itemName);
           localStorage.setItem(`cardStyle_${user.twitter?.username}`, itemName);
@@ -229,20 +248,30 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       } else {
         toast({
           title: "Not enough reward points",
-          description: `You need at least ${requiredPoints} reward points to use this Special Edition background.`,
+          description: `You need at least ${requiredPoints} reward points to use this Special Edition item.`,
           variant: "destructive",
-        })
+        });
       }
-    } else {
-      if (itemType === 'theme') {
-        setTheme(itemName)
-        localStorage.setItem(`theme_${user.twitter?.username}`, itemName)
-      } else {
-        setCardStyle(itemName)
-        localStorage.setItem(`cardStyle_${user.twitter?.username}`, itemName)
-      }
+      return;
     }
-  }
+  
+    // Handle regular (non-premium, non-special) items
+    if (itemType === 'theme') {
+      setTheme(itemName);
+      localStorage.setItem(`theme_${user.twitter?.username}`, itemName);
+    } else {
+      setCardStyle(itemName);
+      localStorage.setItem(`cardStyle_${user.twitter?.username}`, itemName);
+    }
+  };
+
+  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newBio = e.target.value;
+    const words = newBio.trim().split(/\s+/);
+    if (words.length <= 25 || words[0] === '') {
+      setBio(newBio);
+    }
+  };
 
   const handlePurchaseConfirmation = async (paymentType: 'USDC' | 'ORA') => {
     if (selectedItem) {
@@ -444,43 +473,62 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   }, [toast]); // Added 'toast' to the dependency array
 
   const handleSaveSettings = async () => {
-    setSaving(true)
-    setError(null)
+    setSaving(true);
+    setError(null);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/user/settings`, { 
-        theme, 
-        cardStyle, 
-        bio,
-        profileNFT: selectedNFT,
-        nfd: selectedNFD ? {
-          id: selectedNFD.id,
-          name: selectedNFD.name,
-          assetId: selectedNFD.assetId 
-        } : null
-      }, {
-        withCredentials: true 
-      });
-      
+      const response = await axios.post(
+        `${API_BASE_URL}/api/user/settings`, 
+        {
+          theme,
+          cardStyle,
+          bio: bio.trim(),
+          profileNFT: selectedNFT,
+          nfd: selectedNFD ? {
+            id: selectedNFD.id,
+            name: selectedNFD.name,
+            assetId: selectedNFD.assetId
+          } : null
+        },
+        { withCredentials: true }
+      );
+  
       if (response.data) {
-        // Update both state and localStorage with the response data
+        // Update local state with the response data
         setTheme(response.data.theme);
         setCardStyle(response.data.cardStyle);
         setBio(response.data.bio);
-  
-        // Update localStorage immediately after state updates
-        localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme);
-        localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle);
-  
-        // Handle NFT and NFD updates...
         
+        // Update localStorage
+        const username = user.twitter?.username;
+        if (username) {
+          localStorage.setItem(`theme_${username}`, response.data.theme);
+          localStorage.setItem(`cardStyle_${username}`, response.data.cardStyle);
+          if (response.data.profileNFT) {
+            localStorage.setItem(`profileNFT_${username}`, JSON.stringify(response.data.profileNFT));
+          }
+          if (response.data.nfd) {
+            localStorage.setItem(`nfd_${username}`, JSON.stringify(response.data.nfd));
+          }
+        }
+  
+        // Call the update callback and close the panel
         onSettingsUpdate();
         onClose();
-      } else {
-        throw new Error('Settings not updated');
+  
+        toast({
+          title: "Success",
+          description: "Settings saved successfully",
+          variant: "default",
+        });
       }
     } catch (err) {
       console.error('Error saving settings:', err);
       setError('Failed to save settings. Please try again.');
+      toast({
+        title: "Error",
+        description: "Failed to save settings. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
@@ -914,18 +962,13 @@ useEffect(() => {
       Express yourself in 25 words or less
     </Label>
     <Textarea
-      id="bio"
-      value={bio}
-      onChange={(e) => {
-        const words = e.target.value.trim().split(/\s+/);
-        if (words.length <= 25) {
-          setBio(e.target.value);
-        }
-      }}
-      className="w-full bg-white text-black rounded-md px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent"
-      rows={2}
-      placeholder="Tell others about yourself..."
-    />
+  id="bio"
+  value={bio}
+  onChange={handleBioChange}
+  className="w-full bg-white text-black rounded-md px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-black focus:border-transparent"
+  rows={2}
+  placeholder="Tell others about yourself..."
+/>
     <div className="mt-1 text-sm text-gray-500 flex justify-end">
       {bio.trim().split(/\s+/).filter(word => word.length > 0).length}/25 words
     </div>
