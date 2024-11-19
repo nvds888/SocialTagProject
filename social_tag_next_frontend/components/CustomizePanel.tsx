@@ -458,11 +458,13 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         cardStyle, 
         bio,
         profileNFT: selectedNFT,
-        nfd: selectedNFD ? {
-          id: selectedNFD.id,
-          name: selectedNFD.name,
-          assetId: selectedNFD.assetId 
-        } : null
+        ...(selectedNFD && selectedNFD.name ? {
+          nfd: {
+            id: selectedNFD.id,
+            name: selectedNFD.name,
+            assetId: selectedNFD.assetId 
+          }
+        } : {})
       }, {
         withCredentials: true 
       });
