@@ -458,12 +458,12 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         cardStyle, 
         bio,
         profileNFT: selectedNFT,
-        // If no NFD is selected, we'll explicitly set nfd to null or undefined
-        nfd: selectedNFD && selectedNFD.name ? {
+        // Only include valid NFD data, otherwise send null
+        nfd: (selectedNFD && selectedNFD.name && selectedNFD.id) ? {
           id: selectedNFD.id,
           name: selectedNFD.name,
-          assetId: selectedNFD.assetId 
-        } : undefined // Changed from { nfd: null } to undefined
+          assetId: selectedNFD.assetId
+        } : null
       }, {
         withCredentials: true 
       });
@@ -481,8 +481,8 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           localStorage.removeItem(`profileNFT_${user.twitter?.username}`)
         }
   
-        // Handle NFD data - only set if it exists in response
-        if (response.data.nfd && response.data.nfd.name) {
+        // Handle NFD data - only process if we have valid data
+        if (response.data.nfd && response.data.nfd.name && response.data.nfd.id) {
           setSelectedNFD({ 
             id: response.data.nfd.id, 
             name: response.data.nfd.name,
