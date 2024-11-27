@@ -126,6 +126,18 @@ const cardStyles: CardStyleItem[] = [
   { name: 'Four Oranges', component: FourOrangesCard as React.FC<ProfileCardProps>, premium: false, specialEdition: true, requiredPoints: 600 },
 ]
 
+interface SaveSettingsPayload {
+  theme: string;
+  cardStyle: string;
+  bio: string;
+  profileNFT: NFT | null;
+  nfd?: {
+    id: string;
+    name: string;
+    assetId?: string;
+  } | null;
+}
+
 const CustomizePanel: React.FC<CustomizePanelProps> = ({ 
   isOpen, 
   onClose, 
@@ -453,18 +465,18 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     setSaving(true)
     setError(null)
     try {
-      // Build the request payload carefully to avoid empty objects
-      const payload = {
+      const payload: SaveSettingsPayload = {
         theme, 
         cardStyle, 
         bio,
         profileNFT: selectedNFT || null,
-        // For NFD, ensure we have a valid string name or send null
-        nfd: selectedNFD?.name?.toString() ? {
-          id: selectedNFD.id?.toString(),
-          name: selectedNFD.name.toString(),
-          assetId: selectedNFD.assetId?.toString()
-        } : null
+        nfd: selectedNFD && selectedNFD.name && typeof selectedNFD.name === 'string' && selectedNFD.name.trim() !== ''
+          ? {
+              id: selectedNFD.id,
+              name: selectedNFD.name,
+              assetId: selectedNFD.assetId
+            }
+          : null
       };
   
       const response = await axios.post(
@@ -487,12 +499,12 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           localStorage.removeItem(`profileNFT_${user.twitter?.username}`)
         }
   
-        // Handle NFD updates
-        if (response.data.nfd?.name) {
+        // Handle NFD updates - only if there's valid data
+        if (response.data.nfd && response.data.nfd.name && typeof response.data.nfd.name === 'string' && response.data.nfd.name.trim() !== '') {
           const nfdData = {
-            id: String(response.data.nfd.id),
-            name: String(response.data.nfd.name),
-            assetId: response.data.nfd.assetId ? String(response.data.nfd.assetId) : undefined
+            id: response.data.nfd.id,
+            name: response.data.nfd.name,
+            assetId: response.data.nfd.assetId
           };
           setSelectedNFD(nfdData)
           localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify(nfdData))
