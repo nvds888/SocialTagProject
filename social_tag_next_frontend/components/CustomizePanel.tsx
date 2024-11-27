@@ -453,26 +453,32 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     setSaving(true)
     setError(null)
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/user/settings`, { 
+      // Build the request payload carefully to avoid empty objects
+      const payload = {
         theme, 
         cardStyle, 
         bio,
-        profileNFT: selectedNFT,
-        // Only include valid NFD data, otherwise send null
-        nfd: (selectedNFD && selectedNFD.name && selectedNFD.id) ? {
-          id: selectedNFD.id,
-          name: selectedNFD.name,
-          assetId: selectedNFD.assetId
+        profileNFT: selectedNFT || null,
+        // For NFD, ensure we have a valid string name or send null
+        nfd: selectedNFD?.name?.toString() ? {
+          id: selectedNFD.id?.toString(),
+          name: selectedNFD.name.toString(),
+          assetId: selectedNFD.assetId?.toString()
         } : null
-      }, {
-        withCredentials: true 
-      });
+      };
+  
+      const response = await axios.post(
+        `${API_BASE_URL}/api/user/settings`, 
+        payload,
+        { withCredentials: true }
+      );
   
       if (response.data) {
         setTheme(response.data.theme)
         setCardStyle(response.data.cardStyle)
         setBio(response.data.bio)
         
+        // Handle profileNFT updates
         if (response.data.profileNFT) {
           setSelectedNFT(response.data.profileNFT)
           localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(response.data.profileNFT))
@@ -481,18 +487,15 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           localStorage.removeItem(`profileNFT_${user.twitter?.username}`)
         }
   
-        // Handle NFD data - only process if we have valid data
-        if (response.data.nfd && response.data.nfd.name && response.data.nfd.id) {
-          setSelectedNFD({ 
-            id: response.data.nfd.id, 
-            name: response.data.nfd.name,
-            assetId: response.data.nfd.assetId
-          })
-          localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify({ 
-            id: response.data.nfd.id, 
-            name: response.data.nfd.name,
-            assetId: response.data.nfd.assetId
-          }))
+        // Handle NFD updates
+        if (response.data.nfd?.name) {
+          const nfdData = {
+            id: String(response.data.nfd.id),
+            name: String(response.data.nfd.name),
+            assetId: response.data.nfd.assetId ? String(response.data.nfd.assetId) : undefined
+          };
+          setSelectedNFD(nfdData)
+          localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify(nfdData))
         } else {
           setSelectedNFD(null)
           localStorage.removeItem(`nfd_${user.twitter?.username}`)
@@ -500,6 +503,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   
         localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme)
         localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle)
+        
         onSettingsUpdate()
         onClose()
       } else {
