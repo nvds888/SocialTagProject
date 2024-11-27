@@ -458,20 +458,23 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         cardStyle, 
         bio,
         profileNFT: selectedNFT,
+        // Only include nfd in the request if one is selected
         ...(selectedNFD && selectedNFD.name ? {
           nfd: {
             id: selectedNFD.id,
             name: selectedNFD.name,
             assetId: selectedNFD.assetId 
           }
-        } : {})
+        } : { nfd: null }) // Explicitly set nfd to null when none selected
       }, {
         withCredentials: true 
       });
+  
       if (response.data) {
         setTheme(response.data.theme)
         setCardStyle(response.data.cardStyle)
         setBio(response.data.bio)
+        
         if (response.data.profileNFT) {
           setSelectedNFT(response.data.profileNFT)
           localStorage.setItem(`profileNFT_${user.twitter?.username}`, JSON.stringify(response.data.profileNFT))
@@ -479,21 +482,24 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           setSelectedNFT(null)
           localStorage.removeItem(`profileNFT_${user.twitter?.username}`)
         }
+  
+        // Handle NFD data, including the case where no NFD is selected
         if (response.data.nfd) {
-            setSelectedNFD({ 
-              id: response.data.nfd.id, 
-              name: response.data.nfd.name,
-              assetId: response.data.nfd.assetId
-            })
-            localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify({ 
-              id: response.data.nfd.id, 
-              name: response.data.nfd.name,
-              assetId: response.data.nfd.assetId
-            }))
+          setSelectedNFD({ 
+            id: response.data.nfd.id, 
+            name: response.data.nfd.name,
+            assetId: response.data.nfd.assetId
+          })
+          localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify({ 
+            id: response.data.nfd.id, 
+            name: response.data.nfd.name,
+            assetId: response.data.nfd.assetId
+          }))
         } else {
           setSelectedNFD(null)
           localStorage.removeItem(`nfd_${user.twitter?.username}`)
         }
+  
         localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme)
         localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle)
         onSettingsUpdate()
@@ -508,7 +514,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       setSaving(false)
     }
   }
-
+  
   return (
     <AnimatePresence>
       {isOpen && (
