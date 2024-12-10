@@ -31,7 +31,7 @@ const ReVerificationDialog: React.FC<ReVerificationDialogProps> = ({ isOpen, onC
           >
             <h2 className="text-black text-2xl font-bold mb-4">Confirm Re-verification</h2>
             <p className="text-gray-700 mb-6">
-              Re-verification costs 500 Reward Points and will reset your verification statement. This allows you again to connect to any social account of your liking. Purchases and customizations that you&apos;ve made won&apos;t go anywhere! Be aware that re-verification is only possible one time. Do you wish to proceed?
+            Re-verification costs 500 Reward Points and resets your verification, allowing you to connect to any new social account. All purchases and customizations will be preserved. Please note: Re-verification can only be done once. Would you like to proceed?
             </p>
             <div className="flex justify-end space-x-4">
               <button
