@@ -63,7 +63,7 @@ const PrivacyPolicy = () => {
               <h2 className="text-xl font-semibold mb-3 text-black">4. Data Security</h2>
               <p>We protect your data through:</p>
               <ul className="list-disc ml-6 mt-2">
-                <li>Encryption of sensitive information</li>
+                <li>Encryption of sensitive information - your data is not stored on the blockchain!</li>
                 <li>Regular security assessments</li>
                 <li>Limited access to personal information</li>
                 <li>Secure blockchain integration</li>
