@@ -296,7 +296,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
   const renderVerificationHistory = () => {
     if (!user?.verifications || user.verifications.length === 0) {
-      return <p className="text-black">...</p>;
+      return <p className="text-gray-200">...</p>;
     }
 
     return (
@@ -500,7 +500,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 </div>
 )}
 {!canVerify && !isVerified && (
-  <p className="mt-4 text-white text-center">Connect at least two accounts to verify your profile.</p>
+  <p className="mt-4 text-gray-200 text-center">Connect at least two accounts to verify your profile.</p>
 )}
            {isVerified && (
   <motion.div 
