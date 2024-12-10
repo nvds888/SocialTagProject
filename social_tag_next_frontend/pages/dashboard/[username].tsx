@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import Head from 'next/head';
 import Dashboard from '../../components/Dashboard';
 
 export default function DashboardPage() {
@@ -19,5 +20,13 @@ export default function DashboardPage() {
     return <div>Loading...</div>;
   }
 
-  return <Dashboard username={username as string} />;
+  return (
+    <>
+      <Head>
+        <link rel="icon" href="/SocialTag.png" type="image/png" />
+        <title>SocialTag Dashboard</title>
+      </Head>
+      <Dashboard username={username as string} />
+    </>
+  );
 }
