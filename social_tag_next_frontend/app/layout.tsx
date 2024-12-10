@@ -6,24 +6,13 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "SocialTag",
-  icons: {
-    icon: '/SocialTag.png',  // Base favicon
-    shortcut: '/SocialTag.png',  // For older browsers
-    other: [
-      {
-        rel: 'icon',
-        type: 'image/png',
-        sizes: '32x32',
-        url: '/SocialTag.png',
-      },
-      {
-        rel: 'icon',
-        type: 'image/png',
-        sizes: '16x16',
-        url: '/SocialTag.png',
-      },
-    ],
-  },
+  description: "SocialTag - Your Verified Social Identity",
+  manifest: "/manifest.json",
+  icons: [
+    { rel: "icon", url: "/SocialTag.png" },
+    { rel: "apple-touch-icon", url: "/SocialTag.png" },
+    { rel: "shortcut icon", url: "/SocialTag.png" }
+  ]
 };
 
 export default function RootLayout({
@@ -33,6 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/SocialTag.png" />
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );
