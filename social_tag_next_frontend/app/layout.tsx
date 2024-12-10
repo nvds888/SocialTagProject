@@ -7,9 +7,21 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "SocialTag",
   icons: {
-    icon: [
-      { url: '/SocialTag.png', sizes: 'any' },
-      { url: '/SocialTag.png', sizes: '32x32' },
+    icon: '/SocialTag.png',  // Base favicon
+    shortcut: '/SocialTag.png',  // For older browsers
+    other: [
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        url: '/SocialTag.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        url: '/SocialTag.png',
+      },
     ],
   },
 };
