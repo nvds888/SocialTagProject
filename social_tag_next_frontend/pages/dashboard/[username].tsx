@@ -24,7 +24,7 @@ export default function DashboardPage() {
     <>
       <Head>
         <link rel="icon" href="/SocialTag.png" type="image/png" />
-        <title>SocialTag Dashboard</title>
+        <title>SocialTag</title>
       </Head>
       <Dashboard username={username as string} />
     </>
