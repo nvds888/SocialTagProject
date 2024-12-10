@@ -299,7 +299,16 @@ export default function LandingPage() {
                 <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
                 <ul className="text-sm">
                   <li><a href="#" className="hover:text-gray-300">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-gray-300">Terms of Service</a></li>
+                  <li>
+  <Link 
+    href="/terms" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="hover:text-gray-300"
+  >
+    Terms of Service
+  </Link>
+</li>
                   <li><a href="#" className="hover:text-gray-300">Contact Us</a></li>
                 </ul>
               </div>
