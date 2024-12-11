@@ -298,27 +298,23 @@ export default function LandingPage() {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
                 <ul className="text-sm">
-                <li>
-  <Link 
-    href="/privacy" 
-    target="_blank" 
-    rel="noopener noreferrer" 
-    className="hover:text-gray-300"
-  >
-    Privacy Policy
-  </Link>
-</li>
-                  <li>
-  <Link 
-    href="/terms" 
-    target="_blank" 
-    rel="noopener noreferrer" 
-    className="hover:text-gray-300"
-  >
-    Terms of Service
-  </Link>
-</li>
-                </ul>
+  <li>
+    <Link 
+      href="/privacy" 
+      className="hover:text-gray-300"
+    >
+      Privacy Policy
+    </Link>
+  </li>
+  <li>
+    <Link 
+      href="/terms" 
+      className="hover:text-gray-300"
+    >
+      Terms of Service
+    </Link>
+  </li>
+</ul>
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-4">Connect with official APIs</h3>
