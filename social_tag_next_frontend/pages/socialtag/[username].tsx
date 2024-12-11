@@ -202,7 +202,7 @@ export default function PublicProfilePage() {
     <>
       <Head>
         <link rel="icon" href="/SocialTag.png" type="image/png" />
-        <title>SocialTag Profile</title>
+        <title>SocialTag</title>
       </Head>
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-2 sm:p-4 md:p-8">
         <BackgroundComponent />
