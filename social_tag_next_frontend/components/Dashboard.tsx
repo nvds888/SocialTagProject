@@ -32,8 +32,6 @@ const apiClient = axios.create({
   }
 });
 
-const peraWallet = typeof window !== 'undefined' ? new PeraWalletConnect() : null;
-
 interface SocialCardProps {
   platform: string;
   icon: React.ReactNode;
@@ -106,6 +104,8 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [isReVerificationDialogOpen, setIsReVerificationDialogOpen] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [isOptedIn, setIsOptedIn] = useState(false);
+  const peraWallet = typeof window !== 'undefined' ? new PeraWalletConnect() : null;
 
   const router = useRouter()
 
@@ -118,6 +118,8 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       });
       console.log('User data received:', response.data);
       setUser(response.data);
+
+      setIsOptedIn(!!response.data.saveWalletAddress);
 
       if (response.data.verifications && response.data.verifications.length > 0) {
         setIsVerified(true);
@@ -144,8 +146,8 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     if (peraWallet) {
       peraWallet.disconnect();
       setConnectedAccount(null);
+      setIsOptedIn(false);
       
-      // Clear wallet address from database when disconnecting
       try {
         await apiClient.post('/api/user/wallet-settings', {
           saveWalletAddress: false,
@@ -205,6 +207,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         saveWalletAddress: saveAddress,
         walletAddress: saveAddress ? connectedAccount : null
       });
+      setIsOptedIn(saveAddress); // Update state after successful API call
       toast({
         title: saveAddress ? "Opted in for rewards" : "Opted out of rewards",
         description: saveAddress 
@@ -214,6 +217,8 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       });
     } catch (error) {
       console.error('Error updating wallet settings:', error);
+      // Reset checkbox if API call fails
+      setIsOptedIn(!saveAddress);
       toast({
         title: "Error",
         description: "Failed to update rewards settings",
@@ -230,9 +235,12 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="checkbox"
-              defaultChecked={user?.saveWalletAddress ?? false} // Default to false now
-              checked={user?.saveWalletAddress} // Control the checkbox state
-              onChange={(e) => handleWalletSettingsChange(e.target.checked)}
+              checked={isOptedIn}
+              onChange={(e) => {
+                const newOptInStatus = e.target.checked;
+                setIsOptedIn(newOptInStatus);
+                handleWalletSettingsChange(newOptInStatus);
+              }}
               className="rounded border-gray-300 text-black focus:ring-black"
             />
             <span className="text-sm font-medium">Opt-in for rewards</span>
