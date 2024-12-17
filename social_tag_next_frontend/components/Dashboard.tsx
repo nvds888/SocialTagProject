@@ -206,17 +206,17 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         walletAddress: saveAddress ? connectedAccount : null
       });
       toast({
-        title: saveAddress ? "Wallet address saved" : "Wallet address removed",
+        title: saveAddress ? "Opted in for rewards" : "Opted out of rewards",
         description: saveAddress 
-          ? "Your wallet address will be saved for future sessions" 
-          : "Your wallet address will not be saved",
+          ? "Your wallet address has been saved for the rewards program" 
+          : "Your wallet address has been removed from the rewards program",
         duration: 3000,
       });
     } catch (error) {
       console.error('Error updating wallet settings:', error);
       toast({
         title: "Error",
-        description: "Failed to update wallet settings",
+        description: "Failed to update rewards settings",
         variant: "destructive",
         duration: 3000,
       });
@@ -226,15 +226,30 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const WalletPopoverContent = () => (
     <PopoverContent className="w-full bg-white border-2 border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] rounded-lg p-0 mt-2">
       <div className="p-2 border-b border-gray-200">
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            defaultChecked={user?.saveWalletAddress}
-            onChange={(e) => handleWalletSettingsChange(e.target.checked)}
-            className="rounded border-gray-300 text-black focus:ring-black"
-          />
-          <span className="text-sm">Save wallet address</span>
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              defaultChecked={user?.saveWalletAddress ?? false} // Default to false now
+              checked={user?.saveWalletAddress} // Control the checkbox state
+              onChange={(e) => handleWalletSettingsChange(e.target.checked)}
+              className="rounded border-gray-300 text-black focus:ring-black"
+            />
+            <span className="text-sm font-medium">Opt-in for rewards</span>
+          </label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="ml-2 text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                </svg>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-4 text-sm text-gray-600">
+              <p>If you choose to opt-in to receive rewards your wallet address is saved securely. Reward program details will be shared on our social channels.</p>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
       <button
         onClick={handleDisconnectWalletClick}
@@ -344,11 +359,11 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         if (user) {
           try {
             await apiClient.post('/api/user/wallet-settings', {
-              saveWalletAddress: true,
-              walletAddress: newAccounts[0]
+              saveWalletAddress: false,
+              walletAddress: null
             });
           } catch (error) {
-            console.error('Error saving wallet address:', error);
+            console.error('Error setting wallet settings:', error);
           }
         }
       } catch (error) {
