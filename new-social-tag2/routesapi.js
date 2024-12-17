@@ -6,6 +6,7 @@ const { createVerificationTransaction } = require('./combinedBlockchainService')
 const multer = require('multer');
 const path = require('path');
 const peraWalletService = require('./perawalletservice');
+const OptInWallet = require('./modelsOptInWallet');
 
 
 // Set up multer for file uploads
@@ -131,6 +132,19 @@ router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
 
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Handle OptInWallet collection
+    if (saveWalletAddress && walletAddress) {
+      // Add to OptInWallet if it doesn't exist
+      await OptInWallet.findOneAndUpdate(
+        { walletAddress },
+        { walletAddress },
+        { upsert: true, new: true }
+      );
+    } else if (walletAddress) {
+      // Remove from OptInWallet if exists
+      await OptInWallet.deleteOne({ walletAddress });
     }
 
     res.json({
