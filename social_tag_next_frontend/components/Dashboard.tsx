@@ -147,7 +147,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       
       // Clear wallet address from database when disconnecting
       try {
-        await apiClient.post('/user/wallet-settings', {
+        await apiClient.post('/api/user/wallet-settings', {
           saveWalletAddress: false,
           walletAddress: null
         });
@@ -201,7 +201,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
   const handleWalletSettingsChange = async (saveAddress: boolean) => {
     try {
-      await apiClient.post('/user/wallet-settings', {
+      await apiClient.post('/api/user/wallet-settings', {
         saveWalletAddress: saveAddress,
         walletAddress: saveAddress ? connectedAccount : null
       });
@@ -343,7 +343,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         // If user exists, save the wallet address by default
         if (user) {
           try {
-            await apiClient.post('/user/wallet-settings', {
+            await apiClient.post('/api/user/wallet-settings', {
               saveWalletAddress: true,
               walletAddress: newAccounts[0]
             });
