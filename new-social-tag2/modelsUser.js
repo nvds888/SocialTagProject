@@ -78,6 +78,14 @@ const UserSchema = new mongoose.Schema({
     name: String,
     assetId: String
   },
+  walletAddress: {
+    type: String,
+    default: null
+  },
+  saveWalletAddress: {
+    type: Boolean,
+    default: true
+  },
   profileViews: {
     type: Number,
     default: 0

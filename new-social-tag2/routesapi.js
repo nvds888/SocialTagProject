@@ -109,6 +109,40 @@ router.get('/user/reward-points', sessionCheck, async (req, res) => {
   }
 });
 
+// In routesapi.js - Add this new endpoint
+router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const { saveWalletAddress, walletAddress } = req.body;
+    
+    const updateData = {
+      saveWalletAddress,
+      walletAddress: saveWalletAddress ? walletAddress : null
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      saveWalletAddress: updatedUser.saveWalletAddress,
+      walletAddress: updatedUser.walletAddress
+    });
+  } catch (error) {
+    console.error('Error updating wallet settings:', error);
+    res.status(500).json({ error: 'Failed to update wallet settings' });
+  }
+});
+
 router.post('/verify', sessionCheck, async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Not authenticated' });

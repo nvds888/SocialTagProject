@@ -60,7 +60,10 @@ interface User {
   rewardPoints: number;
   verifications?: Verification[];
   reverifyCount: number;
+  walletAddress?: string;
+  saveWalletAddress?: boolean;
 }
+
 
 const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, onConnect, username, isVerified }) => (
   <motion.div 
@@ -137,10 +140,20 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     }
   }, [router.isReady, username, fetchUser]);
 
-  const handleDisconnectWalletClick = useCallback(() => {
+  const handleDisconnectWalletClick = useCallback(async () => {
     if (peraWallet) {
       peraWallet.disconnect();
       setConnectedAccount(null);
+      
+      // Clear wallet address from database when disconnecting
+      try {
+        await apiClient.post('/api/user/wallet-settings', {
+          saveWalletAddress: false,
+          walletAddress: null
+        });
+      } catch (error) {
+        console.error('Error clearing wallet address:', error);
+      }
     }
   }, []);
 
@@ -185,6 +198,52 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       window.location.href = `${API_BASE_URL}/auth/${platform.toLowerCase()}`;
     }
   }
+
+  const handleWalletSettingsChange = async (saveAddress: boolean) => {
+    try {
+      await apiClient.post('/api/user/wallet-settings', {
+        saveWalletAddress: saveAddress,
+        walletAddress: saveAddress ? connectedAccount : null
+      });
+      toast({
+        title: saveAddress ? "Wallet address saved" : "Wallet address removed",
+        description: saveAddress 
+          ? "Your wallet address will be saved for future sessions" 
+          : "Your wallet address will not be saved",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error updating wallet settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update wallet settings",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
+  const WalletPopoverContent = () => (
+    <PopoverContent className="w-full bg-white border-2 border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] rounded-lg p-0 mt-2">
+      <div className="p-2 border-b border-gray-200">
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <input
+            type="checkbox"
+            defaultChecked={user?.saveWalletAddress}
+            onChange={(e) => handleWalletSettingsChange(e.target.checked)}
+            className="rounded border-gray-300 text-black focus:ring-black"
+          />
+          <span className="text-sm">Save wallet address</span>
+        </label>
+      </div>
+      <button
+        onClick={handleDisconnectWalletClick}
+        className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors rounded-lg"
+      >
+        Disconnect
+      </button>
+    </PopoverContent>
+  );
 
   const handleVerifyConfirm = () => {
     setIsVerificationDialogOpen(true);
@@ -280,11 +339,23 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       try {
         const newAccounts = await peraWallet.connect();
         setConnectedAccount(newAccounts[0]);
+        
+        // If user exists, save the wallet address by default
+        if (user) {
+          try {
+            await apiClient.post('/api/user/wallet-settings', {
+              saveWalletAddress: true,
+              walletAddress: newAccounts[0]
+            });
+          } catch (error) {
+            console.error('Error saving wallet address:', error);
+          }
+        }
       } catch (error) {
         console.error("Connection failed:", error);
       }
     }
-  }
+  };
 
   const handleOpenLeaderboard = () => {
     setShowLeaderboard(true);
@@ -375,34 +446,26 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 </Button>
 
 {!connectedAccount ? (
-  <button
-    onClick={handleConnectPera}
-    className="bg-[#40E0D0] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
-  >
-    <Wallet size={18} className="mr-2" />
-    Connect Pera
-  </button>
-) : (
-  // Connected Wallet Popover
-  <Popover>
-    <PopoverTrigger asChild>
-      <button 
-        className="bg-[#40E0D0] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
-      >
-        <Wallet size={18} className="mr-2" />
-        {connectedAccount.substring(0, 4)}...{connectedAccount.substring(connectedAccount.length - 4)}
-      </button>
-    </PopoverTrigger>
-    <PopoverContent className="w-full bg-white border-2 border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] rounded-lg p-0 mt-2">
-      <button
-        onClick={handleDisconnectWalletClick}
-        className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors rounded-lg"
-      >
-        Disconnect
-      </button>
-                </PopoverContent>
-              </Popover>
-            )}
+    <button
+      onClick={handleConnectPera}
+      className="bg-[#40E0D0] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
+    >
+      <Wallet size={18} className="mr-2" />
+      Connect Pera
+    </button>
+  ) : (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button 
+          className="bg-[#40E0D0] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center"
+        >
+          <Wallet size={18} className="mr-2" />
+          {connectedAccount.substring(0, 4)}...{connectedAccount.substring(connectedAccount.length - 4)}
+        </button>
+      </PopoverTrigger>
+      <WalletPopoverContent />
+    </Popover>
+  )}
             <Popover>
               <PopoverTrigger asChild>
                 <button className="text-black hover:text-gray-600 transition-colors">
