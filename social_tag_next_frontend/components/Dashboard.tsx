@@ -337,6 +337,12 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               saveWalletAddress: true,
               walletAddress: newAccounts[0]
             });
+            // Add notification for automatic opt-in
+            toast({
+              title: "Opted in for rewards",
+              description: "You've been automatically opted in for rewards. You can opt out anytime via your wallet button.",
+              duration: 5000,
+            });
           } catch (error) {
             console.error('Error setting wallet settings:', error);
           }
