@@ -318,6 +318,7 @@ export default function LandingPage() {
     <Link 
       href="/$socials_token_litepaper.pdf" 
       className="hover:text-gray-300"
+      target="_blank"
     >
       $socials Token Litepaper
     </Link>
