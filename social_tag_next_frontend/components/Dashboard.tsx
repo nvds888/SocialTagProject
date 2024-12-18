@@ -104,7 +104,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [isReVerificationDialogOpen, setIsReVerificationDialogOpen] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
-  const [isOptedIn, setIsOptedIn] = useState(false);
   const peraWallet = useMemo(() => {
     return typeof window !== 'undefined' ? new PeraWalletConnect() : null;
   }, []);
@@ -122,10 +121,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       console.log('User data received:', response.data);
       setUser(response.data);
       
-      // Set opt-in status if wallet is connected and matches saved wallet
-      if (response.data.saveWalletAddress && response.data.walletAddress && response.data.walletAddress === connectedAccount) {
-        setIsOptedIn(true);
-      }
   
       if (response.data.verifications && response.data.verifications.length > 0) {
         setIsVerified(true);
@@ -140,7 +135,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     } finally {
       setLoading(false);
     }
-  }, [username, connectedAccount]);
+  }, [username]);
 
   useEffect(() => {
     if (router.isReady && username) {
@@ -152,7 +147,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     if (peraWallet) {
       peraWallet.disconnect();
       setConnectedAccount(null);
-      setIsOptedIn(false);
       
       try {
         await apiClient.post('/api/user/wallet-settings', {
@@ -171,16 +165,12 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     if (typeof window !== 'undefined' && peraWallet) {
       peraWallet.reconnectSession().then((accounts) => {
         peraWallet.connector?.on("disconnect", handleDisconnectWalletClick);
-
+  
         if (accounts.length) {
           setConnectedAccount(accounts[0]);
-          // Check if this wallet was previously opted in
-          if (user?.walletAddress === accounts[0] && user?.saveWalletAddress) {
-            setIsOptedIn(true);
-          }
         }
       }).catch(e => console.log(e));
-
+  
       return () => {
         peraWallet.connector?.off("disconnect");
       };
@@ -211,70 +201,37 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     }
   }
 
-  const handleWalletSettingsChange = async (saveAddress: boolean) => {
-    try {
-      await apiClient.post('/api/user/wallet-settings', {
-        saveWalletAddress: saveAddress,
-        walletAddress: saveAddress ? connectedAccount : null
-      });
-      setIsOptedIn(saveAddress); // Update state after successful API call
-      toast({
-        title: saveAddress ? "Opted in for rewards" : "Opted out of rewards",
-        description: saveAddress 
-          ? "Your wallet address has been saved for the rewards program" 
-          : "Your wallet address has been removed from the rewards program",
-        duration: 3000,
-      });
-    } catch (error) {
-      console.error('Error updating wallet settings:', error);
-      // Reset checkbox if API call fails
-      setIsOptedIn(!saveAddress);
-      toast({
-        title: "Error",
-        description: "Failed to update rewards settings",
-        variant: "destructive",
-        duration: 3000,
-      });
-    }
-  };
 
   const WalletPopoverContent = () => (
     <PopoverContent className="w-full bg-white border-2 border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] rounded-lg p-0 mt-2">
-      <div className="p-2 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isOptedIn}
-              onChange={(e) => {
-                const newOptInStatus = e.target.checked;
-                setIsOptedIn(newOptInStatus);
-                handleWalletSettingsChange(newOptInStatus);
-              }}
-              className="rounded border-gray-300 text-black focus:ring-black"
-            />
-            <span className="text-sm font-medium">Opt-in for rewards</span>
-          </label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="ml-2 text-gray-500 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-                </svg>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 p-4 text-sm text-gray-600">
-              <p>If you choose to opt-in to receive rewards your wallet address is saved securely. Reward program details will be shared on our social channels.</p>
-            </PopoverContent>
-          </Popover>
-        </div>
+      <div className="flex flex-col">
+        <button
+          onClick={async () => {
+            try {
+              await apiClient.post('/api/user/wallet-settings', {
+                saveWalletAddress: false,
+                walletAddress: null
+              });
+              toast({
+                title: "Opted out of rewards",
+                description: "Your wallet address has been removed from the rewards program",
+                duration: 3000,
+              });
+            } catch (error) {
+              console.error('Error opting out:', error);
+            }
+          }}
+          className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors rounded-lg text-red-500"
+        >
+          Opt out of rewards
+        </button>
+        <button
+          onClick={handleDisconnectWalletClick}
+          className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors rounded-lg"
+        >
+          Disconnect
+        </button>
       </div>
-      <button
-        onClick={handleDisconnectWalletClick}
-        className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors rounded-lg"
-      >
-        Disconnect
-      </button>
     </PopoverContent>
   );
 
@@ -373,12 +330,12 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         const newAccounts = await peraWallet.connect();
         setConnectedAccount(newAccounts[0]);
         
-        // If user exists, save the wallet address by default
+        // Automatically opt-in when connecting
         if (user) {
           try {
             await apiClient.post('/api/user/wallet-settings', {
-              saveWalletAddress: false,
-              walletAddress: null
+              saveWalletAddress: true,
+              walletAddress: newAccounts[0]
             });
           } catch (error) {
             console.error('Error setting wallet settings:', error);
