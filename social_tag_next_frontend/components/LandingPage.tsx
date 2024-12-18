@@ -320,7 +320,7 @@ export default function LandingPage() {
       className="hover:text-gray-300"
       target="_blank"
     >
-      $socials Token Litepaper
+      $socials Litepaper
     </Link>
   </li>
 </ul>
