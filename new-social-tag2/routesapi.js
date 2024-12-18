@@ -110,7 +110,6 @@ router.get('/user/reward-points', sessionCheck, async (req, res) => {
   }
 });
 
-// In routesapi.js, update the wallet-settings endpoint
 router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: 'Not authenticated' });
@@ -144,11 +143,12 @@ router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
         { upsert: true, new: true }
       );
     } else {
-      // Remove from OptInWallet if exists
-      // Note: we use walletAddress if available, otherwise use the user's previous wallet address
-      const addressToRemove = walletAddress || updatedUser.walletAddress;
-      if (addressToRemove) {
-        await OptInWallet.deleteOne({ walletAddress: addressToRemove });
+      // When either not saving or no wallet address provided, we should remove from OptInWallet
+      // First, find the current wallet address from either the provided one or user's existing one
+      const currentWalletAddress = walletAddress || updatedUser.walletAddress;
+      if (currentWalletAddress) {
+        console.log('Removing wallet from opt-in list:', currentWalletAddress);
+        await OptInWallet.findOneAndDelete({ walletAddress: currentWalletAddress });
       }
     }
 
