@@ -5,7 +5,7 @@ import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Confetti from 'react-confetti'
-import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack } from 'lucide-react'
+import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack} from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -112,32 +112,35 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const router = useRouter()
 
   // In Dashboard.tsx, update the fetchUser function
-const fetchUser = useCallback(async () => {
-  if (!username) return;
-  try {
-    setLoading(true);
-    const response = await axios.get(`${API_BASE_URL}/api/user/${username}`, { 
-      withCredentials: true 
-    });
-    console.log('User data received:', response.data);
-    setUser(response.data);
-    // Set the opt-in status based on the user's saved preference
-    setIsOptedIn(!!response.data.saveWalletAddress);
-
-    if (response.data.verifications && response.data.verifications.length > 0) {
-      setIsVerified(true);
-    } else {
-      setIsVerified(false);
+  const fetchUser = useCallback(async () => {
+    if (!username) return;
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/api/user/${username}`, { 
+        withCredentials: true 
+      });
+      console.log('User data received:', response.data);
+      setUser(response.data);
+      
+      // Set opt-in status if wallet is connected and matches saved wallet
+      if (response.data.saveWalletAddress && response.data.walletAddress && response.data.walletAddress === connectedAccount) {
+        setIsOptedIn(true);
+      }
+  
+      if (response.data.verifications && response.data.verifications.length > 0) {
+        setIsVerified(true);
+      } else {
+        setIsVerified(false);
+      }
+      
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setError('Failed to load user data. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    
-    setError(null);
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    setError('Failed to load user data. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-}, [username]);
+  }, [username, connectedAccount]);
 
   useEffect(() => {
     if (router.isReady && username) {
@@ -171,6 +174,10 @@ const fetchUser = useCallback(async () => {
 
         if (accounts.length) {
           setConnectedAccount(accounts[0]);
+          // Check if this wallet was previously opted in
+          if (user?.walletAddress === accounts[0] && user?.saveWalletAddress) {
+            setIsOptedIn(true);
+          }
         }
       }).catch(e => console.log(e));
 
@@ -178,7 +185,7 @@ const fetchUser = useCallback(async () => {
         peraWallet.connector?.off("disconnect");
       };
     }
-  }, [handleDisconnectWalletClick, peraWallet]);
+  }, [handleDisconnectWalletClick, peraWallet, user]);
 
   const handleConnect = async (platform: string) => {
     // Check for both GitHub and Spotify
