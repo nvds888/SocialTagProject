@@ -110,7 +110,7 @@ router.get('/user/reward-points', sessionCheck, async (req, res) => {
   }
 });
 
-// In routesapi.js - Add this new endpoint
+// In routesapi.js, update the wallet-settings endpoint
 router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: 'Not authenticated' });
@@ -119,6 +119,7 @@ router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
   try {
     const { saveWalletAddress, walletAddress } = req.body;
     
+    // Update user model
     const updateData = {
       saveWalletAddress,
       walletAddress: saveWalletAddress ? walletAddress : null
@@ -142,9 +143,13 @@ router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
         { walletAddress },
         { upsert: true, new: true }
       );
-    } else if (walletAddress) {
+    } else {
       // Remove from OptInWallet if exists
-      await OptInWallet.deleteOne({ walletAddress });
+      // Note: we use walletAddress if available, otherwise use the user's previous wallet address
+      const addressToRemove = walletAddress || updatedUser.walletAddress;
+      if (addressToRemove) {
+        await OptInWallet.deleteOne({ walletAddress: addressToRemove });
+      }
     }
 
     res.json({

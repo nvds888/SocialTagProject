@@ -109,32 +109,33 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
   const router = useRouter()
 
-  const fetchUser = useCallback(async () => {
-    if (!username) return;
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/user/${username}`, { 
-        withCredentials: true 
-      });
-      console.log('User data received:', response.data);
-      setUser(response.data);
+  // In Dashboard.tsx, update the fetchUser function
+const fetchUser = useCallback(async () => {
+  if (!username) return;
+  try {
+    setLoading(true);
+    const response = await axios.get(`${API_BASE_URL}/api/user/${username}`, { 
+      withCredentials: true 
+    });
+    console.log('User data received:', response.data);
+    setUser(response.data);
+    // Set the opt-in status based on the user's saved preference
+    setIsOptedIn(!!response.data.saveWalletAddress);
 
-      setIsOptedIn(!!response.data.saveWalletAddress);
-
-      if (response.data.verifications && response.data.verifications.length > 0) {
-        setIsVerified(true);
-      } else {
-        setIsVerified(false);
-      }
-      
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      setError('Failed to load user data. Please try again.');
-    } finally {
-      setLoading(false);
+    if (response.data.verifications && response.data.verifications.length > 0) {
+      setIsVerified(true);
+    } else {
+      setIsVerified(false);
     }
-  }, [username]);
+    
+    setError(null);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    setError('Failed to load user data. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+}, [username]);
 
   useEffect(() => {
     if (router.isReady && username) {
