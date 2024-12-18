@@ -118,6 +118,10 @@ router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
   try {
     const { saveWalletAddress, walletAddress } = req.body;
     
+    // First, get the user's current wallet address before updating
+    const currentUser = await User.findById(req.user._id);
+    const previousWalletAddress = currentUser.walletAddress;
+    
     // Update user model
     const updateData = {
       saveWalletAddress,
@@ -134,22 +138,19 @@ router.post('/user/wallet-settings', sessionCheck, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Handle OptInWallet collection
+    // Handle OptInWallet collection based on changes in User model
+    if (previousWalletAddress) {
+      // Remove old wallet address from OptInWallet
+      await OptInWallet.findOneAndDelete({ walletAddress: previousWalletAddress });
+    }
+
+    // Add new wallet address to OptInWallet if saving
     if (saveWalletAddress && walletAddress) {
-      // Add to OptInWallet if it doesn't exist
       await OptInWallet.findOneAndUpdate(
         { walletAddress },
         { walletAddress },
         { upsert: true, new: true }
       );
-    } else {
-      // When either not saving or no wallet address provided, we should remove from OptInWallet
-      // First, find the current wallet address from either the provided one or user's existing one
-      const currentWalletAddress = walletAddress || updatedUser.walletAddress;
-      if (currentWalletAddress) {
-        console.log('Removing wallet from opt-in list:', currentWalletAddress);
-        await OptInWallet.findOneAndDelete({ walletAddress: currentWalletAddress });
-      }
     }
 
     res.json({
