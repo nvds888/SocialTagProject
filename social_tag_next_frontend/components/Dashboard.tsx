@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
@@ -105,7 +105,9 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const [isOptedIn, setIsOptedIn] = useState(false);
-  const peraWallet = typeof window !== 'undefined' ? new PeraWalletConnect() : null;
+  const peraWallet = useMemo(() => {
+    return typeof window !== 'undefined' ? new PeraWalletConnect() : null;
+  }, []);
 
   const router = useRouter()
 
@@ -158,7 +160,7 @@ const fetchUser = useCallback(async () => {
         console.error('Error clearing wallet address:', error);
       }
     }
-  }, []);
+  }, [peraWallet]);
 
 
 
@@ -176,7 +178,7 @@ const fetchUser = useCallback(async () => {
         peraWallet.connector?.off("disconnect");
       };
     }
-  }, [handleDisconnectWalletClick]);
+  }, [handleDisconnectWalletClick, peraWallet]);
 
   const handleConnect = async (platform: string) => {
     // Check for both GitHub and Spotify
