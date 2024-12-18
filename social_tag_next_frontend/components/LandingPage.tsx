@@ -314,6 +314,14 @@ export default function LandingPage() {
       Terms of Service
     </Link>
   </li>
+  <li>
+    <Link 
+      href="/$socials_token_litepaper.pdf" 
+      className="hover:text-gray-300"
+    >
+      $socials Token Litepaper
+    </Link>
+  </li>
 </ul>
               </div>
               <div>
