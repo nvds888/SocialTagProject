@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
-import { create } from 'ipfs-http-client';
 
 const IPFS_ENDPOINT = "https://ipfs.algonode.dev/ipfs/";
 const IMAGE_PARAMS = "?optimizer=image&width=1152&quality=70";
@@ -115,17 +114,11 @@ const getImageUrl = (nft: NFT): string => {
   }
 };
 
-// Initialize IPFS client
-const ipfs = create({ url: 'https://ipfs.algonode.dev' });
-
 // Helper function to load image from IPFS
-async function loadIPFSImage(cid: string, mimeType = 'image/png', sizeLimit = 5242880): Promise<string> {
+async function loadIPFSImage(cid: string): Promise<string> {
   try {
-    const content: Uint8Array[] = [];
-    for await (const chunk of ipfs.cat(cid, { length: sizeLimit })) {
-      content.push(chunk);
-    }
-    return URL.createObjectURL(new Blob(content, { type: mimeType }));
+    // Use public IPFS gateway instead
+    return `https://ipfs.io/ipfs/${cid}`;
   } catch (error) {
     console.warn('Error loading IPFS image:', error);
     return '/placeholder-nft.png';
@@ -145,11 +138,10 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
       try {
         const url = getImageUrl(nft);
         if (url.includes('ipfs')) {
-          // Extract CID from IPFS URL
           const cid = url.split('ipfs/')[1].split('?')[0];
-          objectUrl = await loadIPFSImage(cid);
+          const ipfsUrl = await loadIPFSImage(cid);
           if (mounted) {
-            setImageSrc(objectUrl);
+            setImageSrc(ipfsUrl);
             setIsLoading(false);
           }
         } else {
