@@ -385,7 +385,9 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     
     try {
       const indexerURL = getIndexerURL(activeNetwork);
-      const response = await axios.get(`${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`);
+      const response = await axios.create({ withCredentials: false }).get(
+        `${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`
+      );
       
       // Filter for NFTs
       const nftAssets = response.data.assets.filter((asset: {
@@ -407,14 +409,11 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
           name?: string;
           'unit-name'?: string;
           url?: string;
-          decimals?: number;
-          total?: number;
         }
       }) => ({
         id: asset['asset-id'].toString(),
         assetId: asset['asset-id'].toString(),
         name: asset.params?.name || `Asset #${asset['asset-id']}`,
-        unitName: asset.params?.['unit-name'],
         url: asset.params?.url,
         image: asset.params?.url,
       }));
