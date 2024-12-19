@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
@@ -52,8 +52,45 @@ const parseMetadata = (metadata: string | object): ParsedMetadata => {
   return metadata as ParsedMetadata;
 };
 
+// Add multiple IPFS gateways for fallback
+const IPFS_GATEWAYS = [
+  'https://ipfs.io/ipfs/',
+  'https://ipfs.algonode.xyz/ipfs/',
+  'https://gateway.ipfs.io/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/'
+];
+
 const getImageUrl = (nft: NFT): string => {
   try {
+    // Helper to clean IPFS URLs and try multiple gateways
+    const getIPFSUrl = (cid: string, index = 0) => {
+      return `${IPFS_GATEWAYS[index % IPFS_GATEWAYS.length]}${cid}`;
+    };
+
+    // Helper to extract CID from various formats
+    const extractCID = (url: string): string | null => {
+      // Handle template-ipfs format with CID parameters
+      if (url.startsWith('template-ipfs://')) {
+        const match = url.match(/template-ipfs:\/\/\{ipfscid:(\d+):([^}]+)\}/);
+        if (match) {
+          return match[2].split(':')[2]; // Get 'reserve' from the format
+        }
+        return url.split('template-ipfs://')[1].split('{')[0];
+      }
+      
+      // Handle ipfs:// protocol
+      if (url.startsWith('ipfs://')) {
+        return url.slice(7).split('#')[0];
+      }
+      
+      // Handle /ipfs/ path format
+      if (url.includes('/ipfs/')) {
+        return url.split('/ipfs/')[1].split('?')[0].split('#')[0];
+      }
+      
+      return null;
+    };
+
     // Try all possible URL sources in order
     const possibleUrls = [
       nft.url,
@@ -68,18 +105,16 @@ const getImageUrl = (nft: NFT): string => {
     // Find first valid URL
     for (const url of possibleUrls) {
       if (url) {
-        // Convert ipfs:// URLs to gateway URLs
-        if (url.startsWith('ipfs://')) {
-          const cid = url.slice(7).split('#')[0];
-          return `https://ipfs.io/ipfs/${cid}`;
+        // Try to extract IPFS CID
+        const cid = extractCID(url);
+        if (cid) {
+          return getIPFSUrl(cid);
         }
-        // Convert template-ipfs URLs
-        if (url.startsWith('template-ipfs://')) {
-          const cid = url.split('template-ipfs://')[1].split('{')[0];
-          return `https://ipfs.io/ipfs/${cid}`;
+        
+        // Handle direct HTTP(S) URLs
+        if (url.match(/^https?:\/\//)) {
+          return url;
         }
-        // Use URL as-is if it's already a gateway URL or regular HTTP(S)
-        return url;
       }
     }
 
@@ -93,7 +128,29 @@ const getImageUrl = (nft: NFT): string => {
 const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [gatewayIndex, setGatewayIndex] = useState(0);
   
+  const handleImageError = () => {
+    // Try next gateway if current one fails
+    if (gatewayIndex < IPFS_GATEWAYS.length - 1) {
+      setGatewayIndex(prev => prev + 1);
+      setIsLoading(true);
+    } else {
+      console.warn('Image load error for NFT:', nft.id);
+      setHasError(true);
+      setIsLoading(false);
+    }
+  };
+
+  const imageUrl = useMemo(() => {
+    const url = getImageUrl(nft);
+    if (url.includes('/ipfs/')) {
+      const cid = url.split('/ipfs/')[1].split('?')[0].split('#')[0];
+      return `${IPFS_GATEWAYS[gatewayIndex]}${cid}`;
+    }
+    return url;
+  }, [nft, gatewayIndex]);
+
   return (
     <div className="relative w-full h-full">
       {isLoading && !hasError && (
@@ -102,15 +159,11 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
         </div>
       )}
       <img
-        src={hasError ? '/placeholder-nft.png' : getImageUrl(nft)}
+        src={hasError ? '/placeholder-nft.png' : imageUrl}
         alt={nft.name || 'NFT'}
         className={`object-cover w-full h-full transition-transform duration-300 
           group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        onError={() => {
-          console.warn('Image load error for NFT:', nft.id);
-          setHasError(true);
-          setIsLoading(false);
-        }}
+        onError={handleImageError}
         onLoad={() => setIsLoading(false)}
         loading="lazy"
       />
