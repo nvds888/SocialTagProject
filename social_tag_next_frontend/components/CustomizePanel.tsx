@@ -43,7 +43,7 @@ import { getIndexerURL } from "@/lib/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 const peraWallet = new PeraWalletConnect();
-const activeNetwork = process.env.NEXT_PUBLIC_NETWORK || 'testnet';
+const activeNetwork = process.env.NEXT_PUBLIC_NETWORK || 'mainnet';
 
 axios.defaults.withCredentials = true
 
