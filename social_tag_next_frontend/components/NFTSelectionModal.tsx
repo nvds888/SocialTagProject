@@ -57,6 +57,11 @@ const parseMetadata = (metadata: string | object): ParsedMetadata => {
 
 const getImageUrl = (nft: NFT): string => {
   try {
+    // Check for template-ipfs URLs first
+    if (nft.url?.startsWith('template-ipfs://')) {
+      return convertTemplateToIPFSUrl(nft.url);
+    }
+
     // Check if the direct URL is a valid IPFS URL
     if (nft.url && nft.url.startsWith('ipfs://')) {
       const hash = nft.url.slice(7).split('#')[0];
@@ -145,6 +150,12 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
       />
     </div>
   );
+};
+
+// Function to convert template URL to standard IPFS URL
+const convertTemplateToIPFSUrl = (templateUrl: string): string => {
+    const ipfsCID = templateUrl.split('template-ipfs://')[1];
+    return `https://ipfs.algonode.dev/ipfs/${ipfsCID}?optimizer=image&width=1152&quality=70`;
 };
 
 const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
