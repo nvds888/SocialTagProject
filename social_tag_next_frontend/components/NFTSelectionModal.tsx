@@ -3,6 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
 
+interface NFT {
+  id: string;
+  name: string;
+  url?: string;
+  image?: string;
+  assetId?: string;
+  metadata?: NFTMetadata | string;
+}
+
 interface NFTMetadata {
   image?: string;
   image_url?: string;
@@ -13,15 +22,6 @@ interface NFTMetadata {
     [key: string]: unknown;
   };
   [key: string]: unknown;
-}
-
-interface NFT {
-  id: string;
-  name: string;
-  url?: string;
-  image?: string;
-  assetId?: string;
-  metadata?: NFTMetadata | string;
 }
 
 interface NFTSelectionModalProps {
@@ -36,135 +36,66 @@ interface NFTSelectionModalProps {
 const IPFS_GATEWAY = "https://ipfs.algonode.dev/ipfs/";
 const IMAGE_PARAMS = "?optimizer=image&width=1152&quality=70";
 
-const extractIpfsCID = (url: string): string | null => {
-  try {
-    if (!url) return null;
+const getImageUrl = async (url: string | undefined): Promise<string | null> => {
+  if (!url) return null;
 
-    // Handle standard ipfs:// protocol
+  try {
+    // Handle IPFS protocol
     if (url.startsWith('ipfs://')) {
-      // If it's an ARC3 URL, we'll handle it separately
-      if (url.includes('#arc3')) {
-        return url;
-      }
-      return url.slice(7).split('#')[0];
+      const cid = url.split('ipfs://')[1].split('#')[0];
+      return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
     }
 
-    // Handle direct IPFS gateway URLs
-    const gatewayUrls = [
-      'https://ipfs.io/ipfs/',
-      'https://gateway.ipfs.io/ipfs/',
-      'https://cloudflare-ipfs.com/ipfs/',
-      'https://gateway.pinata.cloud/ipfs/',
-      'https://ipfs.algonode.dev/ipfs/'
-    ];
-
-    for (const gateway of gatewayUrls) {
-      if (url.includes(gateway)) {
-        return url.split(gateway)[1]?.split('?')[0].split('#')[0];
-      }
+    // Handle existing IPFS gateway URLs
+    if (url.includes('/ipfs/')) {
+      const cid = url.split('/ipfs/')[1].split('?')[0].split('#')[0];
+      return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
     }
 
     // Handle bare CIDs
     if (url.match(/^(bafy|Qm|baik)[a-zA-Z0-9]{44,}/)) {
-      return url.split('#')[0];
-    }
-
-    return null;
-  } catch (error) {
-    console.warn('Error extracting IPFS CID:', error, url);
-    return null;
-  }
-};
-
-const processMetadata = async (metadata: NFTMetadata | string | undefined): Promise<string | null> => {
-  if (!metadata) return null;
-
-  try {
-    const parsed: NFTMetadata = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
-    
-    // Check various metadata fields for image URL
-    const metadataImage = parsed.image 
-      || parsed.image_url 
-      || parsed.animation_url 
-      || parsed.properties?.image 
-      || parsed.properties?.url;
-
-    if (!metadataImage) return null;
-
-    // If we find an IPFS URL in metadata, process it
-    const cid = extractIpfsCID(metadataImage);
-    if (cid) {
-      // If it's an ARC3 URL, we need to fetch and process its metadata
-      if (metadataImage.includes('#arc3')) {
-        try {
-          const rawCid = cid.split('ipfs://')[1].split('#arc3')[0];
-          const metadataUrl = `${IPFS_GATEWAY}${rawCid}`;
-          const response = await fetch(metadataUrl);
-          const nestedMetadata = await response.json();
-          return processMetadata(nestedMetadata);
-        } catch (error) {
-          console.warn('Error processing ARC3 metadata:', error);
-          return null;
-        }
-      }
+      const cid = url.split('#')[0];
       return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
     }
 
-    // If it's already an HTTP URL, use it directly
-    if (metadataImage.match(/^https?:\/\//)) {
-      return metadataImage;
-    }
-
-    return null;
+    // Return other URLs as-is
+    return url;
   } catch (error) {
-    console.warn('Error processing metadata:', error);
+    console.warn('Error processing URL:', url, error);
     return null;
   }
 };
 
-const getImageUrl = async (nft: NFT): Promise<string> => {
+const getNFTImageUrl = async (nft: NFT): Promise<string> => {
   try {
-    console.log('Processing NFT:', nft.id, nft.name);
-
-    // For template-ipfs URLs, we must look in metadata
-    if (nft.url?.startsWith('template-ipfs://')) {
-      console.log('Found template-ipfs URL, checking metadata');
-      const metadataUrl = await processMetadata(nft.metadata);
-      if (metadataUrl) return metadataUrl;
+    // Try direct URL first
+    if (nft.url) {
+      const directUrl = await getImageUrl(nft.url);
+      if (directUrl) return directUrl;
     }
 
-    // Handle direct IPFS URLs
-    if (nft.url) {
-      const cid = extractIpfsCID(nft.url);
-      if (cid) {
-        // Check if it's an ARC3 URL
-        if (nft.url.includes('#arc3')) {
-          try {
-            const rawCid = cid.split('ipfs://')[1].split('#arc3')[0];
-            const metadataUrl = `${IPFS_GATEWAY}${rawCid}`;
-            const response = await fetch(metadataUrl);
-            const metadata = await response.json();
-            const imageUrl = await processMetadata(metadata);
-            if (imageUrl) return imageUrl;
-          } catch (error) {
-            console.warn('Error processing ARC3 URL:', error);
-          }
-        } else {
-          return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
-        }
+    // Try metadata
+    if (nft.metadata) {
+      const metadata = typeof nft.metadata === 'string' 
+        ? JSON.parse(nft.metadata) 
+        : nft.metadata;
+
+      // Check various metadata fields for image URL
+      const metadataImage = metadata.image 
+        || metadata.image_url 
+        || metadata.animation_url 
+        || metadata.properties?.image 
+        || metadata.properties?.url;
+
+      if (metadataImage) {
+        const metadataUrl = await getImageUrl(metadataImage);
+        if (metadataUrl) return metadataUrl;
       }
     }
 
-    // Check metadata as fallback
-    if (nft.metadata) {
-      const metadataUrl = await processMetadata(nft.metadata);
-      if (metadataUrl) return metadataUrl;
-    }
-
-    console.log('No valid image source found for NFT:', nft.id);
-    return '/placeholder-nft.png';
+    throw new Error('No valid image URL found');
   } catch (error) {
-    console.warn('Error in getImageUrl:', error, nft);
+    console.warn('Error getting NFT image:', nft.id, error);
     return '/placeholder-nft.png';
   }
 };
@@ -172,28 +103,29 @@ const getImageUrl = async (nft: NFT): Promise<string> => {
 const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [resolvedUrl, setResolvedUrl] = useState<string>('');
+  const [resolvedUrl, setResolvedUrl] = useState<string>('/placeholder-nft.png');
 
   useEffect(() => {
     let mounted = true;
-    
-    async function resolveImage() {
-      try {
-        const url = await getImageUrl(nft);
+    setIsLoading(true);
+    setHasError(false);
+
+    getNFTImageUrl(nft)
+      .then(url => {
         if (mounted) {
+          console.log('Resolved URL for NFT', nft.id, ':', url);
           setResolvedUrl(url);
           setIsLoading(false);
         }
-      } catch (error) {
+      })
+      .catch(error => {
         console.warn('Error resolving image:', error);
         if (mounted) {
           setHasError(true);
           setIsLoading(false);
         }
-      }
-    }
+      });
 
-    resolveImage();
     return () => { mounted = false; };
   }, [nft]);
 
@@ -204,16 +136,16 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   };
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full bg-gray-100">
       {isLoading && !hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+        <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
       <img
         src={hasError ? '/placeholder-nft.png' : resolvedUrl}
         alt={nft.name || 'NFT'}
-        className={`object-cover w-full h-full transition-transform duration-300 
+        className={`w-full h-full object-cover transition-all duration-300 
           group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
         onError={handleImageError}
         onLoad={() => setIsLoading(false)}
@@ -231,12 +163,6 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   onSelectNFT,
   isLoading
 }) => {
-  useEffect(() => {
-    if (isOpen) {
-      console.log('All NFTs:', nfts);
-    }
-  }, [isOpen, nfts]);
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -244,13 +170,13 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm p-4"
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="relative w-full max-w-lg m-4 bg-white rounded-xl shadow-2xl"
+            className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl"
           >
             <div className="flex items-center justify-between p-3 border-b">
               <h2 className="text-lg font-semibold text-gray-900">
@@ -266,7 +192,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               </Button>
             </div>
 
-            <div className="p-4 max-h-[50vh] overflow-y-auto">
+            <div className="p-4 max-h-[70vh] overflow-y-auto">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-40 space-y-3">
                   <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -278,7 +204,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                   <p className="text-sm text-gray-400">Try connecting a different wallet</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {nfts.map((nft) => (
                     <motion.div
                       key={nft.id}
