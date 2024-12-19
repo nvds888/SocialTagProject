@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
 
-const IPFS_ENDPOINT = "https://ipfs.algonode.xyz/ipfs/";
+const IPFS_ENDPOINT = "https://ipfs.algonode.dev/ipfs/";
+const IMAGE_PARAMS = "?optimizer=image&width=1152&quality=70";
 
 interface NFT {
   id: string;
@@ -15,6 +16,10 @@ interface NFT {
     image?: string;
     image_url?: string;
     animation_url?: string;
+    properties?: {
+      image?: string;
+      url?: string;
+    };
   };
 }
 
@@ -27,53 +32,64 @@ interface NFTSelectionModalProps {
   isLoading: boolean;
 }
 
+const extractIpfsHash = (url: string): string | null => {
+  // Handle ipfs:// protocol
+  if (url.startsWith('ipfs://')) {
+    return url.slice(7).split('#')[0];
+  }
+  
+  // Handle /ipfs/ path format
+  const ipfsMatch = url.match(/\/ipfs\/([^/?#]+)/);
+  if (ipfsMatch) {
+    return ipfsMatch[1];
+  }
+  
+  // Handle direct CID format
+  if (/^[a-zA-Z0-9]{46,59}$/.test(url)) {
+    return url;
+  }
+  
+  return null;
+};
+
 const getImageUrl = (nft: NFT): string => {
   try {
-    // Function to clean IPFS URLs
-    const cleanIpfsUrl = (url: string) => {
-      if (url.startsWith('ipfs://')) {
-        return `${IPFS_ENDPOINT}${url.slice(7)}`;
+    const findIpfsUrl = (possibleUrls: (string | undefined)[]): string | null => {
+      for (const url of possibleUrls) {
+        if (!url) continue;
+        const hash = extractIpfsHash(url);
+        if (hash) {
+          return `${IPFS_ENDPOINT}${hash}${IMAGE_PARAMS}`;
+        }
       }
-      // Handle already converted IPFS URLs
-      if (url.includes('/ipfs/')) {
-        const ipfsHash = url.split('/ipfs/')[1];
-        return `${IPFS_ENDPOINT}${ipfsHash}`;
-      }
-      return url;
+      return null;
     };
 
-    // If we have a direct image URL
-    if (nft.image) {
-      return cleanIpfsUrl(nft.image);
+    // Collect all possible image URLs from the NFT object
+    const possibleUrls = [
+      nft.image,
+      nft.url,
+      nft.metadata?.image,
+      nft.metadata?.image_url,
+      nft.metadata?.animation_url,
+      nft.metadata?.properties?.image,
+      nft.metadata?.properties?.url
+    ];
+
+    // Try to find an IPFS URL first
+    const ipfsUrl = findIpfsUrl(possibleUrls);
+    if (ipfsUrl) {
+      return ipfsUrl;
     }
 
-    // Try metadata image URLs
-    if (nft.metadata?.image) {
-      return cleanIpfsUrl(nft.metadata.image);
-    }
-    if (nft.metadata?.image_url) {
-      return cleanIpfsUrl(nft.metadata.image_url);
-    }
-
-    // Check for ARC3/ARC69 metadata in URL
-    if (nft.url) {
-      // Clean the URL first
-      const cleanUrl = cleanIpfsUrl(nft.url);
-      
-      // If it's a direct image URL
-      if (cleanUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
-        return cleanUrl;
+    // If no IPFS URL found, try to use any valid image URL
+    for (const url of possibleUrls) {
+      if (url && url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+        return url;
       }
-
-      // If it's ARC3/ARC69 metadata URL
-      if (cleanUrl.includes('#arc3') || cleanUrl.includes('#arc69')) {
-        // Remove the fragment
-        return cleanUrl.split('#')[0];
-      }
-
-      return cleanUrl;
     }
 
+    // Fallback to placeholder
     return '/placeholder-nft.png';
   } catch (error) {
     console.warn('Error resolving image URL:', error);
