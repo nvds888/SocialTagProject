@@ -17,7 +17,7 @@ interface NFT {
       image?: string;
       url?: string;
     };
-  } | string; // Allow for JSON string metadata
+  } | string;
 }
 
 interface NFTSelectionModalProps {
@@ -32,35 +32,77 @@ interface NFTSelectionModalProps {
 const IPFS_GATEWAY = "https://ipfs.algonode.dev/ipfs/";
 const IMAGE_PARAMS = "?optimizer=image&width=1152&quality=70";
 
+const normalizeIpfsUrl = (url: string): string => {
+  // Handle standard IPFS protocol
+  if (url.startsWith('ipfs://')) {
+    const cid = url.split('ipfs://')[1].split('#')[0];
+    return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
+  }
+  
+  // Convert other IPFS gateways to algonode
+  const ipfsGateways = [
+    'https://ipfs.io/ipfs/',
+    'https://gateway.ipfs.io/ipfs/',
+    'https://cloudflare-ipfs.com/ipfs/',
+    'https://gateway.pinata.cloud/ipfs/'
+  ];
+  
+  for (const gateway of ipfsGateways) {
+    if (url.startsWith(gateway)) {
+      const cid = url.slice(gateway.length);
+      return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
+    }
+  }
+  
+  return url;
+};
+
 const getImageUrl = (nft: NFT): string => {
   try {
+    // First check metadata for image URL
+    if (nft.metadata) {
+      // Handle string metadata by parsing it
+      const metadata = typeof nft.metadata === 'string' 
+        ? JSON.parse(nft.metadata) 
+        : nft.metadata;
+
+      // Check various metadata fields for image URL
+      const metadataImage = metadata.image 
+        || metadata.image_url 
+        || metadata.animation_url 
+        || metadata.properties?.image 
+        || metadata.properties?.url;
+
+      if (metadataImage) {
+        return normalizeIpfsUrl(metadataImage);
+      }
+    }
+
+    // Fallback to direct URL handling if metadata doesn't provide image
     const url = nft.url;
     if (!url) return '/placeholder-nft.png';
 
     // Handle regular IPFS URLs
     if (url.startsWith('ipfs://')) {
-      const cid = url.split('ipfs://')[1].split('#')[0];
-      return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
+      return normalizeIpfsUrl(url);
     }
 
-    // Handle template-ipfs URLs with CID format
+    // Handle template-ipfs URLs by checking metadata instead
     if (url.startsWith('template-ipfs://')) {
-      const match = url.match(/template-ipfs:\/\/\{ipfscid:(\d+):([^}]+)\}/);
-      if (match) {
-        const parts = match[2].split(':');
-        const cid = parts[2]; // Get the 'reserve' part
-        return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
-      }
+      // If we reach here, it means we couldn't find image in metadata
+      console.warn('Template IPFS URL found but no valid image in metadata:', nft);
+      return '/placeholder-nft.png';
     }
 
     // Handle direct HTTP(S) URLs
     if (url.match(/^https?:\/\//)) {
-      return url;
+      // Check if it's an IPFS gateway URL
+      return normalizeIpfsUrl(url);
     }
 
     return '/placeholder-nft.png';
   } catch (error) {
-    console.warn('Error resolving image URL:', error);
+    console.warn('Error resolving image URL:', error, nft);
     return '/placeholder-nft.png';
   }
 };
