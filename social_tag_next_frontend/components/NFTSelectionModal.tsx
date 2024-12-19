@@ -29,128 +29,33 @@ interface NFTSelectionModalProps {
   isLoading: boolean;
 }
 
-interface ParsedMetadata {
-  image?: string;
-  image_url?: string;
-  animation_url?: string;
-  properties?: {
-    image?: string;
-    url?: string;
-  };
-  [key: string]: unknown;
-}
+const IPFS_GATEWAY = "https://ipfs.algonode.dev/ipfs/";
+const IMAGE_PARAMS = "?optimizer=image&width=1152&quality=70";
 
-const parseMetadata = (metadata: string | object): ParsedMetadata => {
-  if (typeof metadata === 'string') {
-    try {
-      return JSON.parse(metadata);
-    } catch (e) {
-      console.warn('Failed to parse metadata JSON:', e);
-      return {};
-    }
-  }
-  return metadata as ParsedMetadata;
-};
-
-// Add multiple IPFS gateways for fallback
-const IPFS_GATEWAYS = [
-  'https://ipfs.io/ipfs/',
-  'https://ipfs.algonode.xyz/ipfs/',
-  'https://gateway.ipfs.io/ipfs/',
-  'https://cloudflare-ipfs.com/ipfs/'
-];
-
-// Move function outside
-async function fetchARC3Metadata(cid: string): Promise<string | null> {
+const getImageUrl = (nft: NFT): string => {
   try {
-    for (const gateway of IPFS_GATEWAYS) {
-      try {
-        const response = await fetch(`${gateway}${cid}`);
-        if (response.ok) {
-          const metadata = await response.json();
-          if (metadata.image) {
-            if (!metadata.image.startsWith('ipfs://') && !metadata.image.startsWith('http')) {
-              const basePath = cid.split('/').slice(0, -1).join('/');
-              return `${basePath}/${metadata.image}`;
-            }
-            if (metadata.image.startsWith('ipfs://')) {
-              return metadata.image.slice(7);
-            }
-          }
-        }
-      } catch (e) {
-        console.warn(`Failed to fetch metadata from ${gateway}`, e);
-        continue;
+    const url = nft.url;
+    if (!url) return '/placeholder-nft.png';
+
+    // Handle regular IPFS URLs
+    if (url.startsWith('ipfs://')) {
+      const cid = url.split('ipfs://')[1].split('#')[0];
+      return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
+    }
+
+    // Handle template-ipfs URLs with CID format
+    if (url.startsWith('template-ipfs://')) {
+      const match = url.match(/template-ipfs:\/\/\{ipfscid:(\d+):([^}]+)\}/);
+      if (match) {
+        const parts = match[2].split(':');
+        const cid = parts[2]; // Get the 'reserve' part
+        return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
       }
     }
-  } catch (error) {
-    console.warn('Error fetching ARC3 metadata:', error);
-  }
-  return null;
-}
 
-const getImageUrl = async (nft: NFT): Promise<string> => {
-  try {
-    // Helper to clean IPFS URLs and try multiple gateways
-    const getIPFSUrl = (cid: string, index = 0) => {
-      return `${IPFS_GATEWAYS[index % IPFS_GATEWAYS.length]}${cid}`;
-    };
-
-    // Helper to extract CID from various formats
-    const extractCID = async (url: string): Promise<string | null> => {
-      if (url.includes('#arc3')) {
-        url = url.split('#arc3')[0];
-      }
-      if (url.startsWith('ipfs://')) {
-        const cid = url.slice(7).split('#')[0];
-        if (url.endsWith('.json') || url.includes('/metadata.json')) {
-          return await fetchARC3Metadata(cid);
-        }
-        return cid;
-      }
-      
-      // Handle template-ipfs format with CID parameters
-      if (url.startsWith('template-ipfs://')) {
-        const match = url.match(/template-ipfs:\/\/\{ipfscid:(\d+):([^}]+)\}/);
-        if (match) {
-          return match[2].split(':')[2]; // Get 'reserve' from the format
-        }
-        return url.split('template-ipfs://')[1].split('{')[0];
-      }
-      
-      // Handle /ipfs/ path format
-      if (url.includes('/ipfs/')) {
-        return url.split('/ipfs/')[1].split('?')[0].split('#')[0];
-      }
-      
-      return null;
-    };
-
-    // Try all possible URL sources in order
-    const possibleUrls = [
-      nft.url,
-      nft.image,
-      typeof nft.metadata === 'object' ? nft.metadata.image : undefined,
-      typeof nft.metadata === 'object' ? nft.metadata.image_url : undefined,
-      typeof nft.metadata === 'object' ? nft.metadata.animation_url : undefined,
-      typeof nft.metadata === 'string' ? parseMetadata(nft.metadata).image : undefined,
-      typeof nft.metadata === 'string' ? parseMetadata(nft.metadata).image_url : undefined
-    ];
-
-    // Find first valid URL
-    for (const url of possibleUrls) {
-      if (url) {
-        // Try to extract IPFS CID
-        const cid = await extractCID(url);
-        if (cid) {
-          return getIPFSUrl(cid);
-        }
-        
-        // Handle direct HTTP(S) URLs
-        if (url.match(/^https?:\/\//)) {
-          return url;
-        }
-      }
+    // Handle direct HTTP(S) URLs
+    if (url.match(/^https?:\/\//)) {
+      return url;
     }
 
     return '/placeholder-nft.png';
@@ -163,7 +68,6 @@ const getImageUrl = async (nft: NFT): Promise<string> => {
 const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [gatewayIndex, setGatewayIndex] = useState(0);
   const [resolvedUrl, setResolvedUrl] = useState<string>('');
 
   useEffect(() => {
@@ -190,14 +94,9 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   }, [nft]);
 
   const handleImageError = () => {
-    if (gatewayIndex < IPFS_GATEWAYS.length - 1) {
-      setGatewayIndex(prev => prev + 1);
-      setIsLoading(true);
-    } else {
-      console.warn('Image load error for NFT:', nft.id);
-      setHasError(true);
-      setIsLoading(false);
-    }
+    console.warn('Image load error for NFT:', nft.id);
+    setHasError(true);
+    setIsLoading(false);
   };
 
   return (
