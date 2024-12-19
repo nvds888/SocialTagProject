@@ -108,7 +108,7 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
         alt={nft.name || 'NFT'}
         className={`object-cover w-full h-full transition-transform duration-300 
           group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        onError={(e) => {
+        onError={() => {
           console.warn('Image load error for NFT:', nft.id);
           setHasError(true);
           setIsLoading(false);
