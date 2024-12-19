@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
+import { create } from 'ipfs-http-client';
 
 const IPFS_ENDPOINT = "https://ipfs.algonode.dev/ipfs/";
 const IMAGE_PARAMS = "?optimizer=image&width=1152&quality=70";
@@ -114,22 +115,63 @@ const getImageUrl = (nft: NFT): string => {
   }
 };
 
+// Initialize IPFS client
+const ipfs = create({ url: 'https://ipfs.algonode.dev' });
+
+// Helper function to load image from IPFS
+async function loadIPFSImage(cid: string, mimeType = 'image/png', sizeLimit = 5242880): Promise<string> {
+  try {
+    const content: Uint8Array[] = [];
+    for await (const chunk of ipfs.cat(cid, { length: sizeLimit })) {
+      content.push(chunk);
+    }
+    return URL.createObjectURL(new Blob(content, { type: mimeType }));
+  } catch (error) {
+    console.warn('Error loading IPFS image:', error);
+    return '/placeholder-nft.png';
+  }
+}
+
 const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Enhanced debugging
+  const [imageSrc, setImageSrc] = useState<string>('');
+  
   useEffect(() => {
-    const metadata = nft.metadata ? parseMetadata(nft.metadata) : {};
-    console.log('NFT data:', {
-      id: nft.id,
-      name: nft.name,
-      resolvedUrl: getImageUrl(nft),
-      originalUrl: nft.url,
-      rawMetadata: nft.metadata,
-      parsedMetadata: metadata,
-      ipfsFromMetadata: metadata?.image
-    });
+    let mounted = true;
+    let objectUrl: string;
+
+    async function loadImage() {
+      try {
+        const url = getImageUrl(nft);
+        if (url.includes('ipfs')) {
+          // Extract CID from IPFS URL
+          const cid = url.split('ipfs/')[1].split('?')[0];
+          objectUrl = await loadIPFSImage(cid);
+          if (mounted) {
+            setImageSrc(objectUrl);
+            setIsLoading(false);
+          }
+        } else {
+          setImageSrc(url);
+        }
+      } catch (error) {
+        console.warn('Error loading image:', error);
+        if (mounted) {
+          setHasError(true);
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadImage();
+
+    return () => {
+      mounted = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
   }, [nft]);
 
   return (
@@ -140,12 +182,11 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
         </div>
       )}
       <img
-        src={hasError ? '/placeholder-nft.png' : getImageUrl(nft)}
+        src={hasError ? '/placeholder-nft.png' : imageSrc}
         alt={nft.name || 'NFT'}
         className={`object-cover w-full h-full transition-transform duration-300 
           group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
         onError={() => {
-          console.warn('Image load error for NFT:', nft.id);
           setHasError(true);
           setIsLoading(false);
         }}
