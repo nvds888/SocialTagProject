@@ -398,6 +398,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     setOpenTab(openTab === tabName ? null : tabName);
   };
 
+
   const handleFetchNFTs = async () => {
     if (!connectedWalletAddress) {
       toast({
@@ -420,9 +421,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         `${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`
       );
       
-      console.log('Raw assets:', response.data.assets);
-  
-      // Filter for owned assets
+      // Filter for owned assets first
       const ownedAssets = response.data.assets.filter((asset: AlgorandAsset) => asset.amount > 0);
       
       // Get detailed info for each asset
@@ -443,48 +442,51 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         })
       );
   
-      // Filter for NFTs using proper standards detection
+      // Filter for NFTs using library's approach
       const nftAssets = assetsWithDetails.filter((asset: AlgorandAssetWithDetails) => {
         if (!asset.params) return false;
-        
-        // Check if it has characteristics of an NFT
+  
+        // Check basic NFT characteristics first
         const isLikelyNFT = 
-          asset.amount > 0 && // User owns it
-          asset.amount <= 10 && // Small amount (typical for NFTs)
-          asset.params.decimals === 0; // NFTs typically have 0 decimals
-        
+          asset.amount > 0 && 
+          asset.params.decimals === 0; // NFTs should have 0 decimals
+  
         if (!isLikelyNFT) return false;
   
-        // Check for ARC standards
-        const isARC3 = getIsARC3Asset(asset);
-        const isARC19 = getIsARC19Asset(asset);
-        
-        // URL characteristics check
+        // Check for valid URL that could contain metadata
         const url = asset.params.url;
-        const hasValidUrl = url && (
+        if (!url) return false;
+  
+        // Check for known NFT patterns
+        const hasValidUrl = 
           url.startsWith('ipfs://') ||
           url.startsWith('https://') ||
-          url.includes('/ipfs/')
-        );
+          url.includes('/ipfs/') ||
+          url.match(/^(bafy|Qm|baik)[a-zA-Z0-9]{44,}/) ||
+          url.startsWith("template-ipfs://{ipfscid");
   
-        return isARC3 || isARC19 || hasValidUrl;
+        // Check ARC standards
+        const isARC3 = getIsARC3Asset(asset);
+        const isARC19 = getIsARC19Asset(asset);
+  
+        return hasValidUrl || isARC3 || isARC19;
       });
   
       console.log('Filtered NFT assets:', nftAssets);
       
-      // Format NFTs with proper metadata
+      // Format NFTs with required metadata
       const formattedNFTs = nftAssets.map((asset: AlgorandAssetWithDetails) => ({
         id: asset['asset-id'].toString(),
         assetId: asset['asset-id'].toString(),
         name: asset.params?.name || asset.params?.['unit-name'] || `Asset #${asset['asset-id']}`,
         url: asset.params?.url || '',
-        image: asset.params?.url || '', // Will be resolved by NFTImage component
         metadata: {
-          image: asset.params?.url || '',
-          name: asset.params?.name,
-          unit_name: asset.params?.['unit-name'],
-          description: '',
-          properties: asset.params || {}
+          ...asset.params,
+          properties: {
+            ...asset.params,
+            ['unit-name']: asset.params?.['unit-name'],
+            url: asset.params?.url
+          }
         }
       }));
   
