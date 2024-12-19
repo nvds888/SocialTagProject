@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
@@ -60,7 +60,36 @@ const IPFS_GATEWAYS = [
   'https://cloudflare-ipfs.com/ipfs/'
 ];
 
-const getImageUrl = (nft: NFT): string => {
+// Move function outside
+async function fetchARC3Metadata(cid: string): Promise<string | null> {
+  try {
+    for (const gateway of IPFS_GATEWAYS) {
+      try {
+        const response = await fetch(`${gateway}${cid}`);
+        if (response.ok) {
+          const metadata = await response.json();
+          if (metadata.image) {
+            if (!metadata.image.startsWith('ipfs://') && !metadata.image.startsWith('http')) {
+              const basePath = cid.split('/').slice(0, -1).join('/');
+              return `${basePath}/${metadata.image}`;
+            }
+            if (metadata.image.startsWith('ipfs://')) {
+              return metadata.image.slice(7);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(`Failed to fetch metadata from ${gateway}`, e);
+        continue;
+      }
+    }
+  } catch (error) {
+    console.warn('Error fetching ARC3 metadata:', error);
+  }
+  return null;
+}
+
+const getImageUrl = async (nft: NFT): Promise<string> => {
   try {
     // Helper to clean IPFS URLs and try multiple gateways
     const getIPFSUrl = (cid: string, index = 0) => {
@@ -68,7 +97,18 @@ const getImageUrl = (nft: NFT): string => {
     };
 
     // Helper to extract CID from various formats
-    const extractCID = (url: string): string | null => {
+    const extractCID = async (url: string): Promise<string | null> => {
+      if (url.includes('#arc3')) {
+        url = url.split('#arc3')[0];
+      }
+      if (url.startsWith('ipfs://')) {
+        const cid = url.slice(7).split('#')[0];
+        if (url.endsWith('.json') || url.includes('/metadata.json')) {
+          return await fetchARC3Metadata(cid);
+        }
+        return cid;
+      }
+      
       // Handle template-ipfs format with CID parameters
       if (url.startsWith('template-ipfs://')) {
         const match = url.match(/template-ipfs:\/\/\{ipfscid:(\d+):([^}]+)\}/);
@@ -76,11 +116,6 @@ const getImageUrl = (nft: NFT): string => {
           return match[2].split(':')[2]; // Get 'reserve' from the format
         }
         return url.split('template-ipfs://')[1].split('{')[0];
-      }
-      
-      // Handle ipfs:// protocol
-      if (url.startsWith('ipfs://')) {
-        return url.slice(7).split('#')[0];
       }
       
       // Handle /ipfs/ path format
@@ -106,7 +141,7 @@ const getImageUrl = (nft: NFT): string => {
     for (const url of possibleUrls) {
       if (url) {
         // Try to extract IPFS CID
-        const cid = extractCID(url);
+        const cid = await extractCID(url);
         if (cid) {
           return getIPFSUrl(cid);
         }
@@ -129,9 +164,32 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [gatewayIndex, setGatewayIndex] = useState(0);
-  
+  const [resolvedUrl, setResolvedUrl] = useState<string>('');
+
+  useEffect(() => {
+    let mounted = true;
+    
+    async function resolveImage() {
+      try {
+        const url = await getImageUrl(nft);
+        if (mounted) {
+          setResolvedUrl(url);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.warn('Error resolving image:', error);
+        if (mounted) {
+          setHasError(true);
+          setIsLoading(false);
+        }
+      }
+    }
+
+    resolveImage();
+    return () => { mounted = false; };
+  }, [nft]);
+
   const handleImageError = () => {
-    // Try next gateway if current one fails
     if (gatewayIndex < IPFS_GATEWAYS.length - 1) {
       setGatewayIndex(prev => prev + 1);
       setIsLoading(true);
@@ -142,15 +200,6 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
     }
   };
 
-  const imageUrl = useMemo(() => {
-    const url = getImageUrl(nft);
-    if (url.includes('/ipfs/')) {
-      const cid = url.split('/ipfs/')[1].split('?')[0].split('#')[0];
-      return `${IPFS_GATEWAYS[gatewayIndex]}${cid}`;
-    }
-    return url;
-  }, [nft, gatewayIndex]);
-
   return (
     <div className="relative w-full h-full">
       {isLoading && !hasError && (
@@ -159,7 +208,7 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
         </div>
       )}
       <img
-        src={hasError ? '/placeholder-nft.png' : imageUrl}
+        src={hasError ? '/placeholder-nft.png' : resolvedUrl}
         alt={nft.name || 'NFT'}
         className={`object-cover w-full h-full transition-transform duration-300 
           group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
