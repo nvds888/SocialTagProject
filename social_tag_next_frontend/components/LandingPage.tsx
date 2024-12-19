@@ -87,7 +87,12 @@ export default function LandingPage() {
     <div className="landing-container min-h-screen bg-white text-black relative overflow-hidden">
       <div className="relative z-10">
         <header className="landing-header flex justify-between items-center p-4 bg-white bg-opacity-90">
-          <h1 className="logo text-4xl font-bold text-black">SocialTag</h1>
+        <div className="flex items-center">
+  <h1 className="logo text-4xl font-bold text-black">SocialTag</h1>
+  <div className="ml-2 px-2 py-1 bg-[#40E0D0] text-xs font-semibold text-black rounded-md border border-black">
+    BETA
+  </div>
+</div>
 
           <div className="header-buttons flex space-x-4">
           <button
