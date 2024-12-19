@@ -33,7 +33,7 @@
     "react-dom": "^18",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "ipfs-http-client": "^latest_version"
+    "ipfs-http-client": "^60.0.1"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
