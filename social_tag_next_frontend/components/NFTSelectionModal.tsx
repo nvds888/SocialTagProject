@@ -3,21 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
 
+interface NFTMetadata {
+  image?: string;
+  image_url?: string;
+  animation_url?: string;
+  properties?: {
+    image?: string;
+    url?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
 interface NFT {
   id: string;
   name: string;
   url?: string;
   image?: string;
   assetId?: string;
-  metadata?: {
-    image?: string;
-    image_url?: string;
-    animation_url?: string;
-    properties?: {
-      image?: string;
-      url?: string;
-    };
-  } | string;
+  metadata?: NFTMetadata | string;
 }
 
 interface NFTSelectionModalProps {
@@ -34,17 +38,18 @@ const IMAGE_PARAMS = "?optimizer=image&width=1152&quality=70";
 
 const extractIpfsCID = (url: string): string | null => {
   try {
-    // Handle ARC3 format with hash
-    if (url.includes('#arc3')) {
-      url = url.split('#arc3')[0];
-    }
+    if (!url) return null;
 
-    // Standard ipfs:// protocol
+    // Handle standard ipfs:// protocol
     if (url.startsWith('ipfs://')) {
-      return url.slice(7);
+      // If it's an ARC3 URL, we'll handle it separately
+      if (url.includes('#arc3')) {
+        return url;
+      }
+      return url.slice(7).split('#')[0];
     }
 
-    // Handle various IPFS gateway URLs
+    // Handle direct IPFS gateway URLs
     const gatewayUrls = [
       'https://ipfs.io/ipfs/',
       'https://gateway.ipfs.io/ipfs/',
@@ -55,14 +60,13 @@ const extractIpfsCID = (url: string): string | null => {
 
     for (const gateway of gatewayUrls) {
       if (url.includes(gateway)) {
-        const cid = url.split(gateway)[1]?.split('?')[0];
-        if (cid) return cid;
+        return url.split(gateway)[1]?.split('?')[0].split('#')[0];
       }
     }
 
-    // Check for bare CID pattern (starts with 'bafy', 'Qm', or similar)
+    // Handle bare CIDs
     if (url.match(/^(bafy|Qm|baik)[a-zA-Z0-9]{44,}/)) {
-      return url;
+      return url.split('#')[0];
     }
 
     return null;
@@ -72,71 +76,95 @@ const extractIpfsCID = (url: string): string | null => {
   }
 };
 
-const normalizeIpfsUrl = (url: string): string => {
-  try {
-    console.log('Normalizing URL:', url); // Debug log
+const processMetadata = async (metadata: NFTMetadata | string | undefined): Promise<string | null> => {
+  if (!metadata) return null;
 
-    const cid = extractIpfsCID(url);
+  try {
+    const parsed: NFTMetadata = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
+    
+    // Check various metadata fields for image URL
+    const metadataImage = parsed.image 
+      || parsed.image_url 
+      || parsed.animation_url 
+      || parsed.properties?.image 
+      || parsed.properties?.url;
+
+    if (!metadataImage) return null;
+
+    // If we find an IPFS URL in metadata, process it
+    const cid = extractIpfsCID(metadataImage);
     if (cid) {
-      const normalizedUrl = `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
-      console.log('Normalized to:', normalizedUrl); // Debug log
-      return normalizedUrl;
+      // If it's an ARC3 URL, we need to fetch and process its metadata
+      if (metadataImage.includes('#arc3')) {
+        try {
+          const rawCid = cid.split('ipfs://')[1].split('#arc3')[0];
+          const metadataUrl = `${IPFS_GATEWAY}${rawCid}`;
+          const response = await fetch(metadataUrl);
+          const nestedMetadata = await response.json();
+          return processMetadata(nestedMetadata);
+        } catch (error) {
+          console.warn('Error processing ARC3 metadata:', error);
+          return null;
+        }
+      }
+      return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
     }
 
-    // If we can't extract a CID, return the original URL
-    console.log('Could not normalize, returning original:', url); // Debug log
-    return url;
+    // If it's already an HTTP URL, use it directly
+    if (metadataImage.match(/^https?:\/\//)) {
+      return metadataImage;
+    }
+
+    return null;
   } catch (error) {
-    console.warn('Error normalizing IPFS URL:', error, url);
-    return url;
+    console.warn('Error processing metadata:', error);
+    return null;
   }
 };
 
-const getImageUrl = (nft: NFT): string => {
+const getImageUrl = async (nft: NFT): Promise<string> => {
   try {
-    console.log('Processing NFT:', nft.id, nft.name); // Debug log
+    console.log('Processing NFT:', nft.id, nft.name);
 
-    // First check metadata
-    if (nft.metadata) {
-      try {
-        const metadata = typeof nft.metadata === 'string' 
-          ? JSON.parse(nft.metadata) 
-          : nft.metadata;
+    // For template-ipfs URLs, we must look in metadata
+    if (nft.url?.startsWith('template-ipfs://')) {
+      console.log('Found template-ipfs URL, checking metadata');
+      const metadataUrl = await processMetadata(nft.metadata);
+      if (metadataUrl) return metadataUrl;
+    }
 
-        console.log('Parsed metadata:', metadata); // Debug log
-
-        // Check various metadata fields
-        const metadataImage = metadata.image 
-          || metadata.image_url 
-          || metadata.animation_url 
-          || metadata.properties?.image 
-          || metadata.properties?.url;
-
-        if (metadataImage) {
-          console.log('Found image in metadata:', metadataImage); // Debug log
-          return normalizeIpfsUrl(metadataImage);
+    // Handle direct IPFS URLs
+    if (nft.url) {
+      const cid = extractIpfsCID(nft.url);
+      if (cid) {
+        // Check if it's an ARC3 URL
+        if (nft.url.includes('#arc3')) {
+          try {
+            const rawCid = cid.split('ipfs://')[1].split('#arc3')[0];
+            const metadataUrl = `${IPFS_GATEWAY}${rawCid}`;
+            const response = await fetch(metadataUrl);
+            const metadata = await response.json();
+            const imageUrl = await processMetadata(metadata);
+            if (imageUrl) return imageUrl;
+          } catch (error) {
+            console.warn('Error processing ARC3 URL:', error);
+          }
+        } else {
+          return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
         }
-      } catch (error) {
-        console.warn('Error parsing metadata:', error);
       }
     }
 
-    // Try direct URL if available
-    if (nft.url) {
-      console.log('Using direct URL:', nft.url); // Debug log
-      return normalizeIpfsUrl(nft.url);
+    // Check metadata as fallback
+    if (nft.metadata) {
+      const metadataUrl = await processMetadata(nft.metadata);
+      if (metadataUrl) return metadataUrl;
     }
 
-    // Try image field if available
-    if (nft.image) {
-      console.log('Using image field:', nft.image); // Debug log
-      return normalizeIpfsUrl(nft.image);
-    }
-
-    console.log('No valid image source found, using placeholder'); // Debug log
+    console.log('No valid image source found for NFT:', nft.id);
     return '/placeholder-nft.png';
   } catch (error) {
-    console.warn('Error in getImageUrl:', error);
+    console.warn('Error in getImageUrl:', error, nft);
     return '/placeholder-nft.png';
   }
 };
@@ -151,10 +179,7 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
     
     async function resolveImage() {
       try {
-        console.log('Resolving image for NFT:', nft.id); // Debug log
-        const url = getImageUrl(nft);
-        console.log('Resolved URL:', url); // Debug log
-        
+        const url = await getImageUrl(nft);
         if (mounted) {
           setResolvedUrl(url);
           setIsLoading(false);
@@ -207,7 +232,6 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   isLoading
 }) => {
   useEffect(() => {
-    // Debug log all NFTs when modal opens
     if (isOpen) {
       console.log('All NFTs:', nfts);
     }
