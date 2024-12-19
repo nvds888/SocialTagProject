@@ -294,33 +294,53 @@ router.get('/spotify', (req, res, next) => {
   })(req, res, next);
 });
 
-router.get('/spotify/callback', 
-  passport.authenticate('spotify', { 
-    failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard` 
-  }),
-  async (req, res) => {
-    try {
-      if (!req.user || !req.user.linkingToken) {
-        console.error('No user or linking token found');
-        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`);
+// Spotify Routes
+router.get('/spotify/callback', async (req, res, next) => {
+  console.log('Spotify callback session state:', {
+    hasSession: !!req.session,
+    sessionID: req.sessionID,
+    hasUser: !!req.user,
+    state: req.query.state,
+    code: !!req.query.code
+  });
+
+  try {
+    passport.authenticate('spotify', {
+      failureRedirect: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`,
+      failureMessage: true,
+      passReqToCallback: true
+    })(req, res, async (err) => {
+      if (err) {
+        console.error('Passport authentication error:', err);
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
       }
+      
+      try {
+        if (!req.user || !req.user.linkingToken) {
+          console.error('No user or linking token found in callback');
+          return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`);
+        }
 
-      // Mark token as used
-      await LinkingToken.findOneAndUpdate(
-        { token: req.user.linkingToken.token },
-        { used: true }
-      );
+        // Mark token as used
+        await LinkingToken.findOneAndUpdate(
+          { token: req.user.linkingToken.token },
+          { used: true }
+        );
 
-      // Redirect to the correct dashboard
-      const redirectUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${req.user.twitter.username}`;
-      console.log('Redirecting to:', redirectUrl);
-      return res.redirect(redirectUrl);
-    } catch (error) {
-      console.error('Error in Spotify callback:', error);
-      return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard`);
-    }
+        // Redirect to the correct dashboard
+        const redirectUrl = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/dashboard/${req.user.twitter.username}`;
+        console.log('Redirecting to:', redirectUrl);
+        return res.redirect(redirectUrl);
+      } catch (error) {
+        console.error('Error in Spotify callback handler:', error);
+        return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
+      }
+    });
+  } catch (error) {
+    console.error('Error in Spotify callback route:', error);
+    return res.redirect(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/error`);
   }
-);
+});
 
 router.get('/checkAuth', (req, res) => {
   console.log('CheckAuth - Session data:', {

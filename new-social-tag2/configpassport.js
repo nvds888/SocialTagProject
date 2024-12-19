@@ -247,6 +247,7 @@ async (req, accessToken, refreshToken, profile, done) => {
 }));
 
 // Spotify Strategy
+// Spotify Strategy
 passport.use(new SpotifyStrategy({
   clientID: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
@@ -255,6 +256,12 @@ passport.use(new SpotifyStrategy({
 },
 async (req, accessToken, refreshToken, expires_in, profile, done) => {
   try {
+    console.log('Processing Spotify profile:', {
+      id: profile?.id,
+      username: profile?.username,
+      hasEmails: !!profile?.emails?.length
+    });
+
     // Get token from state parameter
     const token = req.query.state;
     console.log('Processing Spotify auth with linking token:', token);
@@ -279,11 +286,11 @@ async (req, accessToken, refreshToken, expires_in, profile, done) => {
       return done(null, false, { message: 'User not found' });
     }
 
-    // Add Spotify to user
+    // Add Spotify to user with defensive programming
     user.spotify = {
       id: profile.id,
-      username: profile.username,
-      email: profile.emails[0].value,
+      username: profile.username || profile.id, // Fallback to ID if username is missing
+      email: profile.emails?.[0]?.value || null, // Safe optional chaining
       token: accessToken
     };
 
