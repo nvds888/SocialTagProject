@@ -57,52 +57,56 @@ const parseMetadata = (metadata: string | object): ParsedMetadata => {
 
 const getImageUrl = (nft: NFT): string => {
   try {
-    // Check for template-ipfs URLs first
-    if (nft.url?.startsWith('template-ipfs://')) {
-      return convertTemplateToIPFSUrl(nft.url);
-    }
-
-    // Check if the direct URL is a valid IPFS URL
-    if (nft.url && nft.url.startsWith('ipfs://')) {
-      const hash = nft.url.slice(7).split('#')[0];
-      return `${IPFS_ENDPOINT}${hash}${IMAGE_PARAMS}`;
-    }
-
-    // If the direct URL is not valid, check the metadata
-    if (nft.metadata) {
-      const parsedMetadata = typeof nft.metadata === 'string' 
-        ? parseMetadata(nft.metadata) 
-        : nft.metadata;
-
-      // Check for IPFS URL in the parsed metadata
-      if (parsedMetadata.image && parsedMetadata.image.startsWith('ipfs://')) {
-        const hash = parsedMetadata.image.slice(7).split('#')[0];
-        return `${IPFS_ENDPOINT}${hash}${IMAGE_PARAMS}`;
+    // Helper to clean and format URLs
+    const formatUrl = (url: string): string => {
+      // Handle template-ipfs with CID format
+      if (url.startsWith('template-ipfs://')) {
+        const match = url.match(/template-ipfs:\/\/\{ipfscid:(\d+):([^}]+)\}/);
+        if (match) {
+          // Extract CID from the format {ipfscid:0:dag-pb:reserve:sha2-256}
+          const cid = match[2].split(':')[2]; // Get 'reserve' from the format
+          return `${IPFS_ENDPOINT}${cid}${IMAGE_PARAMS}`;
+        }
+        // Fallback for simple template-ipfs URLs
+        const ipfsCID = url.split('template-ipfs://')[1];
+        return `${IPFS_ENDPOINT}${ipfsCID}${IMAGE_PARAMS}`;
       }
 
-      // Additionally check for other image URLs in metadata
-      if (parsedMetadata.image_url && parsedMetadata.image_url.startsWith('ipfs://')) {
-        const hash = parsedMetadata.image_url.slice(7).split('#')[0];
+      // Rest of the existing URL handling...
+      if (url.startsWith('ipfs://')) {
+        const hash = url.slice(7).split('#')[0];
         return `${IPFS_ENDPOINT}${hash}${IMAGE_PARAMS}`;
       }
-    }
-
-    // If no valid IPFS URL found, try other possible URLs
-    const possibleUrls = [
-      nft.image,
-      nft.url,
-      typeof nft.metadata === 'object' ? nft.metadata.image_url : undefined,
-      typeof nft.metadata === 'object' ? nft.metadata.animation_url : undefined
-    ];
-
-    // Try to use any valid image URL
-    for (const url of possibleUrls) {
-      if (url && url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+      if (url.includes('/ipfs/')) {
+        const hash = url.split('/ipfs/')[1].split('?')[0];
+        return `${IPFS_ENDPOINT}${hash}${IMAGE_PARAMS}`;
+      }
+      if (url.match(/^https?:\/\//)) {
         return url;
       }
+      return `${IPFS_ENDPOINT}${url}${IMAGE_PARAMS}`;
+    };
+
+    // Try all possible URL sources in order
+    const possibleUrls = [
+      nft.url,
+      nft.image,
+      typeof nft.metadata === 'object' ? nft.metadata.image : undefined,
+      typeof nft.metadata === 'object' ? nft.metadata.image_url : undefined,
+      typeof nft.metadata === 'object' ? nft.metadata.animation_url : undefined,
+      typeof nft.metadata === 'string' ? parseMetadata(nft.metadata).image : undefined,
+      typeof nft.metadata === 'string' ? parseMetadata(nft.metadata).image_url : undefined
+    ];
+
+    // Find first valid URL and format it
+    for (const url of possibleUrls) {
+      if (url) {
+        const formattedUrl = formatUrl(url);
+        console.log(`Formatted URL for NFT ${nft.id}:`, { original: url, formatted: formattedUrl });
+        return formattedUrl;
+      }
     }
 
-    // Fallback to placeholder
     return '/placeholder-nft.png';
   } catch (error) {
     console.warn('Error resolving image URL:', error);
@@ -150,12 +154,6 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
       />
     </div>
   );
-};
-
-// Function to convert template URL to standard IPFS URL
-const convertTemplateToIPFSUrl = (templateUrl: string): string => {
-    const ipfsCID = templateUrl.split('template-ipfs://')[1];
-    return `https://ipfs.algonode.dev/ipfs/${ipfsCID}?optimizer=image&width=1152&quality=70`;
 };
 
 const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
