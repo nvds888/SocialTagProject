@@ -147,15 +147,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     if (peraWallet) {
       peraWallet.disconnect();
       setConnectedAccount(null);
-      
-      try {
-        await apiClient.post('/api/user/wallet-settings', {
-          saveWalletAddress: false,
-          walletAddress: null
-        });
-      } catch (error) {
-        console.error('Error clearing wallet address:', error);
-      }
     }
   }, [peraWallet]);
 
@@ -330,14 +321,12 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         const newAccounts = await peraWallet.connect();
         setConnectedAccount(newAccounts[0]);
         
-        // Automatically opt-in when connecting
         if (user) {
           try {
             await apiClient.post('/api/user/wallet-settings', {
-              saveWalletAddress: true,
-              walletAddress: newAccounts[0]
+              saveWalletAddress: true, // Keep opted in
+              walletAddress: newAccounts[0] // Update to new wallet
             });
-            // Add notification for automatic opt-in
             toast({
               title: "Opted in for rewards",
               description: "You've been automatically opted in for rewards. You can opt out anytime via your wallet button.",
