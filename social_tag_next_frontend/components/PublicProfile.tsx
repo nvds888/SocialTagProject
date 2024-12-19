@@ -73,45 +73,6 @@ const ThemeComponents = {
   ),
 }
 
-// Convert IPFS URL to Algonode URL
-const convertIpfsUrl = (ipfsUrl: string) => {
-  if (!ipfsUrl) return '';
-  
-  // Extract CID from ipfs:// URL
-  const cid = ipfsUrl.replace('ipfs://', '').split('#')[0];
-  
-  // Return Algonode URL
-  return `https://ipfs.algonode.dev/ipfs/${cid}?optimizer=image&width=1152&quality=70`;
-}
-
-const convertTemplateUrl = (templateUrl: string, actualCid: string) => {
-  if (!templateUrl || !actualCid) return '';
-  
-  // For template URLs, replace the placeholder with actual CID
-  if (templateUrl.startsWith('template-ipfs://')) {
-    return `https://ipfs.algonode.dev/ipfs/${actualCid}?optimizer=image&width=1152&quality=70`;
-  }
-  
-  return '';
-}
-
-// Combined function to handle both cases
-const getNftImageUrl = (nft: any) => {
-  const url = nft.url;
-  
-  if (url.startsWith('ipfs://')) {
-    return convertIpfsUrl(url);
-  }
-  
-  if (url.startsWith('template-ipfs://')) {
-    // You'll need to get the actual CID from the NFT metadata
-    const actualCid = nft.somePropertyWithActualCid; 
-    return convertTemplateUrl(url, actualCid);
-  }
-  
-  return url; // Return original if not IPFS
-}
-
 export default function PublicProfile() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
