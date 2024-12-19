@@ -71,7 +71,17 @@ interface NFD {
   assetId?: string; // Add this line
 }
 
-
+interface AlgorandAsset {
+  'asset-id': number;
+  amount: number;
+  params?: {
+    name?: string;
+    'unit-name'?: string;
+    url?: string;
+    decimals?: number;
+    total?: number;
+  }
+}
 
 interface ComponentProps {
   user?: User;
@@ -385,43 +395,54 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     
     try {
       const indexerURL = getIndexerURL(activeNetwork);
+      console.log('Fetching assets from:', indexerURL);
+      
       const response = await axios.create({ withCredentials: false }).get(
         `${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`
       );
       
-      // Filter for NFTs
-      const nftAssets = response.data.assets.filter((asset: {
-        amount: number;
-        params?: {
-          decimals?: number;
-          total?: number;
+      console.log('Raw assets:', response.data.assets);
+      
+      // Adjust filtering to catch more NFT types
+      const nftAssets = response.data.assets.filter((asset: AlgorandAsset) => {
+        const isNFT = 
+          asset.amount > 0 && // User owns it
+          (
+            // Either it's a 1/1
+            (asset.params?.decimals === 0 && asset.params?.total === 1) ||
+            // Or it's an NFT with no decimal places
+            (asset.params?.decimals === 0 && asset.params?.['unit-name'])
+          );
+      
+        if (isNFT) {
+          console.log('Found NFT:', {
+            id: asset['asset-id'],
+            name: asset.params?.name,
+            unit: asset.params?.['unit-name']
+          });
         }
-      }) => 
-        asset.amount > 0 && // User owns it
-        asset.params?.decimals === 0 && // It's an NFT
-        asset.params?.total === 1 // It's unique
-      );
+      
+        return isNFT;
+      });
   
-      // Format NFTs to match our interface
-      const formattedNFTs = nftAssets.map((asset: { 
-        'asset-id': number;
-        params?: {
-          name?: string;
-          'unit-name'?: string;
-          url?: string;
-        }
-      }) => ({
+      console.log('Filtered NFT assets:', nftAssets);
+      
+      // Format NFTs with more properties
+      const formattedNFTs = nftAssets.map((asset: AlgorandAsset) => ({
         id: asset['asset-id'].toString(),
         assetId: asset['asset-id'].toString(),
-        name: asset.params?.name || `Asset #${asset['asset-id']}`,
-        url: asset.params?.url,
-        image: asset.params?.url,
+        name: asset.params?.name || asset.params?.['unit-name'] || `Asset #${asset['asset-id']}`,
+        url: asset.params?.url || '',
+        image: asset.params?.url || '',
+        metadata: asset.params || {}
       }));
+  
+      console.log('Formatted NFTs:', formattedNFTs);
   
       setNfts(formattedNFTs);
       setShowNFTModal(true);
     } catch (error) {
-      console.warn('Error fetching NFTs:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error fetching NFTs:', error);
       setError('Failed to fetch NFTs. Please try again.');
       toast({
         title: "Error",
