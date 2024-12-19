@@ -65,7 +65,7 @@ interface User {
 
 const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, onConnect, username, isVerified }) => (
   <motion.div 
-    className={`social-card ${isConnected ? 'connected' : ''} bg-white p-4 rounded-lg flex items-center justify-between shadow-md`}
+  className={`social-card ${isConnected ? 'connected' : ''} bg-white p-3 sm:p-4 rounded-lg flex items-center justify-between shadow-md w-full`}
     whileHover={{ scale: 1.02 }}
     transition={{ type: "spring", stiffness: 300 }}
   >
@@ -417,9 +417,9 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     <div className="min-h-screen bg-gray-100 text-black relative">
       {showConfetti && <Confetti />}
       <div className="relative z-10">
-        <header className="flex justify-between items-center p-6 bg-white shadow-md">
+      <header className="flex flex-col sm:flex-row justify-between items-center p-4 sm:p-6 bg-white shadow-md gap-4">
           <h1 className="text-4xl font-bold">SocialTag</h1>
-          <nav className="flex items-center space-x-4">
+          <nav className="flex items-center flex-wrap justify-center gap-2 sm:gap-4">
           <Link 
   href="/" 
   className="bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
@@ -474,12 +474,12 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             </Popover>
           </nav>
         </header>
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="dashboard-card bg-[#8B7AB4] rounded-lg p-6 shadow-lg max-w-2xl mx-auto"
+            className="dashboard-card bg-[#8B7AB4] rounded-lg p-3 sm:p-6 shadow-lg max-w-2xl mx-auto w-full"
           >
             {user?.twitter?.username && (
             <div className="profile-operator mb-6 bg-black p-4 rounded-lg relative overflow-hidden">
@@ -572,7 +572,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       <SquareStack size={30} className="text-[#40E0D0] mr-2" />
       <span className="text-black text-xl font-bold">Profile successfully verified!</span>
     </div>
-    <div className="action-buttons flex space-x-4 relative z-10">
+    <div className="action-buttons flex flex-col sm:flex-row gap-2 sm:space-x-4 relative z-10">
       <motion.button
         onClick={handleOpenProfile}
         className="flex-1 bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:brightness-110 transition-all border-2 border-black"
