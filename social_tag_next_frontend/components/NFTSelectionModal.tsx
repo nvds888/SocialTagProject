@@ -57,27 +57,32 @@ const parseMetadata = (metadata: string | object): ParsedMetadata => {
 
 const getImageUrl = (nft: NFT): string => {
   try {
-    // First check if we have a direct IPFS URL
+    // Check if the direct URL is a valid IPFS URL
     if (nft.url && nft.url.startsWith('ipfs://')) {
       const hash = nft.url.slice(7).split('#')[0];
       return `${IPFS_ENDPOINT}${hash}${IMAGE_PARAMS}`;
     }
 
-    // If URL is template-ipfs or not an IPFS URL, check metadata
+    // If the direct URL is not valid, check the metadata
     if (nft.metadata) {
-      // Parse metadata if it's a JSON string
       const parsedMetadata = typeof nft.metadata === 'string' 
         ? parseMetadata(nft.metadata) 
         : nft.metadata;
 
-      // Check for IPFS URL in metadata
+      // Check for IPFS URL in the parsed metadata
       if (parsedMetadata.image && parsedMetadata.image.startsWith('ipfs://')) {
         const hash = parsedMetadata.image.slice(7).split('#')[0];
         return `${IPFS_ENDPOINT}${hash}${IMAGE_PARAMS}`;
       }
+
+      // Additionally check for other image URLs in metadata
+      if (parsedMetadata.image_url && parsedMetadata.image_url.startsWith('ipfs://')) {
+        const hash = parsedMetadata.image_url.slice(7).split('#')[0];
+        return `${IPFS_ENDPOINT}${hash}${IMAGE_PARAMS}`;
+      }
     }
 
-    // If no IPFS URL found, try other possible URLs
+    // If no valid IPFS URL found, try other possible URLs
     const possibleUrls = [
       nft.image,
       nft.url,
