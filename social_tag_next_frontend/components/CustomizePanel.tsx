@@ -40,6 +40,7 @@ import NFTSelectionModal from '@/components/NFTSelectionModal'
 import NFDSelectionModal from '@/components/NFDSelectionModal'
 import { User } from '@/types/User';
 import { getIndexerURL } from "@/lib/utils";
+import { UniversalARCNFTMetadata } from '@gradian/arcviewer';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 const peraWallet = new PeraWalletConnect();
@@ -57,12 +58,10 @@ interface CustomizePanelProps {
 
 interface NFT {
   id: string;
-  name: string;
-  url?: string;
-  'metadata-hash'?: string;
-  reserve?: string;
+  name?: string;  // Make this optional to match
   image?: string;
-  assetId?: string;
+  url?: string;
+  metadata?: UniversalARCNFTMetadata;
 }
 
 interface NFD {
@@ -222,7 +221,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     }
 
     if (user.profileImage) {
-      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage, assetId: 'current' })
+      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage, })
     }
   }, [user])
 
@@ -461,12 +460,11 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       // Format NFTs with more properties
       const formattedNFTs = nftAssets.map((asset: AlgorandAssetWithDetails) => ({
         id: asset['asset-id'].toString(),
-        assetId: asset['asset-id'].toString(),
         name: asset.params?.name || asset.params?.['unit-name'] || `Asset #${asset['asset-id']}`,
         url: asset.params?.url || '',
         image: asset.params?.url || '',
         metadata: asset.params || {}
-      }));
+      } as NFT));
   
       console.log('Formatted NFTs:', formattedNFTs);
   
@@ -486,13 +484,13 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   }
 
   const handleSelectNFT = (nft: NFT) => {
-    const formattedNFT = {
+    setSelectedNFT({
       id: nft.id,
       name: nft.name,
       image: nft.image || '',
-      url: nft.url || ''
-    };
-    setSelectedNFT(formattedNFT);
+      url: nft.url || '',
+      metadata: nft.metadata
+    } as NFT);
     setShowNFTModal(false);
   };
 
