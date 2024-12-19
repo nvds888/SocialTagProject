@@ -437,24 +437,23 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   
       // Filter for NFTs
       const nftAssets = assetsWithDetails.filter((asset: AlgorandAsset) => {
-        const isNFT = 
+        // If it has 0 decimals and amount of 1-10, it's likely an NFT
+        const isLikelyNFT = 
           asset.amount > 0 && // User owns it
-          (
-            // Either it's a 1/1
-            (asset.params?.decimals === 0 && asset.params?.total === 1) ||
-            // Or it's an NFT with no decimal places
-            (asset.params?.decimals === 0 && asset.params?.['unit-name'])
-          );
-  
-        if (isNFT) {
+          asset.amount <= 10 && // Probably not a coin if small amount
+          asset.params?.decimals === 0; // NFTs typically have 0 decimals
+      
+        if (isLikelyNFT) {
           console.log('Found NFT:', {
             id: asset['asset-id'],
             name: asset.params?.name,
-            unit: asset.params?.['unit-name']
+            unit: asset.params?.['unit-name'],
+            amount: asset.amount,
+            url: asset.params?.url
           });
         }
-  
-        return isNFT;
+      
+        return isLikelyNFT;
       });
   
       console.log('Filtered NFT assets:', nftAssets);
