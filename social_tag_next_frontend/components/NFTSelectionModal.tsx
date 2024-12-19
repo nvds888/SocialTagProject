@@ -32,77 +32,111 @@ interface NFTSelectionModalProps {
 const IPFS_GATEWAY = "https://ipfs.algonode.dev/ipfs/";
 const IMAGE_PARAMS = "?optimizer=image&width=1152&quality=70";
 
-const normalizeIpfsUrl = (url: string): string => {
-  // Handle standard IPFS protocol
-  if (url.startsWith('ipfs://')) {
-    const cid = url.split('ipfs://')[1].split('#')[0];
-    return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
-  }
-  
-  // Convert other IPFS gateways to algonode
-  const ipfsGateways = [
-    'https://ipfs.io/ipfs/',
-    'https://gateway.ipfs.io/ipfs/',
-    'https://cloudflare-ipfs.com/ipfs/',
-    'https://gateway.pinata.cloud/ipfs/'
-  ];
-  
-  for (const gateway of ipfsGateways) {
-    if (url.startsWith(gateway)) {
-      const cid = url.slice(gateway.length);
-      return `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
+const extractIpfsCID = (url: string): string | null => {
+  try {
+    // Handle ARC3 format with hash
+    if (url.includes('#arc3')) {
+      url = url.split('#arc3')[0];
     }
+
+    // Standard ipfs:// protocol
+    if (url.startsWith('ipfs://')) {
+      return url.slice(7);
+    }
+
+    // Handle various IPFS gateway URLs
+    const gatewayUrls = [
+      'https://ipfs.io/ipfs/',
+      'https://gateway.ipfs.io/ipfs/',
+      'https://cloudflare-ipfs.com/ipfs/',
+      'https://gateway.pinata.cloud/ipfs/',
+      'https://ipfs.algonode.dev/ipfs/'
+    ];
+
+    for (const gateway of gatewayUrls) {
+      if (url.includes(gateway)) {
+        const cid = url.split(gateway)[1]?.split('?')[0];
+        if (cid) return cid;
+      }
+    }
+
+    // Check for bare CID pattern (starts with 'bafy', 'Qm', or similar)
+    if (url.match(/^(bafy|Qm|baik)[a-zA-Z0-9]{44,}/)) {
+      return url;
+    }
+
+    return null;
+  } catch (error) {
+    console.warn('Error extracting IPFS CID:', error, url);
+    return null;
   }
-  
-  return url;
+};
+
+const normalizeIpfsUrl = (url: string): string => {
+  try {
+    console.log('Normalizing URL:', url); // Debug log
+
+    const cid = extractIpfsCID(url);
+    if (cid) {
+      const normalizedUrl = `${IPFS_GATEWAY}${cid}${IMAGE_PARAMS}`;
+      console.log('Normalized to:', normalizedUrl); // Debug log
+      return normalizedUrl;
+    }
+
+    // If we can't extract a CID, return the original URL
+    console.log('Could not normalize, returning original:', url); // Debug log
+    return url;
+  } catch (error) {
+    console.warn('Error normalizing IPFS URL:', error, url);
+    return url;
+  }
 };
 
 const getImageUrl = (nft: NFT): string => {
   try {
-    // First check metadata for image URL
+    console.log('Processing NFT:', nft.id, nft.name); // Debug log
+
+    // First check metadata
     if (nft.metadata) {
-      // Handle string metadata by parsing it
-      const metadata = typeof nft.metadata === 'string' 
-        ? JSON.parse(nft.metadata) 
-        : nft.metadata;
+      try {
+        const metadata = typeof nft.metadata === 'string' 
+          ? JSON.parse(nft.metadata) 
+          : nft.metadata;
 
-      // Check various metadata fields for image URL
-      const metadataImage = metadata.image 
-        || metadata.image_url 
-        || metadata.animation_url 
-        || metadata.properties?.image 
-        || metadata.properties?.url;
+        console.log('Parsed metadata:', metadata); // Debug log
 
-      if (metadataImage) {
-        return normalizeIpfsUrl(metadataImage);
+        // Check various metadata fields
+        const metadataImage = metadata.image 
+          || metadata.image_url 
+          || metadata.animation_url 
+          || metadata.properties?.image 
+          || metadata.properties?.url;
+
+        if (metadataImage) {
+          console.log('Found image in metadata:', metadataImage); // Debug log
+          return normalizeIpfsUrl(metadataImage);
+        }
+      } catch (error) {
+        console.warn('Error parsing metadata:', error);
       }
     }
 
-    // Fallback to direct URL handling if metadata doesn't provide image
-    const url = nft.url;
-    if (!url) return '/placeholder-nft.png';
-
-    // Handle regular IPFS URLs
-    if (url.startsWith('ipfs://')) {
-      return normalizeIpfsUrl(url);
+    // Try direct URL if available
+    if (nft.url) {
+      console.log('Using direct URL:', nft.url); // Debug log
+      return normalizeIpfsUrl(nft.url);
     }
 
-    // Handle template-ipfs URLs by checking metadata instead
-    if (url.startsWith('template-ipfs://')) {
-      // If we reach here, it means we couldn't find image in metadata
-      console.warn('Template IPFS URL found but no valid image in metadata:', nft);
-      return '/placeholder-nft.png';
+    // Try image field if available
+    if (nft.image) {
+      console.log('Using image field:', nft.image); // Debug log
+      return normalizeIpfsUrl(nft.image);
     }
 
-    // Handle direct HTTP(S) URLs
-    if (url.match(/^https?:\/\//)) {
-      // Check if it's an IPFS gateway URL
-      return normalizeIpfsUrl(url);
-    }
-
+    console.log('No valid image source found, using placeholder'); // Debug log
     return '/placeholder-nft.png';
   } catch (error) {
-    console.warn('Error resolving image URL:', error, nft);
+    console.warn('Error in getImageUrl:', error);
     return '/placeholder-nft.png';
   }
 };
@@ -117,7 +151,10 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
     
     async function resolveImage() {
       try {
-        const url = await getImageUrl(nft);
+        console.log('Resolving image for NFT:', nft.id); // Debug log
+        const url = getImageUrl(nft);
+        console.log('Resolved URL:', url); // Debug log
+        
         if (mounted) {
           setResolvedUrl(url);
           setIsLoading(false);
@@ -136,7 +173,7 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   }, [nft]);
 
   const handleImageError = () => {
-    console.warn('Image load error for NFT:', nft.id);
+    console.warn('Image load error for NFT:', nft.id, resolvedUrl);
     setHasError(true);
     setIsLoading(false);
   };
@@ -169,6 +206,13 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   onSelectNFT,
   isLoading
 }) => {
+  useEffect(() => {
+    // Debug log all NFTs when modal opens
+    if (isOpen) {
+      console.log('All NFTs:', nfts);
+    }
+  }, [isOpen, nfts]);
+
   return (
     <AnimatePresence>
       {isOpen && (
