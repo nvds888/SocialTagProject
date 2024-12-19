@@ -39,11 +39,11 @@ import Confetti from 'react-confetti'
 import NFTSelectionModal from '@/components/NFTSelectionModal'
 import NFDSelectionModal from '@/components/NFDSelectionModal'
 import { User } from '@/types/User';
+import { getIndexerURL } from "@/lib/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 const peraWallet = new PeraWalletConnect();
-
-
+const activeNetwork = process.env.NEXT_PUBLIC_NETWORK || 'testnet';
 
 axios.defaults.withCredentials = true
 
@@ -379,25 +379,71 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       })
       return
     }
-
+  
     setIsLoadingNFTs(true)
     setError(null)
+    
     try {
-      const response = await axios.get(`${API_BASE_URL}/peraWalletRoutes/fetch-wallet-nfts/${connectedWalletAddress}`)
-      setNfts(response.data)
-      setShowNFTModal(true)
+      const indexerURL = getIndexerURL(activeNetwork);
+      const response = await axios.get(`${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`);
+      
+      // Filter for NFTs
+      const nftAssets = response.data.assets.filter((asset: {
+        amount: number;
+        params?: {
+          decimals?: number;
+          total?: number;
+        }
+      }) => 
+        asset.amount > 0 && // User owns it
+        asset.params?.decimals === 0 && // It's an NFT
+        asset.params?.total === 1 // It's unique
+      );
+  
+      // Format NFTs to match our interface
+      const formattedNFTs = nftAssets.map((asset: { 
+        'asset-id': number;
+        params?: {
+          name?: string;
+          'unit-name'?: string;
+          url?: string;
+          decimals?: number;
+          total?: number;
+        }
+      }) => ({
+        id: asset['asset-id'].toString(),
+        assetId: asset['asset-id'].toString(),
+        name: asset.params?.name || `Asset #${asset['asset-id']}`,
+        unitName: asset.params?.['unit-name'],
+        url: asset.params?.url,
+        image: asset.params?.url,
+      }));
+  
+      setNfts(formattedNFTs);
+      setShowNFTModal(true);
     } catch (error) {
-      console.error('Error fetching NFTs:', error)
-      setError('Failed to fetch NFTs. Please try again.')
+      console.warn('Error fetching NFTs:', error instanceof Error ? error.message : 'Unknown error');
+      setError('Failed to fetch NFTs. Please try again.');
+      toast({
+        title: "Error",
+        description: "Failed to fetch NFTs. Please try again.",
+        variant: "destructive",
+      });
     } finally {
-      setIsLoadingNFTs(false)
+      setIsLoadingNFTs(false);
     }
   }
 
   const handleSelectNFT = (nft: NFT) => {
-    setSelectedNFT(nft)
-    setShowNFTModal(false)
-  }
+    const formattedNFT = {
+      id: nft.id,
+      name: nft.name,
+      image: nft.image || '',
+      url: nft.url || ''
+    };
+    setSelectedNFT(formattedNFT);
+    setShowNFTModal(false);
+  };
 
   const handleFetchNFDs = async () => {
     if (!connectedWalletAddress) {

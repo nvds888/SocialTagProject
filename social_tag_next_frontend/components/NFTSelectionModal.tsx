@@ -1,25 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { X } from 'lucide-react'
-import axios from 'axios'
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from "@/components/ui/button";
+import { X } from 'lucide-react';
 
 const IPFS_ENDPOINT = "https://ipfs.algonode.xyz/ipfs/";
-const LOADING_TIMEOUT = 5000; // 5 seconds timeout
 
 interface NFT {
   id: string;
   name: string;
-  url?: string;
-  'metadata-hash'?: string;
-  reserve?: string;
   image?: string;
-  assetId?: string;
-  metadata?: {
-    image?: string;
-    image_url?: string;
-    animation_url?: string;
-  };
+  url?: string;
+  assetId?: string;  // Keep this for compatibility
 }
 
 interface NFTSelectionModalProps {
@@ -31,6 +22,53 @@ interface NFTSelectionModalProps {
   isLoading: boolean;
 }
 
+const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getImageUrl = (nft: NFT): string => {
+    try {
+      // Check direct image first since that's what the backend prefers
+      if (nft.image) {
+        return nft.image.startsWith('ipfs://')
+          ? `${IPFS_ENDPOINT}${nft.image.slice(7)}`
+          : nft.image;
+      }
+  
+      // Fallback to URL if it's an image
+      if (nft.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        return nft.url;
+      }
+  
+      return '/placeholder-nft.png';
+    } catch (error) {
+      return '/placeholder-nft.png';
+    }
+  };
+
+  return (
+    <div className="relative w-full h-full">
+      {isLoading && !hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      <img
+        src={hasError ? '/placeholder-nft.png' : getImageUrl(nft)}
+        alt={nft.name || 'NFT'}
+        className={`object-cover w-full h-full transition-transform duration-300 
+          group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        onError={() => {
+          setHasError(true);
+          setIsLoading(false);
+        }}
+        onLoad={() => setIsLoading(false)}
+        loading="lazy"
+      />
+    </div>
+  );
+};
+
 const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   isOpen,
   onClose,
@@ -39,107 +77,6 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   onSelectNFT,
   isLoading
 }) => {
-  const [resolvedNFTs, setResolvedNFTs] = useState<(NFT & { image: string })[]>([]);
-  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
-
-  const convertToAlgoNodeIPFS = (url: string) => {
-    if (url.startsWith('ipfs://')) {
-      return `${IPFS_ENDPOINT}${url.slice(7)}`;
-    }
-    const ipfsMatch = url.match(/\/ipfs\/([a-zA-Z0-9]+)/);
-    if (ipfsMatch && ipfsMatch[1]) {
-      return `${IPFS_ENDPOINT}${ipfsMatch[1]}`;
-    }
-    return url;
-  };
-
-  const isNFD = (nft: NFT): boolean => {
-    return !!(nft.name?.toLowerCase().includes('nfd') || nft.name?.toLowerCase().includes('.algo'));
-  };
-
-  const getImageUrl = async (nft: NFT): Promise<string> => {
-    try {
-      if (isNFD(nft)) return '';
-
-      if (nft.image) {
-        return convertToAlgoNodeIPFS(nft.image);
-      }
-
-      if (nft.metadata?.image || nft.metadata?.image_url || nft.metadata?.animation_url) {
-        return convertToAlgoNodeIPFS(nft.metadata.image || nft.metadata.image_url || nft.metadata.animation_url || '');
-      }
-
-      if (nft.url?.includes('#arc3')) {
-        try {
-          let baseUrl = nft.url.split('#')[0];
-          baseUrl = baseUrl.startsWith('ipfs://') ? `${IPFS_ENDPOINT}${baseUrl.slice(7)}` : baseUrl;
-          const response = await axios.get(baseUrl);
-          if (response.data.image) {
-            return convertToAlgoNodeIPFS(response.data.image);
-          }
-        } catch (error) {}
-      }
-
-      if (nft.url?.startsWith('ipfs://')) {
-        return `${IPFS_ENDPOINT}${nft.url.split('#')[0].slice(7)}`;
-      }
-
-      if (nft.url && !nft.url.includes('ipfs://')) {
-        if (nft.url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-          return nft.url;
-        }
-      }
-
-      return '/placeholder-nft.png';
-    } catch (error) {
-      return '/placeholder-nft.png';
-    }
-  };
-
-  const resolveNFTImage = async (nft: NFT) => {
-    setLoadingStates(prev => ({ ...prev, [nft.id]: true }));
-    try {
-      const image = await getImageUrl(nft);
-      if (image && !isNFD(nft)) {
-        setResolvedNFTs(prev => {
-          const existing = prev.find(n => n.id === nft.id);
-          if (existing) {
-            return prev.map(n => n.id === nft.id ? { ...n, image } : n);
-          }
-          return [...prev, { ...nft, image }];
-        });
-      }
-    } finally {
-      setLoadingStates(prev => ({ ...prev, [nft.id]: false }));
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen && nfts.length > 0) {
-      setResolvedNFTs([]);
-      setLoadingStates({});
-      
-      const filteredNFTs = nfts.filter(nft => !isNFD(nft));
-      
-      const loadingPromises = filteredNFTs.map(nft => {
-        return new Promise<void>((resolve) => {
-          resolveNFTImage(nft).finally(() => resolve());
-        });
-      });
-
-      const timeoutPromise = new Promise<void>((resolve) => {
-        setTimeout(resolve, LOADING_TIMEOUT);
-      });
-
-      Promise.race([
-        Promise.all(loadingPromises),
-        timeoutPromise
-      ]).finally(() => {
-        setLoadingStates({});
-      });
-    }
-  }, [isOpen, nfts]);
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -175,14 +112,14 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                   <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
                   <p className="text-sm text-gray-500">Loading your NFTs...</p>
                 </div>
-              ) : resolvedNFTs.length === 0 ? (
+              ) : nfts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-40 space-y-2">
                   <p className="text-gray-500">No NFTs found in your wallet</p>
                   <p className="text-sm text-gray-400">Try connecting a different wallet</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {resolvedNFTs.map((nft) => (
+                  {nfts.map((nft) => (
                     <motion.div
                       key={nft.id}
                       className={`
@@ -194,38 +131,22 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      {loadingStates[nft.id] ? (
-                        <div className="flex items-center justify-center w-full h-full bg-gray-100">
-                          <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+                      <NFTImage nft={nft} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="absolute bottom-0 left-0 right-0 p-2">
+                          <p className="text-xs text-white font-medium truncate">
+                            {nft.name}
+                          </p>
                         </div>
-                      ) : (
-                        <>
-                          <img
-                            src={nft.image}
-                            alt={nft.name}
-                            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
-                            onError={(e) => {
-                              e.currentTarget.src = '/placeholder-nft.png';
-                            }}
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <div className="absolute bottom-0 left-0 right-0 p-2">
-                              <p className="text-xs text-white font-medium truncate">
-                                {nft.name}
-                              </p>
-                            </div>
+                      </div>
+                      {selectedNFT?.id === nft.id && (
+                        <div className="absolute top-2 right-2">
+                          <div className="bg-blue-500 rounded-full p-1">
+                            <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
                           </div>
-                          {selectedNFT?.id === nft.id && (
-                            <div className="absolute top-2 right-2">
-                              <div className="bg-blue-500 rounded-full p-1">
-                                <svg className="w-3 h-3 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                            </div>
-                          )}
-                        </>
+                        </div>
                       )}
                     </motion.div>
                   ))}
