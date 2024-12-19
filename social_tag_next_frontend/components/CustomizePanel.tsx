@@ -40,7 +40,7 @@ import NFTSelectionModal from '@/components/NFTSelectionModal'
 import NFDSelectionModal from '@/components/NFDSelectionModal'
 import { User } from '@/types/User';
 import { getIndexerURL } from "@/lib/utils";
-import { UniversalARCNFTMetadata } from '@gradian/arcviewer';
+import { getIsARC3Asset, getIsARC19Asset } from '@/lib/nft-utils';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 const peraWallet = new PeraWalletConnect();
@@ -58,10 +58,12 @@ interface CustomizePanelProps {
 
 interface NFT {
   id: string;
-  name?: string;  // Make this optional to match
-  image?: string;
+  name: string;
   url?: string;
-  metadata?: UniversalARCNFTMetadata;
+  'metadata-hash'?: string;
+  reserve?: string;
+  image?: string;
+  assetId?: string;
 }
 
 interface NFD {
@@ -70,27 +72,6 @@ interface NFD {
   assetId?: string; // Add this line
 }
 
-interface AlgorandAsset {
-  'asset-id': number;
-  amount: number;
-  params?: {
-    name?: string;
-    'unit-name'?: string;
-    url?: string;
-    decimals?: number;
-    total?: number;
-  }
-}
-
-interface AlgorandAssetWithDetails extends AlgorandAsset {
-  params: {
-    name?: string;
-    'unit-name'?: string;
-    url?: string;
-    decimals?: number;
-    total?: number;
-  }
-}
 
 interface ComponentProps {
   user?: User;
@@ -118,6 +99,34 @@ interface CardStyleItem {
 // Define a new interface that extends ComponentProps
 interface ProfileCardProps extends ComponentProps {
   // Add any additional props specific to ProfileCard here
+}
+
+
+
+interface AlgorandAsset {
+  'asset-id': number;
+  amount: number;
+  params: {
+    name?: string;
+    'unit-name'?: string;
+    url?: string;
+    decimals?: number;
+    total?: number;
+    [key: string]: unknown;
+  };
+}
+
+export interface AlgorandAssetWithDetails {
+  'asset-id': number;
+  amount: number;
+  params: {
+    name?: string;
+    'unit-name'?: string;
+    url?: string;
+    decimals?: number;
+    total?: number;
+    [key: string]: unknown;
+  };
 }
 
 const themes: ThemeItem[] = [
@@ -221,7 +230,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     }
 
     if (user.profileImage) {
-      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage, })
+      setSelectedNFT({ id: 'current', name: 'Current Profile Image', image: user.profileImage, assetId: 'current' })
     }
   }, [user])
 
@@ -395,18 +404,18 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         title: "Wallet Not Connected",
         description: "Please connect your Pera Wallet to fetch NFTs.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
   
-    setIsLoadingNFTs(true)
-    setError(null)
+    setIsLoadingNFTs(true);
+    setError(null);
     
     try {
       const indexerURL = getIndexerURL(activeNetwork);
       console.log('Fetching assets from:', indexerURL);
       
-      // First get the list of assets
+      // First get all assets
       const response = await axios.create({ withCredentials: false }).get(
         `${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`
       );
@@ -434,37 +443,50 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         })
       );
   
-      // Filter for NFTs
-      const nftAssets = assetsWithDetails.filter((asset: AlgorandAsset) => {
-        // If it has 0 decimals and amount of 1-10, it's likely an NFT
+      // Filter for NFTs using proper standards detection
+      const nftAssets = assetsWithDetails.filter((asset: AlgorandAssetWithDetails) => {
+        if (!asset.params) return false;
+        
+        // Check if it has characteristics of an NFT
         const isLikelyNFT = 
           asset.amount > 0 && // User owns it
-          asset.amount <= 10 && // Probably not a coin if small amount
-          asset.params?.decimals === 0; // NFTs typically have 0 decimals
-      
-        if (isLikelyNFT) {
-          console.log('Found NFT:', {
-            id: asset['asset-id'],
-            name: asset.params?.name,
-            unit: asset.params?.['unit-name'],
-            amount: asset.amount,
-            url: asset.params?.url
-          });
-        }
-      
-        return isLikelyNFT;
+          asset.amount <= 10 && // Small amount (typical for NFTs)
+          asset.params.decimals === 0; // NFTs typically have 0 decimals
+        
+        if (!isLikelyNFT) return false;
+  
+        // Check for ARC standards
+        const isARC3 = getIsARC3Asset(asset);
+        const isARC19 = getIsARC19Asset(asset);
+        
+        // URL characteristics check
+        const url = asset.params.url;
+        const hasValidUrl = url && (
+          url.startsWith('ipfs://') ||
+          url.startsWith('https://') ||
+          url.includes('/ipfs/')
+        );
+  
+        return isARC3 || isARC19 || hasValidUrl;
       });
   
       console.log('Filtered NFT assets:', nftAssets);
       
-      // Format NFTs with more properties
+      // Format NFTs with proper metadata
       const formattedNFTs = nftAssets.map((asset: AlgorandAssetWithDetails) => ({
         id: asset['asset-id'].toString(),
+        assetId: asset['asset-id'].toString(),
         name: asset.params?.name || asset.params?.['unit-name'] || `Asset #${asset['asset-id']}`,
         url: asset.params?.url || '',
-        image: asset.params?.url || '',
-        metadata: asset.params || {}
-      } as NFT));
+        image: asset.params?.url || '', // Will be resolved by NFTImage component
+        metadata: {
+          image: asset.params?.url || '',
+          name: asset.params?.name,
+          unit_name: asset.params?.['unit-name'],
+          description: '',
+          properties: asset.params || {}
+        }
+      }));
   
       console.log('Formatted NFTs:', formattedNFTs);
   
@@ -481,16 +503,16 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
     } finally {
       setIsLoadingNFTs(false);
     }
-  }
+  };
 
   const handleSelectNFT = (nft: NFT) => {
-    setSelectedNFT({
+    const formattedNFT = {
       id: nft.id,
       name: nft.name,
       image: nft.image || '',
-      url: nft.url || '',
-      metadata: nft.metadata
-    } as NFT);
+      url: nft.url || ''
+    };
+    setSelectedNFT(formattedNFT);
     setShowNFTModal(false);
   };
 
