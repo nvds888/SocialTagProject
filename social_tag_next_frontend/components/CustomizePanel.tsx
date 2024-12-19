@@ -459,18 +459,13 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       console.log('Filtered NFT assets:', nftAssets);
       
       // Format NFTs with more properties
-      const formattedNFTs = nftAssets.map((asset: any) => ({
+      const formattedNFTs = nftAssets.map((asset: AlgorandAssetWithDetails) => ({
         id: asset['asset-id'].toString(),
         assetId: asset['asset-id'].toString(),
         name: asset.params?.name || asset.params?.['unit-name'] || `Asset #${asset['asset-id']}`,
         url: asset.params?.url || '',
-        image: '',  // Will be resolved from URL/metadata
-        metadata: {
-          image: asset.params?.url,
-          image_url: asset.params?.url,
-          animation_url: asset.params?.url,
-          ...asset.params
-        }
+        image: asset.params?.url || '',
+        metadata: asset.params || {}
       }));
   
       console.log('Formatted NFTs:', formattedNFTs);
