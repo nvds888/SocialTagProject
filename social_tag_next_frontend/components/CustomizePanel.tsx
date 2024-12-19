@@ -83,6 +83,16 @@ interface AlgorandAsset {
   }
 }
 
+interface AlgorandAssetWithDetails extends AlgorandAsset {
+  params: {
+    name?: string;
+    'unit-name'?: string;
+    url?: string;
+    decimals?: number;
+    total?: number;
+  }
+}
+
 interface ComponentProps {
   user?: User;
   theme?: string;
@@ -397,14 +407,36 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       const indexerURL = getIndexerURL(activeNetwork);
       console.log('Fetching assets from:', indexerURL);
       
+      // First get the list of assets
       const response = await axios.create({ withCredentials: false }).get(
         `${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`
       );
       
       console.log('Raw assets:', response.data.assets);
+  
+      // Filter for owned assets
+      const ownedAssets = response.data.assets.filter((asset: AlgorandAsset) => asset.amount > 0);
       
-      // Adjust filtering to catch more NFT types
-      const nftAssets = response.data.assets.filter((asset: AlgorandAsset) => {
+      // Get detailed info for each asset
+      const assetsWithDetails = await Promise.all(
+        ownedAssets.map(async (asset: AlgorandAsset) => {
+          try {
+            const assetResponse = await axios.create({ withCredentials: false }).get(
+              `${indexerURL}/v2/assets/${asset['asset-id']}`
+            );
+            return {
+              ...asset,
+              params: assetResponse.data.asset.params
+            };
+          } catch (error) {
+            console.warn(`Failed to fetch details for asset ${asset['asset-id']}:`, error);
+            return asset;
+          }
+        })
+      );
+  
+      // Filter for NFTs
+      const nftAssets = assetsWithDetails.filter((asset: AlgorandAsset) => {
         const isNFT = 
           asset.amount > 0 && // User owns it
           (
@@ -413,7 +445,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
             // Or it's an NFT with no decimal places
             (asset.params?.decimals === 0 && asset.params?.['unit-name'])
           );
-      
+  
         if (isNFT) {
           console.log('Found NFT:', {
             id: asset['asset-id'],
@@ -421,14 +453,14 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
             unit: asset.params?.['unit-name']
           });
         }
-      
+  
         return isNFT;
       });
   
       console.log('Filtered NFT assets:', nftAssets);
       
       // Format NFTs with more properties
-      const formattedNFTs = nftAssets.map((asset: AlgorandAsset) => ({
+      const formattedNFTs = nftAssets.map((asset: AlgorandAssetWithDetails) => ({
         id: asset['asset-id'].toString(),
         assetId: asset['asset-id'].toString(),
         name: asset.params?.name || asset.params?.['unit-name'] || `Asset #${asset['asset-id']}`,
