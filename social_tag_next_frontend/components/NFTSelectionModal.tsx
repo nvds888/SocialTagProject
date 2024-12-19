@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
@@ -8,9 +8,14 @@ const IPFS_ENDPOINT = "https://ipfs.algonode.xyz/ipfs/";
 interface NFT {
   id: string;
   name: string;
-  image?: string;
   url?: string;
-  assetId?: string;  // Keep this for compatibility
+  image?: string;
+  assetId?: string;
+  metadata?: {
+    image?: string;
+    image_url?: string;
+    animation_url?: string;
+  };
 }
 
 interface NFTSelectionModalProps {
@@ -22,29 +27,74 @@ interface NFTSelectionModalProps {
   isLoading: boolean;
 }
 
+const getImageUrl = (nft: NFT): string => {
+  try {
+    // Function to clean IPFS URLs
+    const cleanIpfsUrl = (url: string) => {
+      if (url.startsWith('ipfs://')) {
+        return `${IPFS_ENDPOINT}${url.slice(7)}`;
+      }
+      // Handle already converted IPFS URLs
+      if (url.includes('/ipfs/')) {
+        const ipfsHash = url.split('/ipfs/')[1];
+        return `${IPFS_ENDPOINT}${ipfsHash}`;
+      }
+      return url;
+    };
+
+    // If we have a direct image URL
+    if (nft.image) {
+      return cleanIpfsUrl(nft.image);
+    }
+
+    // Try metadata image URLs
+    if (nft.metadata?.image) {
+      return cleanIpfsUrl(nft.metadata.image);
+    }
+    if (nft.metadata?.image_url) {
+      return cleanIpfsUrl(nft.metadata.image_url);
+    }
+
+    // Check for ARC3/ARC69 metadata in URL
+    if (nft.url) {
+      // Clean the URL first
+      const cleanUrl = cleanIpfsUrl(nft.url);
+      
+      // If it's a direct image URL
+      if (cleanUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+        return cleanUrl;
+      }
+
+      // If it's ARC3/ARC69 metadata URL
+      if (cleanUrl.includes('#arc3') || cleanUrl.includes('#arc69')) {
+        // Remove the fragment
+        return cleanUrl.split('#')[0];
+      }
+
+      return cleanUrl;
+    }
+
+    return '/placeholder-nft.png';
+  } catch (error) {
+    console.warn('Error resolving image URL:', error);
+    return '/placeholder-nft.png';
+  }
+};
+
 const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const getImageUrl = (nft: NFT): string => {
-    try {
-      // Check direct image first since that's what the backend prefers
-      if (nft.image) {
-        return nft.image.startsWith('ipfs://')
-          ? `${IPFS_ENDPOINT}${nft.image.slice(7)}`
-          : nft.image;
-      }
-  
-      // Fallback to URL if it's an image
-      if (nft.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-        return nft.url;
-      }
-  
-      return '/placeholder-nft.png';
-    } catch (error) {
-      return '/placeholder-nft.png';
-    }
-  };
+  // For debugging
+  useEffect(() => {
+    console.log('NFT data:', {
+      id: nft.id,
+      name: nft.name,
+      resolvedUrl: getImageUrl(nft),
+      originalUrl: nft.url,
+      metadata: nft.metadata
+    });
+  }, [nft]);
 
   return (
     <div className="relative w-full h-full">
@@ -58,7 +108,8 @@ const NFTImage: React.FC<{ nft: NFT }> = ({ nft }) => {
         alt={nft.name || 'NFT'}
         className={`object-cover w-full h-full transition-transform duration-300 
           group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        onError={() => {
+        onError={(e) => {
+          console.warn('Image load error for NFT:', nft.id);
           setHasError(true);
           setIsLoading(false);
         }}
