@@ -3,13 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
 
-// Simple client-side types for display purposes only
 interface NFT {
   id: string;
   name: string;
   imageUrl?: string;
   unitName?: string;
-  // Simple metadata fields we might want to display
   metadata?: {
     description?: string;
     properties?: Record<string, string | number>;

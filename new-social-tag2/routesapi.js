@@ -237,10 +237,17 @@ router.post('/fetch-nft-metadata', sessionCheck, async (req, res) => {
       try {
         const assetMetadata = await nftViewer.getNFTAssetData(Number(assetId), true);
         
+        let imageUrl = assetMetadata.arcMetadata.httpsImageUrl;
+        if (!imageUrl && assetMetadata.arcMetadata.image) {
+          // Construct IPFS URL if not provided as HTTPS
+          const ipfsHash = assetMetadata.arcMetadata.image.replace('ipfs://', '');
+          imageUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
+        }
+
         return {
           id: assetId.toString(),
           metadata: assetMetadata.arcMetadata,
-          imageUrl: assetMetadata.arcMetadata.httpsImageUrl,
+          imageUrl,
           name: assetMetadata.params.name || `Asset #${assetId}`,
           unitName: assetMetadata.params.unitName || '',
         };
