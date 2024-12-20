@@ -430,9 +430,8 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         (asset: AlgorandAsset) => asset['asset-id']
       );
   
-      // In CustomizePanel.tsx
       const metadataResponse = await axios.post(
-        'https://www.social-tag.xyz/api/nft-metadata',
+        `${API_BASE_URL}/fetch-nft-metadata`, // Matches the new route
         { assetIds },
         { withCredentials: true }
       );
