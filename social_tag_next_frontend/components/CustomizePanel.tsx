@@ -431,11 +431,12 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       );
   
       // Fetch metadata from our server endpoint
-      const metadataResponse = await axios.post(
-        `${API_BASE_URL}/api/fetch-nft-metadata`,
-        { assetIds },
-        { withCredentials: true }
-      );
+      // The API endpoint URL in CustomizePanel.tsx should be:
+const metadataResponse = await axios.post(
+  `/api/fetch-nft-metadata`,
+  { assetIds },
+  { withCredentials: true }
+);
   
       // Import the NFT type from the modal or define it here
       interface NFTResponse {
