@@ -431,7 +431,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       );
   
       const metadataResponse = await axios.post(
-        `${API_BASE_URL}/fetch-nft-metadata`, // Matches the new route
+        `${API_BASE_URL}/api/fetch-nft-metadata`, // Matches the new route
         { assetIds },
         { withCredentials: true }
       );
