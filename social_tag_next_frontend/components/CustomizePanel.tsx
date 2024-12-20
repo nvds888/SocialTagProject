@@ -102,16 +102,13 @@ interface ProfileCardProps extends ComponentProps {
 
 
 
+// Define the AlgorandAsset type
 interface AlgorandAsset {
-  'asset-id': number;
   amount: number;
+  'asset-id': number;
   params: {
-    name?: string;
-    'unit-name'?: string;
     url?: string;
-    decimals?: number;
-    total?: number;
-    [key: string]: unknown;
+    'unit-name'?: string;
   };
 }
 
@@ -410,23 +407,28 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   
     setIsLoadingNFTs(true);
     setError(null);
-    
+  
     try {
       const indexerURL = getIndexerURL(activeNetwork);
       console.log('Fetching assets from:', indexerURL);
-      
+  
       // First get all assets
       const response = await axios.create({ withCredentials: false }).get(
         `${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`
       );
-      
+  
       // Filter for owned assets first
       const ownedAssets = response.data.assets.filter(
         (asset: AlgorandAsset) => asset.amount > 0
       );
-      
+  
+      // Further filter to identify NFTs by checking the presence of 'url' and 'unit-name' properties
+      const nftAssets = ownedAssets.filter(
+        (asset: AlgorandAsset) => asset.params && asset.params.url && asset.params['unit-name']
+      );
+  
       // Get asset IDs
-      const assetIds = ownedAssets.map(
+      const assetIds = nftAssets.map(
         (asset: AlgorandAsset) => asset['asset-id']
       );
   
@@ -436,7 +438,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         { withCredentials: true }
       );
   
-      // Import the NFT type from the modal or define it here
+      // Define NFTResponse type
       interface NFTResponse {
         id: string;
         name: string;
@@ -455,7 +457,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       console.log('NFTs with metadata:', nftsWithMetadata);
       setNfts(nftsWithMetadata);
       setShowNFTModal(true);
-      
+  
     } catch (error) {
       console.error('Error fetching NFTs:', error);
       setError('Failed to fetch NFTs. Please try again.');
@@ -468,6 +470,8 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       setIsLoadingNFTs(false);
     }
   };
+  
+
 
   const handleSelectNFT = (nft: NFT) => {
     const formattedNFT = {
