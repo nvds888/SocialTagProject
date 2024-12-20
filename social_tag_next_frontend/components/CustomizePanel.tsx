@@ -430,12 +430,12 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         (asset: AlgorandAsset) => asset['asset-id']
       );
   
-      console.log('Making request to:', '/api/fetch-nft-metadata');
-      const metadataResponse = await axios.post(
-        '/api/fetch-nft-metadata',
-        { assetIds },
-        { withCredentials: true }
-      );
+      // In CustomizePanel.tsx
+const metadataResponse = await axios.post(
+  'https://www.social-tag.xyz/api/fetch-nft-metadata',
+  { assetIds },
+  { withCredentials: true }
+);
   
       // Import the NFT type from the modal or define it here
       interface NFTResponse {
