@@ -410,33 +410,34 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   
     setIsLoadingNFTs(true);
     setError(null);
-    
+  
     try {
       const indexerURL = getIndexerURL(activeNetwork);
       console.log('Fetching assets from:', indexerURL);
-      
+  
       // First get all assets
       const response = await axios.create({ withCredentials: false }).get(
         `${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`
       );
-      
+  
       // Filter for owned assets first
       const ownedAssets = response.data.assets.filter(
         (asset: AlgorandAsset) => asset.amount > 0
       );
-      
+  
       // Get asset IDs
       const assetIds = ownedAssets.map(
         (asset: AlgorandAsset) => asset['asset-id']
       );
   
+      // Send asset IDs to backend to fetch metadata
       const metadataResponse = await axios.post(
-        `${API_BASE_URL}/api/fetch-nft-metadata`, // Matches the new route
+        `${API_BASE_URL}/api/fetch-nft-metadata`,
         { assetIds },
         { withCredentials: true }
       );
   
-      // Import the NFT type from the modal or define it here
+      // Define NFTResponse type
       interface NFTResponse {
         id: string;
         name: string;
@@ -455,7 +456,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       console.log('NFTs with metadata:', nftsWithMetadata);
       setNfts(nftsWithMetadata);
       setShowNFTModal(true);
-      
+  
     } catch (error) {
       console.error('Error fetching NFTs:', error);
       setError('Failed to fetch NFTs. Please try again.');
@@ -468,7 +469,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       setIsLoadingNFTs(false);
     }
   };
-
+  
   const handleSelectNFT = (nft: NFT) => {
     const formattedNFT = {
       id: nft.id,
