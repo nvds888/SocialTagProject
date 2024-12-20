@@ -40,7 +40,6 @@ import NFTSelectionModal from '@/components/NFTSelectionModal'
 import NFDSelectionModal from '@/components/NFDSelectionModal'
 import { User } from '@/types/User';
 import { getIndexerURL } from "@/lib/utils";
-import { getIsARC3Asset, getIsARC19Asset } from '@/lib/nft-utils';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 const peraWallet = new PeraWalletConnect();
@@ -422,78 +421,42 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       );
       
       // Filter for owned assets first
-      const ownedAssets = response.data.assets.filter((asset: AlgorandAsset) => asset.amount > 0);
+      const ownedAssets = response.data.assets.filter(
+        (asset: AlgorandAsset) => asset.amount > 0
+      );
       
-      // Get detailed info for each asset
-      const assetsWithDetails = await Promise.all(
-        ownedAssets.map(async (asset: AlgorandAsset) => {
-          try {
-            const assetResponse = await axios.create({ withCredentials: false }).get(
-              `${indexerURL}/v2/assets/${asset['asset-id']}`
-            );
-            return {
-              ...asset,
-              params: assetResponse.data.asset.params
-            };
-          } catch (error) {
-            console.warn(`Failed to fetch details for asset ${asset['asset-id']}:`, error);
-            return asset;
-          }
-        })
+      // Get asset IDs
+      const assetIds = ownedAssets.map(
+        (asset: AlgorandAsset) => asset['asset-id']
       );
   
-      // Filter for NFTs using library's approach
-      const nftAssets = assetsWithDetails.filter((asset: AlgorandAssetWithDetails) => {
-        if (!asset.params) return false;
+      // Fetch metadata from our server endpoint
+      const metadataResponse = await axios.post(
+        `${API_BASE_URL}/api/fetch-nft-metadata`,
+        { assetIds },
+        { withCredentials: true }
+      );
   
-        // Check basic NFT characteristics first
-        const isLikelyNFT = 
-          asset.amount > 0 && 
-          asset.params.decimals === 0; // NFTs should have 0 decimals
+      // Import the NFT type from the modal or define it here
+      interface NFTResponse {
+        id: string;
+        name: string;
+        imageUrl?: string;
+        unitName?: string;
+        metadata?: {
+          description?: string;
+          properties?: Record<string, string | number>;
+        };
+      }
   
-        if (!isLikelyNFT) return false;
+      const nftsWithMetadata = metadataResponse.data.filter(
+        (nft: NFTResponse) => nft && nft.imageUrl
+      );
   
-        // Check for valid URL that could contain metadata
-        const url = asset.params.url;
-        if (!url) return false;
-  
-        // Check for known NFT patterns
-        const hasValidUrl = 
-          url.startsWith('ipfs://') ||
-          url.startsWith('https://') ||
-          url.includes('/ipfs/') ||
-          url.match(/^(bafy|Qm|baik)[a-zA-Z0-9]{44,}/) ||
-          url.startsWith("template-ipfs://{ipfscid");
-  
-        // Check ARC standards
-        const isARC3 = getIsARC3Asset(asset);
-        const isARC19 = getIsARC19Asset(asset);
-  
-        return hasValidUrl || isARC3 || isARC19;
-      });
-  
-      console.log('Filtered NFT assets:', nftAssets);
-      
-      // Format NFTs with required metadata
-      const formattedNFTs = nftAssets.map((asset: AlgorandAssetWithDetails) => ({
-        id: asset['asset-id'].toString(),
-        assetId: asset['asset-id'].toString(),
-        name: asset.params?.name || asset.params?.['unit-name'] || `Asset #${asset['asset-id']}`,
-        url: asset.params?.url || '',
-        metadata: {
-          ...asset.params,
-          properties: {
-            ...asset.params,
-            ['unit-name']: asset.params?.['unit-name'],
-            url: asset.params?.url
-          }
-        }
-      }));
-  
-      console.log('Formatted NFTs:', formattedNFTs);
-  
-      setNfts(formattedNFTs);
+      console.log('NFTs with metadata:', nftsWithMetadata);
+      setNfts(nftsWithMetadata);
       setShowNFTModal(true);
+      
     } catch (error) {
       console.error('Error fetching NFTs:', error);
       setError('Failed to fetch NFTs. Please try again.');
@@ -1037,13 +1000,13 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   </Label>
   <div className="space-y-4">
   <div className="grid grid-cols-3 gap-4">
-    <Button
-    disabled 
-      onClick={handleFetchNFTs} 
-      className={`w-full bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#FFB951]/90 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
-    >
-      {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
-    </Button>
+  <Button 
+  onClick={handleFetchNFTs} 
+  disabled={isLoadingNFTs}
+  className={`w-full bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#FFB951]/90 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
+>
+  {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
+</Button>
     <Button 
       onClick={handleCreateNFT} 
       className="w-full bg-[#40E0D0] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#40E0D0]/90 transition-all border-2 border-black"
