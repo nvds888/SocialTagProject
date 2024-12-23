@@ -57,7 +57,7 @@ def distribute_tokens(wallet_addresses):
                     sender=address,
                     sp=params,
                     receiver=wallet_address,
-                    amt=8880000000000,  # 8.88m tokens per user per day (~$0.02 worth)
+                    amt=8000000,  # 8 million tokens
                     index=ASSET_ID,
                     note="SocialTag daily rewards".encode()
                 )
@@ -72,6 +72,7 @@ def distribute_tokens(wallet_addresses):
                 transaction.wait_for_confirmation(algod_client, tx_id, 4)
                 
                 tx_ids.append(tx_id)
+                print(f"Transaction successful for {wallet_address}: {tx_id}")
             except Exception as tx_error:
                 print(f"Transaction Error for {wallet_address}: {str(tx_error)}", file=sys.stderr)
         
