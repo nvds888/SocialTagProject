@@ -5,8 +5,6 @@ from algosdk import account, mnemonic
 from algosdk.v2client import algod
 from algosdk import transaction
 from dotenv import load_dotenv
-import pymongo
-from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -50,38 +48,32 @@ def distribute_tokens(wallet_addresses):
         # Get suggested parameters
         params = algod_client.suggested_params()
         
-        # Create transactions for each wallet
-        transactions = []
-        for wallet_address in wallet_addresses:
-            # Create asset transfer transaction
-            txn = transaction.AssetTransferTxn(
-                sender=address,
-                sp=params,
-                receiver=wallet_address,
-                amt=8880000,  # 8.88m tokens per user per day (~$0.02 worth)
-                index=ASSET_ID,
-                note="SocialTag daily rewards".encode()
-            )
-            transactions.append(txn)
-        
-        # Group transactions if there are multiple
-        if len(transactions) > 1:
-            transaction.assign_group_id(transactions)
-        
-        # Sign all transactions
-        signed_txns = [txn.sign(private_key) for txn in transactions]
-        
-        # Submit transactions and collect results
+        # Create and submit transactions for each wallet
         tx_ids = []
-        for signed_txn in signed_txns:
+        for wallet_address in wallet_addresses:
             try:
+                # Create asset transfer transaction
+                txn = transaction.AssetTransferTxn(
+                    sender=address,
+                    sp=params,
+                    receiver=wallet_address,
+                    amt=8880000,  # 8.88m tokens per user per day (~$0.02 worth)
+                    index=ASSET_ID,
+                    note="SocialTag daily rewards".encode()
+                )
+                
+                # Sign the transaction
+                signed_txn = txn.sign(private_key)
+                
+                # Submit the transaction
                 tx_id = algod_client.send_transaction(signed_txn)
+                
                 # Wait for confirmation
                 transaction.wait_for_confirmation(algod_client, tx_id, 4)
+                
                 tx_ids.append(tx_id)
             except Exception as tx_error:
-                print(f"Transaction Error: {str(tx_error)}", file=sys.stderr)
-                continue
+                print(f"Transaction Error for {wallet_address}: {str(tx_error)}", file=sys.stderr)
         
         return tx_ids
 
