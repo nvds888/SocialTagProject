@@ -16,7 +16,7 @@ ALGOD_ADDRESS = "https://mainnet-api.algonode.cloud"
 ALGOD_TOKEN = ""  # Not required for AlgoNode
 MNEMONIC = os.getenv("ALGORAND_MNEMONIC")
 MONGO_URI = os.getenv("MONGODB_URI")
-ASSET_ID = 12345  # Your token's asset ID
+ASSET_ID = 2607097066  # Your token's asset ID
 
 if not MNEMONIC:
     raise ValueError("ALGORAND_MNEMONIC environment variable is not set")
@@ -34,12 +34,28 @@ address = account.address_from_private_key(private_key)
 def get_wallet_addresses():
     """Fetch all wallet addresses from MongoDB"""
     try:
+        print("Connecting to MongoDB...")
         client = pymongo.MongoClient(MONGO_URI)
-        db = client['socialtagl']  # Use specific database name
-        opt_in_wallets = db.optinwallets  # Collection name
+        db = client['socialtagl']
+        opt_in_wallets = db.optinwallets
         
-        # Fetch all wallet addresses
+        print("Fetching wallet addresses...")
         wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
+        print(f"Found {len(wallets)} wallet addresses")
+        
+        if not wallets:
+            print("No wallets found in database")
+            return []
+            
+        addresses = [wallet['walletAddress'] for wallet in wallets]
+        print(f"Wallet addresses: {addresses}")
+        return addresses
+    
+    except Exception as error:
+        print(f"Database Error: {str(error)}", file=sys.stderr)
+        raise
+    finally:
+        client.close()
         
         # Fetch all wallet addresses
         wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
