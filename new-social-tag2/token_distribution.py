@@ -37,7 +37,7 @@ def get_wallet_addresses():
         print("Connecting to MongoDB...")
         client = pymongo.MongoClient(MONGO_URI)
         db = client['socialtagl']
-        opt_in_wallets = db.optinwallets
+        opt_in_wallets = db.modelsOptInWallet  # Correct collection name
         
         print("Fetching wallet addresses...")
         wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
