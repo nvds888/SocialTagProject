@@ -37,10 +37,18 @@ def get_wallet_addresses():
         print("Connecting to MongoDB with URI:", MONGO_URI)
         client = pymongo.MongoClient(MONGO_URI)
         db = client['socialtagl']
+        
+        # Debug statement to list all collections
+        print("Collections available in the database:", db.list_collection_names())
+        
         opt_in_wallets = db.optinwallets  # Correct collection name
         
         print("Fetching wallet addresses from optinwallets collection...")
         wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
+        
+        # Debug statement to print retrieved wallets
+        print("Found wallets:", wallets)
+        
         print(f"Found {len(wallets)} wallet addresses")
         
         if not wallets:
