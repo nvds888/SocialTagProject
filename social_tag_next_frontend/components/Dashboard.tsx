@@ -103,6 +103,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [isVerificationDialogOpen, setIsVerificationDialogOpen] = useState(false)
   const [isReVerificationDialogOpen, setIsReVerificationDialogOpen] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [socialBalance, setSocialBalance] = useState<string>('0');
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const peraWallet = useMemo(() => {
     return typeof window !== 'undefined' ? new PeraWalletConnect() : null;
@@ -152,22 +153,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
 
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && peraWallet) {
-      peraWallet.reconnectSession().then((accounts) => {
-        peraWallet.connector?.on("disconnect", handleDisconnectWalletClick);
-  
-        if (accounts.length) {
-          setConnectedAccount(accounts[0]);
-        }
-      }).catch(e => console.log(e));
-  
-      return () => {
-        peraWallet.connector?.off("disconnect");
-      };
-    }
-  }, [handleDisconnectWalletClick, peraWallet, user]);
-
   const handleConnect = async (platform: string) => {
     // Check for both GitHub and Spotify
     if ((platform === 'github' || platform === 'spotify' || platform === 'linkedin' || platform === 'facebook') && user?.twitter?.username) {
@@ -194,8 +179,14 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 
 
   const WalletPopoverContent = () => (
-    <PopoverContent className="w-full bg-white border-2 border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] rounded-lg p-0 mt-2">
-      <div className="flex flex-col">
+    <PopoverContent className="w-full bg-white border-2 border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] rounded-lg p-4 mt-2">
+      <div className="flex flex-col space-y-3">
+        <div className="border-b border-gray-200 pb-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Social Balance</span>
+            <span className="text-sm font-bold">{socialBalance} $SOCIAL</span>
+          </div>
+        </div>
         <button
           onClick={async () => {
             try {
@@ -341,6 +332,38 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       }
     }
   };
+
+  const fetchSocialBalance = useCallback(async (address: string) => {
+    if (!address) return;
+    try {
+      const response = await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${address}/assets/2607097066`);
+      const data = await response.json();
+      if (data && data.asset && data.asset.amount) {
+        const balance = (data.asset.amount / 1000000).toFixed(2);
+        setSocialBalance(balance);
+      }
+    } catch (error) {
+      console.error('Error fetching social balance:', error);
+      setSocialBalance('0');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && peraWallet) {
+      peraWallet.reconnectSession().then((accounts) => {
+        peraWallet.connector?.on("disconnect", handleDisconnectWalletClick);
+        
+        if (accounts.length) {
+          setConnectedAccount(accounts[0]);
+          fetchSocialBalance(accounts[0]);
+        }
+      }).catch(e => console.log(e));
+
+      return () => {
+        peraWallet.connector?.off("disconnect");
+      };
+    }
+  }, [peraWallet, fetchSocialBalance, handleDisconnectWalletClick]);
 
   const handleOpenLeaderboard = () => {
     setShowLeaderboard(true);
