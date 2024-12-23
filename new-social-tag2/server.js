@@ -13,6 +13,10 @@ const themePurchaseRoutes = require('./themePurchaseRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const { initializeDistributionScheduler } = require('./token_distribution_wrapper');
+
+initializeDistributionScheduler();
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
