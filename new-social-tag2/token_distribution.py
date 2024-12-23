@@ -16,7 +16,7 @@ ALGOD_ADDRESS = "https://mainnet-api.algonode.cloud"
 ALGOD_TOKEN = ""  # Not required for AlgoNode
 MNEMONIC = os.getenv("ALGORAND_MNEMONIC")
 MONGO_URI = os.getenv("MONGODB_URI")
-ASSET_ID = 2607097066  
+ASSET_ID = 12345  # Your token's asset ID
 
 if not MNEMONIC:
     raise ValueError("ALGORAND_MNEMONIC environment variable is not set")
@@ -35,8 +35,11 @@ def get_wallet_addresses():
     """Fetch all wallet addresses from MongoDB"""
     try:
         client = pymongo.MongoClient(MONGO_URI)
-        db = client.get_default_database()
-        opt_in_wallets = db.optinwallets
+        db = client['socialtagl']  # Use specific database name
+        opt_in_wallets = db.optinwallets  # Collection name
+        
+        # Fetch all wallet addresses
+        wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
         
         # Fetch all wallet addresses
         wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
@@ -64,7 +67,7 @@ def distribute_tokens(wallet_addresses):
                 sender=address,
                 sp=params,
                 receiver=wallet_address,
-                amt=8440000,  
+                amt=8880000,  # 8.88m tokens per user per day (~$0.02 worth)
                 index=ASSET_ID,
                 note="SocialTag daily rewards".encode()
             )

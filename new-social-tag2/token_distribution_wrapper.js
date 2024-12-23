@@ -38,17 +38,18 @@ function runDistribution() {
 }
 
 function initializeDistributionScheduler() {
-  // Schedule to run at 9:30 AM UTC (10:30 AM GMT+1) daily
-  schedule.scheduleJob('30 9 * * *', () => {
-    runDistribution()
-      .then(results => console.log('Distribution results:', results))
-      .catch(error => console.error('Error in distribution:', error));
-  });
-  
-  console.log('Token distribution scheduler initialized - will run daily at 14:00 UTC');
-}
+    // Schedule to run at 9:40 AM UTC (10:40 AM GMT+1) daily
+    schedule.scheduleJob('40 9 * * *', () => {
+      runDistribution()
+        .then(results => console.log('Distribution results:', results))
+        .catch(error => console.error('Error in distribution:', error));
+    });
+    
+    console.log('Token distribution scheduler initialized - will run daily at 14:00 UTC');
+  }
 
 module.exports = {
   runDistribution,
   initializeDistributionScheduler
 };
+
