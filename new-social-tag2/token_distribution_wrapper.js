@@ -42,20 +42,20 @@ function runDistribution() {
 }
 
 function initializeDistributionScheduler() {
-    // Schedule to run at 10:10 AM UTC (11:10 AM GMT+1) daily
-    console.log('Current time:', new Date().toISOString());
-    const job = schedule.scheduleJob('10 10 * * *', () => {
-      console.log('Starting scheduled distribution at:', new Date().toISOString());
-      runDistribution()
-        .then(results => console.log('Distribution results:', results))
-        .catch(error => console.error('Error in distribution:', error));
-    });
-    
-    const nextRun = job.nextInvocation();
-    console.log('Token distribution scheduler initialized - will run daily at 11:10 AM GMT+1');
-    console.log('Next scheduled run:', nextRun.toString());
-  }
+  // Schedule to run at 9:16 AM UTC (10:16 AM GMT+1) daily
+  console.log('Current time:', new Date().toISOString());
+  const job = schedule.scheduleJob('16 9 * * *', () => {
+    console.log('Starting scheduled distribution at:', new Date().toISOString());
+    runDistribution()
+      .then(results => console.log('Distribution results:', results))
+      .catch(error => console.error('Error in distribution:', error));
+  });
   
+  const nextRun = job.nextInvocation();
+  console.log('Token distribution scheduler initialized - will run daily at 10:16 AM GMT+1');
+  console.log('Next scheduled run:', nextRun.toString());
+}
+
 module.exports = {
   runDistribution,
   initializeDistributionScheduler

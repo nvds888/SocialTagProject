@@ -51,8 +51,8 @@ def get_wallet_addresses():
         print(f"Wallet addresses: {addresses}")
         return addresses
     
-    except Exception as error:
-        print(f"Database Error: {str(error)}", file=sys.stderr)
+    except Exception as e:
+        print(f"Database Error: {str(e)}", file=sys.stderr)
         raise
     finally:
         client.close()
