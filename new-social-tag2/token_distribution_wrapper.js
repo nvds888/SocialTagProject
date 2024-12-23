@@ -38,8 +38,8 @@ function runDistribution() {
 }
 
 function initializeDistributionScheduler() {
-  // Schedule to run at 9 AM UTC (10 AM GMT+1) daily
-  schedule.scheduleJob('0 9 * * *', () => {
+  // Schedule to run at 9:30 AM UTC (10:30 AM GMT+1) daily
+  schedule.scheduleJob('30 9 * * *', () => {
     runDistribution()
       .then(results => console.log('Distribution results:', results))
       .catch(error => console.error('Error in distribution:', error));
