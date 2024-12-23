@@ -183,7 +183,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       <div className="flex flex-col space-y-3">
         <div className="border-b border-gray-200 pb-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Balance:</span>s
+            <span className="text-sm font-medium">Balance:</span>
             <span className="text-sm font-bold">{socialBalance} $SOCIALS</span>
           </div>
         </div>
