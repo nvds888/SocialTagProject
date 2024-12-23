@@ -34,12 +34,12 @@ address = account.address_from_private_key(private_key)
 def get_wallet_addresses():
     """Fetch all wallet addresses from MongoDB"""
     try:
-        print("Connecting to MongoDB...")
+        print("Connecting to MongoDB with URI:", MONGO_URI)
         client = pymongo.MongoClient(MONGO_URI)
         db = client['socialtagl']
-        opt_in_wallets = db.modelsOptInWallet  # Correct collection name
+        opt_in_wallets = db.optinwallets  # Correct collection name
         
-        print("Fetching wallet addresses...")
+        print("Fetching wallet addresses from optinwallets collection...")
         wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
         print(f"Found {len(wallets)} wallet addresses")
         
