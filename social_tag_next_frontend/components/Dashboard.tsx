@@ -336,7 +336,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const fetchSocialBalance = useCallback(async (address: string) => {
     if (!address) return;
     try {
-      const response = await fetch(`https://mainnet-api.4160.nodely.dev/v1/account/${address}?assetId=2607097066`);
+      const response = await fetch(`https://mainnet-api.4160.nodely.dev/account/${address}?assetId=2607097066`);
       const data = await response.json();
       if (data && data.amount) {
         const balance = (data.amount / 1000000).toFixed(2);
