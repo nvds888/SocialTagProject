@@ -139,10 +139,10 @@ const themes: ThemeItem[] = [
   { name: 'RetroWave', component: RetroWaveBackground, premium: true },
   { name: 'ElectricPlasma', component: ElectricPlasma, premium: true },
   { name: 'AbstractDataFlow', component: AbstractDataFlow, premium: true },
-  { name: 'PeraWallet', component: PeraWalletBackground, premium: false, specialEdition: true, requiredPoints: 300 },
-  { name: 'NFTicket', component: NFTicketBackground, premium: false, specialEdition: true, requiredPoints: 600 },
-  { name: 'SustainableCoffee', component: SustainableCoffeeBackground, premium: false, specialEdition: true, requiredPoints: 700 },
-  { name: 'OrangeMeme', component: OrangeMemeBackground, premium: false, specialEdition: true, requiredPoints: 1000 }
+  { name: 'PeraWallet', component: PeraWalletBackground, premium: false, specialEdition: true, requiredPoints: 400 },
+  { name: 'NFTicket', component: NFTicketBackground, premium: false, specialEdition: true, requiredPoints: 800 },
+  { name: 'SustainableCoffee', component: SustainableCoffeeBackground, premium: false, specialEdition: true, requiredPoints: 1100 },
+  { name: 'OrangeMeme', component: OrangeMemeBackground, premium: false, specialEdition: true, requiredPoints: 2000 }
 ]
 
 const cardStyles: CardStyleItem[] = [
@@ -150,7 +150,7 @@ const cardStyles: CardStyleItem[] = [
   { name: 'Neutral', component: NeutralCard as React.FC<ProfileCardProps>, premium: false },
   { name: 'Frosted Glass', component: FrostedGlassCard as React.FC<ProfileCardProps>, premium: true },
   { name: 'Holographic', component: HolographicCard as React.FC<ProfileCardProps>, premium: true },
-  { name: 'Four Oranges', component: FourOrangesCard as React.FC<ProfileCardProps>, premium: false, specialEdition: true, requiredPoints: 600 },
+  { name: 'Four Oranges', component: FourOrangesCard as React.FC<ProfileCardProps>, premium: false, specialEdition: true, requiredPoints: 800 },
 ]
 
 interface SaveSettingsPayload {
@@ -1101,7 +1101,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       </li>
       <li className="flex items-center bg-[#FFB951] p-2 rounded-lg border-2 border-black mb-2">
         <CheckCircle size={16} className="mr-2 text-black" />
-        <span>Every account included in verification: <strong>+25 points</strong></span>
+        <span>Every account included in verification: <strong>+50 points</strong></span>
       </li>
       <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black mb-2">
         <CheckCircle size={16} className="mr-2 text-black" />
@@ -1109,7 +1109,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
       </li>
       <li className="flex items-center bg-[#FFB951] p-2 rounded-lg border-2 border-black mb-2">
         <CheckCircle size={16} className="mr-2 text-black" />
-        <span>Unique profile views: <strong>+15 points</strong></span>
+        <span>Unique profile views: <strong>+5 points</strong></span>
       </li>
       <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black">
         <CheckCircle size={16} className="mr-2 text-black" />

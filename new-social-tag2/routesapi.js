@@ -49,7 +49,7 @@ const initAlgorandClient = () => {
 
 // Updated function to calculate reward points
 const calculateRewardPoints = (profileViews, purchasedItems, verifications, profileNFT, nfd, reverifyCount, baseVerifyPoints) => {
-  const viewPoints = profileViews * 15;
+  const viewPoints = profileViews * 5;
   const purchasePoints = (purchasedItems?.length || 0) * 50;
   const nftPoints = profileNFT && profileNFT.id ? 75 : 0;
   const nfdPoints = nfd && nfd.id ? 75 : 0;
@@ -61,7 +61,7 @@ const calculateRewardPoints = (profileViews, purchasedItems, verifications, prof
     const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin'];
     connectedAccounts.forEach(account => {
       if (latestVerification[account]) {
-        verificationPoints += 25;
+        verificationPoints += 50;
       }
     });
   }
