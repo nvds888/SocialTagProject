@@ -56,16 +56,6 @@ def get_wallet_addresses():
         raise
     finally:
         client.close()
-        
-        # Fetch all wallet addresses
-        wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
-        return [wallet['walletAddress'] for wallet in wallets]
-    
-    except Exception as error:
-        print(f"Database Error: {str(error)}", file=sys.stderr)
-        raise
-    finally:
-        client.close()
 
 def distribute_tokens(wallet_addresses):
     try:
