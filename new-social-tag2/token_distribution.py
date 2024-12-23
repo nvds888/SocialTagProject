@@ -57,7 +57,7 @@ def distribute_tokens(wallet_addresses):
                     sender=address,
                     sp=params,
                     receiver=wallet_address,
-                    amt=8880000,  # 8.88m tokens per user per day (~$0.02 worth)
+                    amt=8880000000000,  # 8.88m tokens per user per day (~$0.02 worth)
                     index=ASSET_ID,
                     note="SocialTag daily rewards".encode()
                 )
