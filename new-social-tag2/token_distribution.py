@@ -39,8 +39,11 @@ class OptInWallet:
     def find_all():
         client = pymongo.MongoClient(MONGO_URI)
         db = client['socialtagl']
+        print("Connected to DB. Checking collections...")
+        print("Collections available:", db.list_collection_names())
         opt_in_wallets = db.optinwallets
-        wallets = opt_in_wallets.find({}, {'walletAddress': 1})
+        wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
+        print(f"Found {len(wallets)} wallets")
         return [OptInWallet(wallet['walletAddress']) for wallet in wallets]
 
 def get_wallet_addresses():
@@ -54,6 +57,25 @@ def get_wallet_addresses():
     except Exception as e:
         print(f"Database Error: {str(e)}", file=sys.stderr)
         raise
+
+if __name__ == "__main__":
+    try:
+        # Get all wallet addresses
+        wallet_addresses = get_wallet_addresses()
+        
+        if not wallet_addresses:
+            print("No wallet addresses found for distribution")
+            sys.exit(0)
+        
+        # Distribute tokens
+        tx_ids = distribute_tokens(wallet_addresses)
+        
+        # Print results
+        print(f"DistributionResults:{json.dumps(tx_ids)}")
+        
+    except Exception as e:
+        print(f"Error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 def distribute_tokens(wallet_addresses):
     try:
