@@ -336,7 +336,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const fetchSocialBalance = useCallback(async (address: string) => {
     if (!address) return;
     try {
-      const response = await apiClient.get(`/api/social-balance?address=${address}`);
+      const response = await apiClient.get(`/social-balance?address=${address}`);
       if (response.data?.balance) {
         setSocialBalance(response.data.balance);
       }
