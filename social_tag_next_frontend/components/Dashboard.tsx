@@ -336,10 +336,10 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const fetchSocialBalance = useCallback(async (address: string) => {
     if (!address) return;
     try {
-      const response = await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${address}/assets/2607097066`);
+      const response = await fetch(`https://mainnet.nodely.io/v1/indexer/accounts/${address}/assets/${2607097066}`);
       const data = await response.json();
-      if (data && data.asset && data.asset.amount) {
-        const balance = (data.asset.amount / 1000000).toFixed(2);
+      if (data && data.amount) {
+        const balance = (data.amount / 1000000).toFixed(2);
         setSocialBalance(balance);
       }
     } catch (error) {
