@@ -42,9 +42,9 @@ function runDistribution() {
 }
 
 function initializeDistributionScheduler() {
-    // Schedule to run at 10:53 AM UTC (11:53 AM GMT+1) daily
+    // Schedule to run at 11:02 AM UTC (12:02 PM GMT+1) daily
     console.log('Current time:', new Date().toISOString());
-    const job = schedule.scheduleJob('53 10 * * *', () => {
+    const job = schedule.scheduleJob('02 11 * * *', () => {
       console.log('Starting scheduled distribution at:', new Date().toISOString());
       runDistribution()
         .then(results => console.log('Distribution results:', results))
@@ -52,7 +52,7 @@ function initializeDistributionScheduler() {
     });
     
     const nextRun = job.nextInvocation();
-    console.log('Token distribution scheduler initialized - will run daily at 11:53 AM GMT+1');
+    console.log('Token distribution scheduler initialized - will run daily at 12:02 PM GMT+1');
     console.log('Next scheduled run:', nextRun.toString());
 }
 

@@ -31,39 +31,29 @@ algod_client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ADDRESS)
 private_key = mnemonic.to_private_key(MNEMONIC)
 address = account.address_from_private_key(private_key)
 
+class OptInWallet:
+    def __init__(self, walletAddress):
+        self.walletAddress = walletAddress
+
+    @staticmethod
+    def find_all():
+        client = pymongo.MongoClient(MONGO_URI)
+        db = client['socialtagl']
+        opt_in_wallets = db.optinwallets
+        wallets = opt_in_wallets.find({}, {'walletAddress': 1})
+        return [OptInWallet(wallet['walletAddress']) for wallet in wallets]
+
 def get_wallet_addresses():
     """Fetch all wallet addresses from MongoDB"""
     try:
         print("Connecting to MongoDB with URI:", MONGO_URI)
-        client = pymongo.MongoClient(MONGO_URI)
-        db = client['socialtagl']
-        
-        # Debug statement to list all collections
-        print("Collections available in the database:", db.list_collection_names())
-        
-        opt_in_wallets = db.optinwallets  # Correct collection name
-        
-        print("Fetching wallet addresses from optinwallets collection...")
-        wallets = list(opt_in_wallets.find({}, {'walletAddress': 1}))
-        
-        # Debug statement to print retrieved wallets
-        print("Found wallets:", wallets)
-        
-        print(f"Found {len(wallets)} wallet addresses")
-        
-        if not wallets:
-            print("No wallets found in database")
-            return []
-            
-        addresses = [wallet['walletAddress'] for wallet in wallets]
+        wallets = OptInWallet.find_all()
+        addresses = [wallet.walletAddress for wallet in wallets]
         print(f"Wallet addresses: {addresses}")
         return addresses
-    
     except Exception as e:
         print(f"Database Error: {str(e)}", file=sys.stderr)
         raise
-    finally:
-        client.close()
 
 def distribute_tokens(wallet_addresses):
     try:
