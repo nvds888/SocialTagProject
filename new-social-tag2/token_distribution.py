@@ -52,12 +52,13 @@ def distribute_tokens(wallet_addresses):
         tx_ids = []
         for wallet_address in wallet_addresses:
             try:
+                print(f"Processing transaction for {wallet_address}")
                 # Create asset transfer transaction
                 txn = transaction.AssetTransferTxn(
                     sender=address,
                     sp=params,
                     receiver=wallet_address,
-                    amt=8000000,  # 8 million tokens
+                    amt=8000000000000,  # 8 million tokens
                     index=ASSET_ID,
                     note="SocialTag daily rewards".encode()
                 )
