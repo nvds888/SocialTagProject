@@ -120,31 +120,31 @@ router.get('/user/reward-points', sessionCheck, async (req, res) => {
   }
 });
 
+
 router.get('/social-balance', async (req, res) => {
   const { address } = req.query;
-  console.log('Fetching balance for address:', address);
 
   if (!address) {
     return res.status(400).json({ error: 'Address is required' });
   }
 
   try {
-    console.log('Making request to:', `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}?assetId=2607097066`);
-    const response = await fetch(`https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}?assetId=2607097066`);
+    const response = await fetch(
+      `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}?assetId=2607097066`
+    );
+    
     const data = await response.json();
-    console.log('Nodely response:', data);
-
     let balance = '0';
-    if (data?.accountData?.assets?.length > 0) {
-      const socialAsset = data.accountData.assets.find(
-        (asset) => asset.assetId === 2607097066
+
+    if (data?.account?.assets) {
+      const socialAsset = data.account.assets.find(
+        (asset) => asset['asset-id'] === 2607097066
       );
       if (socialAsset) {
         balance = (socialAsset.amount / 1000000).toFixed(2);
       }
     }
 
-    console.log('Calculated balance:', balance);
     res.status(200).json({ balance });
   } catch (error) {
     console.error('Error fetching balance:', error);
