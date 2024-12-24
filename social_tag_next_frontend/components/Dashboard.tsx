@@ -311,6 +311,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       try {
         const newAccounts = await peraWallet.connect();
         setConnectedAccount(newAccounts[0]);
+        fetchSocialBalance(newAccounts[0]); 
         
         if (user) {
           try {
