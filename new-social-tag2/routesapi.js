@@ -129,8 +129,8 @@ router.get('/social-balance', async (req, res) => {
   }
 
   try {
-    console.log('Making request to:', `https://mainnet-idx.4160.nodely.dev/v1/indexer/account/${address}?assetId=2607097066`);
-    const response = await fetch(`https://mainnet-idx.4160.nodely.dev/v1/indexer/account/${address}?assetId=2607097066`);
+    console.log('Making request to:', `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}?assetId=2607097066`);
+    const response = await fetch(`https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}?assetId=2607097066`);
     const data = await response.json();
     console.log('Nodely response:', data);
 
