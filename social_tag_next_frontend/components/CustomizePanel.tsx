@@ -1200,7 +1200,7 @@ if (data.nfd) {
         <Button
   onClick={() => handlePurchaseConfirmation('SOCIALS')}
   disabled={processingPaymentType !== null}
-  className="w-full bg-purple-500 hover:bg-purple-600 text-white"
+  className="w-full bg-[#40E0D0] hover:bg-[#41e5d5] text-white"
 >
   {processingPaymentType === 'SOCIALS' ? (
     <span className="flex items-center justify-center">
