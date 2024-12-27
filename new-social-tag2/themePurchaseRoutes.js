@@ -31,7 +31,7 @@ router.post('/purchase', sessionCheck, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid theme name is required' });
     }
 
-    if (!['USDC', 'ORA'].includes(paymentType)) {
+    if (!['USDC', 'ORA', 'SOCIALS'].includes(paymentType)) {
       return res.status(400).json({ success: false, message: 'Invalid payment type' });
     }
 
@@ -39,8 +39,17 @@ router.post('/purchase', sessionCheck, async (req, res) => {
     const receiverAddress = process.env.MINTER_ADDRESS;
 
     // Select the correct asset ID and amount based on payment type
-    const assetId = paymentType === 'USDC' ? peraWalletService.USDC_ASSET_ID : peraWalletService.ORA_ASSET_ID;
-    const amount = paymentType === 'USDC' ? 1 : 1000;  // 1 USDC or 10 ORA
+    const assetId = paymentType === 'USDC' 
+  ? peraWalletService.USDC_ASSET_ID 
+  : paymentType === 'ORA'
+    ? peraWalletService.ORA_ASSET_ID
+    : peraWalletService.SOCIALS_ASSET_ID;
+
+    const amount = paymentType === 'USDC' 
+  ? 1 
+  : paymentType === 'ORA'
+    ? 1000
+    : 100000000;  // 100M SOCIALS
 
     // Create unsigned payment transaction
     const unsignedTxn = await peraWalletService.createAssetPaymentTransaction(

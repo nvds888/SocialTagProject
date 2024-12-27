@@ -11,6 +11,7 @@ const MINTER_ACCOUNT = {
 
 const USDC_ASSET_ID = 31566704;
 const ORA_ASSET_ID = 1284444444;
+const SOCIALS_ASSET_ID = 2607097066;
 
 async function createASA(username, verifiedAccounts, profileUrl) {
   try {
@@ -270,5 +271,6 @@ module.exports = {
   fetchWalletNFTs,
   fetchWalletNFDs,
   USDC_ASSET_ID,
-  ORA_ASSET_ID
+  ORA_ASSET_ID,
+  SOCIALS_ASSET_ID
 };

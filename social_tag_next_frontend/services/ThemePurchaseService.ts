@@ -6,7 +6,8 @@ const peraWallet = new PeraWalletConnect();
 
 const PAYMENT_TYPES = {
   USDC: 'USDC',
-  ORA: 'ORA'
+  ORA: 'ORA',
+  SOCIALS: 'SOCIALS'
 } as const;
 
 type PaymentType = typeof PAYMENT_TYPES[keyof typeof PAYMENT_TYPES];

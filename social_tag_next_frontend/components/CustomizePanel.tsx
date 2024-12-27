@@ -172,7 +172,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   onSettingsUpdate,
   connectedWalletAddress
 }) => {
-  const [processingPaymentType, setProcessingPaymentType] = useState<'USDC' | 'ORA' | null>(null);
+  const [processingPaymentType, setProcessingPaymentType] = useState<'USDC' | 'ORA' | 'SOCIALS' | null>(null);
   const [theme, setTheme] = useState('SocialTag')
   const [cardStyle, setCardStyle] = useState('Default')
   const [bio, setBio] = useState(user.bio || '')
@@ -280,7 +280,7 @@ if (data.nfd) {
     }
   }
 
-  const handlePurchaseConfirmation = async (paymentType: 'USDC' | 'ORA') => {
+  const handlePurchaseConfirmation = async (paymentType: 'USDC' | 'ORA' | 'SOCIALS') => {
     if (selectedItem) {
       // Double check wallet connection before proceeding with purchase
       if (!connectedWalletAddress) {
@@ -1214,6 +1214,24 @@ if (data.nfd) {
             'Buy with ORA (10 ORA)'
           )}
         </Button>
+
+        <Button
+  onClick={() => handlePurchaseConfirmation('SOCIALS')}
+  disabled={processingPaymentType !== null}
+  className="w-full bg-purple-500 hover:bg-purple-600 text-white"
+>
+  {processingPaymentType === 'SOCIALS' ? (
+    <span className="flex items-center justify-center">
+      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Processing...
+    </span>
+  ) : (
+    'Buy with SOCIALS (100M SOCIALS)'
+  )}
+</Button>
         
         <Button 
           variant="outline" 
