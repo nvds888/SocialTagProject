@@ -6,7 +6,48 @@ const IMMERSVE_MASTER_CONTRACT = "UAKUGWMTFQJLUWMY4DYLVVAC67NOLUGGW6MIVAIPUU2APL
 const IMMERSVE_APP_ID = 2174001591;
 const USDC_ASSET_ID = 31566704;
 
-router.get('/immersve/transactions', async (req, res) => {
+// Session check middleware
+const sessionCheck = (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  next();
+};
+
+// Get user data
+router.get('/immersve/user/:username', sessionCheck, async (req, res) => {
+  try {
+    const user = await ImmersveUser.findOne({ twitterUsername: req.params.username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Failed to fetch user data' });
+  }
+});
+
+// Register user
+router.post('/immersve/register', sessionCheck, async (req, res) => {
+  try {
+    const { twitterUsername, immersveAddress, rewardAddress } = req.body;
+    
+    const user = await ImmersveUser.findOneAndUpdate(
+      { twitterUsername },
+      { immersveAddress, rewardAddress },
+      { upsert: true, new: true }
+    );
+    
+    res.json(user);
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ error: 'Failed to register user' });
+  }
+});
+
+// Get transactions
+router.get('/immersve/transactions', sessionCheck, async (req, res) => {
   const { address } = req.query;
   
   if (!address) {
@@ -22,7 +63,6 @@ router.get('/immersve/transactions', async (req, res) => {
     const transactions = [];
 
     for (const tx of data.transactions) {
-      // Check both main and inner transactions
       const allTxns = [tx, ...(tx['inner-txns'] || [])];
       
       for (const t of allTxns) {
@@ -34,7 +74,7 @@ router.get('/immersve/transactions', async (req, res) => {
         ) {
           transactions.push({
             amount: t['asset-transfer-transaction'].amount / 1000000, // Convert from microUSDC
-            timestamp: new Date(tx['round-time'] * 1000),
+            timestamp: new Date(tx['round-time'] * 1000).toISOString(),
             txId: tx.id
           });
         }
@@ -45,37 +85,6 @@ router.get('/immersve/transactions', async (req, res) => {
   } catch (error) {
     console.error('Error fetching transactions:', error);
     res.status(500).json({ error: 'Failed to fetch transactions' });
-  }
-});
-
-router.post('/immersve/register', async (req, res) => {
-  const { twitterUsername, immersveAddress, rewardAddress } = req.body;
-
-  try {
-    const user = await ImmersveUser.findOneAndUpdate(
-      { twitterUsername },
-      { immersveAddress, rewardAddress },
-      { upsert: true, new: true }
-    );
-    
-    res.json(user);
-  } catch (error) {
-    console.error('Error registering user:', error);
-    res.status(500).json({ error: 'Failed to register user' });
-  }
-});
-
-router.get('/immersve/user/:username', async (req, res) => {
-  try {
-    const user = await ImmersveUser.findOne({ twitterUsername: req.params.username });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    res.json(user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Failed to fetch user' });
   }
 });
 

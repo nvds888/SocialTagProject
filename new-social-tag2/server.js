@@ -9,6 +9,7 @@ const apiRoutes = require('./routesapi');
 const peraWalletRoutes = require('./peraWalletRoutes');
 const cors = require('cors');
 const themePurchaseRoutes = require('./themePurchaseRoutes');
+const immersveRoutes = require('./immersveRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -67,6 +68,8 @@ app.use(session({
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use('/api', immersveRoutes);
 
 // Debug middleware
 app.use((req, res, next) => {
