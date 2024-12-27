@@ -46,7 +46,7 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
 
   const fetchUserRewardsData = async () => {
     try {
-      const userResponse = await axios.get(`${API_BASE_URL}/api/immersve/user/${user.twitter?.username}`);
+      const userResponse = await axios.get(`${API_BASE_URL}/immersve/user/${user.twitter?.username}`);
       
       if (userResponse.data) {
         setIsRegistered(true);
