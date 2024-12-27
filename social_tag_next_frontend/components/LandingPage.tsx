@@ -124,6 +124,20 @@ export default function LandingPage() {
 )}
 
         </header>
+
+        <motion.div 
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  className="relative z-20 mt-4 mx-auto max-w-4xl"
+>
+  <div className="bg-[#FFB951] border-2 border-black rounded-lg mx-4 px-4 py-3 flex items-center justify-center space-x-3 shadow-[4px_4px_0px_0px_rgba(0,0,0)]">
+    <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
+    <p className="text-black font-semibold">
+      🎉 Daily Beta Rewards are live! Connect your wallet and start earning <span className="underline decoration-2">$socials</span> tokens now!
+    </p>
+  </div>
+</motion.div>
+
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
             <h2 className="hero-title text-5xl font-bold mb-6 text-black">
