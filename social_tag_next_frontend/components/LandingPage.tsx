@@ -208,14 +208,6 @@ export default function LandingPage() {
                     className="object-cover"
                   />
                 </div>
-                <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                  <Image 
-                    src="/jaws-ora.png"
-                    alt="JAWS"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
               </div>
             </div>
           </div>
