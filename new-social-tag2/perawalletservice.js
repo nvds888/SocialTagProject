@@ -114,11 +114,16 @@ async function createAssetPaymentTransaction(senderAddress, receiverAddress, amo
 
     const suggestedParams = await algodClient.getTransactionParams().do();
     
+  
+    const finalAmount = assetId === SOCIALS_ASSET_ID 
+      ? Math.floor(amount) // SOCIALS doesn't need decimal conversion
+      : Math.floor(amount * 1000000); // USDC and ORA use 6 decimals
+
     // Create the asset transfer transaction
     const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       from: senderAddress,
       to: receiverAddress,
-      amount: Math.floor(amount * 1000000), // Convert to 6 decimal places
+      amount: finalAmount,
       assetIndex: assetId,
       suggestedParams,
       note: new TextEncoder().encode("SocialTag"),
