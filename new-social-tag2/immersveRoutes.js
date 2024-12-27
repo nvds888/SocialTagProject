@@ -15,7 +15,7 @@ const sessionCheck = (req, res, next) => {
 };
 
 // Get user data
-router.get('/immersve/user/:username', sessionCheck, async (req, res) => {
+router.get('/user/:username', sessionCheck, async (req, res) => {
   try {
     const user = await ImmersveUser.findOne({ twitterUsername: req.params.username });
     if (!user) {
@@ -29,7 +29,7 @@ router.get('/immersve/user/:username', sessionCheck, async (req, res) => {
 });
 
 // Register user
-router.post('/immersve/register', sessionCheck, async (req, res) => {
+router.post('/register', sessionCheck, async (req, res) => {
   try {
     const { twitterUsername, immersveAddress, rewardAddress } = req.body;
     
@@ -47,7 +47,7 @@ router.post('/immersve/register', sessionCheck, async (req, res) => {
 });
 
 // Get transactions
-router.get('/immersve/transactions', sessionCheck, async (req, res) => {
+router.get('/transactions', sessionCheck, async (req, res) => {
   const { address } = req.query;
   
   if (!address) {

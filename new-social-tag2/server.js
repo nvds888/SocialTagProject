@@ -9,7 +9,9 @@ const apiRoutes = require('./routesapi');
 const peraWalletRoutes = require('./peraWalletRoutes');
 const cors = require('cors');
 const themePurchaseRoutes = require('./themePurchaseRoutes');
-const immersveRoutes = require('./immersveRoutes');
+const immersveRoutes = require('./immersveRoutes');  
+
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -69,7 +71,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api', immersveRoutes);
+
 
 // Debug middleware
 app.use((req, res, next) => {
@@ -89,6 +91,7 @@ app.use('/api', apiRoutes);
 app.use('/api/theme', themePurchaseRoutes);
 app.use('/api/pera', peraWalletRoutes);
 app.use('/peraWalletRoutes', peraWalletRoutes);
+app.use('/api/immersve', immersveRoutes); 
 
 // Auth status route
 app.get('/api/user', (req, res) => {
