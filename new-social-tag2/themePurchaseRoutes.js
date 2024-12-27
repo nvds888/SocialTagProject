@@ -31,52 +31,30 @@ router.post('/purchase', sessionCheck, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid theme name is required' });
     }
 
-    if (!['USDC', 'ORA', 'SOCIALS'].includes(paymentType)) {
+    if (!['USDC', 'SOCIALS'].includes(paymentType)) {
       return res.status(400).json({ success: false, message: 'Invalid payment type' });
     }
 
+    // Use the minter address from .env as the receiver
     const receiverAddress = process.env.MINTER_ADDRESS;
-    let assetId, amount;
 
-    // Explicitly handle each asset type
-    if (paymentType === 'USDC') {
-      console.log('Processing USDC payment');
-      assetId = peraWalletService.USDC_ASSET_ID;
-      amount = 1;
-    } 
-    else if (paymentType === 'ORA') {
-      console.log('Processing ORA payment');
-      assetId = peraWalletService.ORA_ASSET_ID;
-      amount = 1000;
-    }
-    else if (paymentType === 'SOCIALS') {
-      console.log('Processing SOCIALS payment');
-      assetId = peraWalletService.SOCIALS_ASSET_ID;
-      amount = 100000000;
-    }
-    else {
-      return res.status(400).json({ success: false, message: 'Invalid payment type' });
-    }
-
-    console.log('Selected Asset Configuration:');
-    console.log('Asset ID:', assetId);
-    console.log('Amount:', amount);
+    // Select the correct asset ID and amount based on payment type
+    const assetId = paymentType === 'USDC' ? peraWalletService.USDC_ASSET_ID : peraWalletService.ORA_ASSET_ID;
+    const amount = paymentType === 'USDC' ? 1 : 1000000;  
 
     // Create unsigned payment transaction
     const unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
       userAddress,
       receiverAddress,
       amount,
-      assetId,
-      paymentType  // Pass the payment type to the service
+      assetId
     );
 
     res.json({ 
       success: true, 
       message: 'Unsigned transaction created successfully', 
       unsignedTxn,
-      themeName,
-      debug: { assetId, amount, paymentType }
+      themeName
     });
 
   } catch (error) {

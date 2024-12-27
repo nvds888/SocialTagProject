@@ -6,7 +6,6 @@ const peraWallet = new PeraWalletConnect();
 
 const PAYMENT_TYPES = {
   USDC: 'USDC',
-  ORA: 'ORA',
   SOCIALS: 'SOCIALS'
 } as const;
 
