@@ -49,7 +49,9 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
         setFundAddress(userResponse.data.immersveAddress);
         setRewardAddress(userResponse.data.rewardAddress);
         
-        const txResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`);
+        const txResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`, {
+          withCredentials: true
+        });
         setTransactions(txResponse.data.transactions || []);
       }
     } catch (error) {
@@ -74,6 +76,8 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
         twitterUsername: user.twitter.username,
         immersveAddress: fundAddress,
         rewardAddress: rewardAddress || connectedWalletAddress
+      }, {
+        withCredentials: true
       });
       
       setIsRegistered(true);
