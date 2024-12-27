@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 interface Transaction {
   amount: number;
@@ -40,14 +40,16 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
 
   const fetchUserRewardsData = useCallback(async () => {
     try {
-      const userResponse = await axios.get(`${API_BASE_URL}/immersveRoutes/user/${user.twitter?.username}`);
+      const userResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/user/${user.twitter?.username}`, {
+        withCredentials: true
+      });
       
       if (userResponse.data) {
         setIsRegistered(true);
         setFundAddress(userResponse.data.immersveAddress);
         setRewardAddress(userResponse.data.rewardAddress);
         
-        const txResponse = await axios.get(`${API_BASE_URL}/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`);
+        const txResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`);
         setTransactions(txResponse.data.transactions || []);
       }
     } catch (error) {
@@ -68,7 +70,7 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/immersveRoutes/register`, {
+      await axios.post(`${API_BASE_URL}/api/immersveRoutes/register`, {
         twitterUsername: user.twitter.username,
         immersveAddress: fundAddress,
         rewardAddress: rewardAddress || connectedWalletAddress
