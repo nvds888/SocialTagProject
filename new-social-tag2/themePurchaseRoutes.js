@@ -39,8 +39,13 @@ router.post('/purchase', sessionCheck, async (req, res) => {
     const receiverAddress = process.env.MINTER_ADDRESS;
 
     // Select the correct asset ID and amount based on payment type
-    const assetId = paymentType === 'USDC' ? peraWalletService.USDC_ASSET_ID : peraWalletService.ORA_ASSET_ID;
-    const amount = paymentType === 'USDC' ? 1 : 1000000;  
+    const assetId = paymentType === 'USDC' 
+  ? peraWalletService.USDC_ASSET_ID 
+  : peraWalletService.SOCIALS_ASSET_ID;
+
+const amount = paymentType === 'USDC' 
+  ? 1 
+  : 100000000;  // This should be the SOCIALS amount
 
     // Create unsigned payment transaction
     const unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
