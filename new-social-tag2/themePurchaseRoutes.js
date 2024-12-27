@@ -35,42 +35,48 @@ router.post('/purchase', sessionCheck, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid payment type' });
     }
 
-    // Use the minter address from .env as the receiver
     const receiverAddress = process.env.MINTER_ADDRESS;
-
-    // Select the correct asset ID and amount based on payment type
     let assetId, amount;
 
-switch(paymentType) {
-  case 'USDC':
-    assetId = peraWalletService.USDC_ASSET_ID;
-    amount = 1;
-    break;
-  case 'ORA':
-    assetId = peraWalletService.ORA_ASSET_ID;
-    amount = 1000;
-    break;
-  case 'SOCIALS':
-    assetId = peraWalletService.SOCIALS_ASSET_ID;
-    amount = 100000000;
-    break;
-  default:
-    return res.status(400).json({ success: false, message: 'Invalid payment type' });
-}
+    // Explicitly handle each asset type
+    if (paymentType === 'USDC') {
+      console.log('Processing USDC payment');
+      assetId = peraWalletService.USDC_ASSET_ID;
+      amount = 1;
+    } 
+    else if (paymentType === 'ORA') {
+      console.log('Processing ORA payment');
+      assetId = peraWalletService.ORA_ASSET_ID;
+      amount = 1000;
+    }
+    else if (paymentType === 'SOCIALS') {
+      console.log('Processing SOCIALS payment');
+      assetId = peraWalletService.SOCIALS_ASSET_ID;
+      amount = 100000000;
+    }
+    else {
+      return res.status(400).json({ success: false, message: 'Invalid payment type' });
+    }
+
+    console.log('Selected Asset Configuration:');
+    console.log('Asset ID:', assetId);
+    console.log('Amount:', amount);
 
     // Create unsigned payment transaction
     const unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
       userAddress,
       receiverAddress,
       amount,
-      assetId
+      assetId,
+      paymentType  // Pass the payment type to the service
     );
 
     res.json({ 
       success: true, 
       message: 'Unsigned transaction created successfully', 
       unsignedTxn,
-      themeName
+      themeName,
+      debug: { assetId, amount, paymentType }
     });
 
   } catch (error) {

@@ -92,13 +92,14 @@ async function createClaimASATransactions(receiverAddress, assetId) {
   }
 }
 
-async function createAssetPaymentTransaction(senderAddress, receiverAddress, amount, assetId) {
+async function createAssetPaymentTransaction(senderAddress, receiverAddress, amount, assetId, paymentType) {
   try {
     console.log('Creating asset payment transaction');
     console.log('Sender:', senderAddress);
     console.log('Receiver:', receiverAddress);
     console.log('Amount:', amount);
     console.log('Asset ID:', assetId);
+    console.log('Payment Type:', paymentType);
 
     if (!senderAddress || typeof senderAddress !== 'string') {
       throw new Error('Invalid senderAddress');
@@ -114,19 +115,31 @@ async function createAssetPaymentTransaction(senderAddress, receiverAddress, amo
 
     const suggestedParams = await algodClient.getTransactionParams().do();
     
-  
-    const finalAmount = assetId === SOCIALS_ASSET_ID 
-      ? Math.floor(amount) // SOCIALS doesn't need decimal conversion
-      : Math.floor(amount * 1000000); // USDC and ORA use 6 decimals
+    // Explicitly handle amounts for each asset type
+    let finalAmount;
+    if (paymentType === 'SOCIALS') {
+      finalAmount = amount; // No decimal conversion for SOCIALS
+      console.log('Using SOCIALS amount:', finalAmount);
+    } else if (paymentType === 'USDC' || paymentType === 'ORA') {
+      finalAmount = Math.floor(amount * 1000000); // 6 decimal places for USDC and ORA
+      console.log('Using 6 decimal amount for USDC/ORA:', finalAmount);
+    } else {
+      throw new Error('Invalid payment type');
+    }
+
+    console.log('Final transaction parameters:');
+    console.log('Final Amount:', finalAmount);
+    console.log('Asset Index:', assetId);
+    console.log('Payment Type:', paymentType);
 
     // Create the asset transfer transaction
     const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
       from: senderAddress,
       to: receiverAddress,
       amount: finalAmount,
-      assetIndex: assetId,
+      assetIndex: parseInt(assetId),
       suggestedParams,
-      note: new TextEncoder().encode("SocialTag"),
+      note: new TextEncoder().encode(`SocialTag_${paymentType}`),
     });
 
     // Encode the unsigned transaction
