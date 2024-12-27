@@ -448,10 +448,11 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 </Button>
 
 <Button
+disabled
   onClick={() => setShowImmersveModal(true)}
   className="bg-[#40E0D0] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
 >
-  <Trophy size={18} className="mr-2" />
+  <Wallet size={18} className="mr-2" />
   Card Rewards
 </Button>
 
