@@ -5,11 +5,12 @@ import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Confetti from 'react-confetti'
-import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack} from 'lucide-react'
+import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack, Trophy} from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { Button } from "@/components/ui/button"
+import ImmersveRewardsModal from '@/components/ImmersveRewardsModal';
 import SettingsPanel from './SettingsPanel'
 import CustomizePanel from './CustomizePanel'
 import { PeraWalletConnect } from "@perawallet/connect"
@@ -103,6 +104,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [isVerificationDialogOpen, setIsVerificationDialogOpen] = useState(false)
   const [isReVerificationDialogOpen, setIsReVerificationDialogOpen] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [showImmersveModal, setShowImmersveModal] = useState(false);
   const [socialBalance, setSocialBalance] = useState<string>('0');
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const peraWallet = useMemo(() => {
@@ -446,6 +448,14 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 </Button>
 
 <Button
+  onClick={() => setShowImmersveModal(true)}
+  className="bg-[#40E0D0] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#40E0D0]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
+>
+  <Trophy size={18} className="mr-2" />
+  Card Rewards
+</Button>
+
+<Button
   onClick={() => setIsCustomizePanelOpen(true)}
   className="bg-[#FFB951] text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-[#FFB951]/90 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
 >
@@ -645,6 +655,14 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         onConfirm={handleReVerify}
       />
       <Leaderboard isOpen={showLeaderboard} onClose={handleCloseLeaderboard} />
+      {user && (
+  <ImmersveRewardsModal
+    isOpen={showImmersveModal}
+    onClose={() => setShowImmersveModal(false)}
+    user={user}
+    connectedWalletAddress={connectedAccount}
+  />
+)}
       <Toaster />
     </div>
   )
