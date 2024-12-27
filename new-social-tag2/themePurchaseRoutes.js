@@ -39,17 +39,24 @@ router.post('/purchase', sessionCheck, async (req, res) => {
     const receiverAddress = process.env.MINTER_ADDRESS;
 
     // Select the correct asset ID and amount based on payment type
-    const assetId = paymentType === 'USDC' 
-  ? peraWalletService.USDC_ASSET_ID 
-  : paymentType === 'ORA'
-    ? peraWalletService.ORA_ASSET_ID
-    : peraWalletService.SOCIALS_ASSET_ID;
+    let assetId, amount;
 
-    const amount = paymentType === 'USDC' 
-  ? 1 
-  : paymentType === 'ORA'
-    ? 1000
-    : 100000000;  // 100M SOCIALS
+switch(paymentType) {
+  case 'USDC':
+    assetId = peraWalletService.USDC_ASSET_ID;
+    amount = 1;
+    break;
+  case 'ORA':
+    assetId = peraWalletService.ORA_ASSET_ID;
+    amount = 1000;
+    break;
+  case 'SOCIALS':
+    assetId = peraWalletService.SOCIALS_ASSET_ID;
+    amount = 100000000;
+    break;
+  default:
+    return res.status(400).json({ success: false, message: 'Invalid payment type' });
+}
 
     // Create unsigned payment transaction
     const unsignedTxn = await peraWalletService.createAssetPaymentTransaction(
