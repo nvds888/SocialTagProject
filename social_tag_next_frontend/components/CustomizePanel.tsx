@@ -139,10 +139,10 @@ const themes: ThemeItem[] = [
   { name: 'RetroWave', component: RetroWaveBackground, premium: true },
   { name: 'ElectricPlasma', component: ElectricPlasma, premium: true },
   { name: 'AbstractDataFlow', component: AbstractDataFlow, premium: true },
-  { name: 'PeraWallet', component: PeraWalletBackground, premium: false, specialEdition: true, requiredPoints: 400 },
-  { name: 'NFTicket', component: NFTicketBackground, premium: false, specialEdition: true, requiredPoints: 800 },
-  { name: 'SustainableCoffee', component: SustainableCoffeeBackground, premium: false, specialEdition: true, requiredPoints: 1100 },
-  { name: 'OrangeMeme', component: OrangeMemeBackground, premium: false, specialEdition: true, requiredPoints: 2000 }
+  { name: 'PeraWallet', component: PeraWalletBackground, premium: false, specialEdition: true, requiredPoints: 300 },
+  { name: 'NFTicket', component: NFTicketBackground, premium: false, specialEdition: true, requiredPoints: 500 },
+  { name: 'SustainableCoffee', component: SustainableCoffeeBackground, premium: false, specialEdition: true, requiredPoints: 800 },
+  { name: 'OrangeMeme', component: OrangeMemeBackground, premium: false, specialEdition: true, requiredPoints: 1500 }
 ]
 
 const cardStyles: CardStyleItem[] = [
