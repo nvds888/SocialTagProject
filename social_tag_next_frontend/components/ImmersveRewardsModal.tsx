@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
@@ -38,15 +38,9 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && user?.twitter?.username) {
-      fetchUserRewardsData();
-    }
-  }, [isOpen, user]);
-
-  const fetchUserRewardsData = async () => {
+  const fetchUserRewardsData = useCallback(async () => {
     try {
-      const userResponse = await axios.get(`${API_BASE_URL}/immersve/user/${user.twitter?.username}`);
+      const userResponse = await axios.get(`/api/immersve/user/${user.twitter?.username}`);
       
       if (userResponse.data) {
         setIsRegistered(true);
@@ -59,7 +53,13 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
     } catch (error) {
       console.error('Error fetching rewards data:', error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (isOpen && user?.twitter?.username) {
+      fetchUserRewardsData();
+    }
+  }, [isOpen, user, fetchUserRewardsData]);
 
   const handleRegistration = async () => {
     if (!fundAddress || !rewardAddress || !user?.twitter?.username) {
