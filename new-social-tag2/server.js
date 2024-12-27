@@ -92,6 +92,7 @@ app.use('/api/theme', themePurchaseRoutes);
 app.use('/api/pera', peraWalletRoutes);
 app.use('/peraWalletRoutes', peraWalletRoutes);
 app.use('/api/immersve', immersveRoutes); 
+app.use('/immersveRoutes', immersveRoutes);
 
 // Auth status route
 app.get('/api/user', (req, res) => {
