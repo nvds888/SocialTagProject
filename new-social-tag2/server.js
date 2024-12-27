@@ -8,8 +8,7 @@ const authRoutes = require('./routesauth');
 const apiRoutes = require('./routesapi');
 const peraWalletRoutes = require('./peraWalletRoutes');
 const cors = require('cors');
-const themePurchaseRoutes = require('./themePurchaseRoutes');
-const immersveRoutes = require('./immersveRoutes');  
+const themePurchaseRoutes = require('./themePurchaseRoutes');  
 
 
 
@@ -91,7 +90,7 @@ app.use('/api', apiRoutes);
 app.use('/api/theme', themePurchaseRoutes);
 app.use('/api/pera', peraWalletRoutes);
 app.use('/peraWalletRoutes', peraWalletRoutes);
-app.use('/api/immersveRoutes', immersveRoutes);
+
 
 // Auth status route
 app.get('/api/user', (req, res) => {

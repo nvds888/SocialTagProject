@@ -5,74 +5,91 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import axios from 'axios';
+import { useToast } from "@/components/ui/use-toast";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
-
+// Define types for better type safety
 interface Transaction {
   amount: number;
   timestamp: string;
   txId: string;
 }
 
-interface ImmersveProps {
+interface User {
+  twitter?: {
+    username: string;
+  };
+}
+
+interface ImmersveRewardsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: {
-    twitter?: {
-      username: string;
-    };
-  };
+  user: User;
   connectedWalletAddress: string | null;
 }
 
-const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
+const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   isOpen,
   onClose,
   user,
   connectedWalletAddress
 }) => {
-  const [fundAddress, setFundAddress] = useState('');
-  const [rewardAddress, setRewardAddress] = useState('');
-  const [isRegistered, setIsRegistered] = useState(false);
+  const [fundAddress, setFundAddress] = useState<string>('');
+  const [rewardAddress, setRewardAddress] = useState<string>('');
+  const [isRegistered, setIsRegistered] = useState<boolean>(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [activePanel, setActivePanel] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const { toast } = useToast();
 
   const fetchUserRewardsData = useCallback(async () => {
+    if (!user.twitter?.username) return;
+
     try {
-      const userResponse = await axios.get(`${API_BASE_URL}/immersveRoutes/user/${user.twitter?.username}`, {
+      const userResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/user/${user.twitter.username}`, {
         withCredentials: true
       });
       
       if (userResponse.data) {
         setIsRegistered(true);
-        setFundAddress(userResponse.data.immersveAddress);
-        setRewardAddress(userResponse.data.rewardAddress);
+        setFundAddress(userResponse.data.immersveAddress || '');
+        setRewardAddress(userResponse.data.rewardAddress || '');
         
-        const txResponse = await axios.get(`${API_BASE_URL}/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`, {
+        const txResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`, {
           withCredentials: true
         });
         setTransactions(txResponse.data.transactions || []);
       }
     } catch (error) {
       console.error('Error fetching rewards data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch rewards data",
+        variant: "destructive"
+      });
     }
-  }, [user]);
+  }, [user, toast]);
 
   useEffect(() => {
-    if (isOpen && user?.twitter?.username) {
+    if (isOpen && user.twitter?.username) {
       fetchUserRewardsData();
     }
   }, [isOpen, user, fetchUserRewardsData]);
 
   const handleRegistration = async () => {
-    if (!fundAddress || !rewardAddress || !user?.twitter?.username) {
+    if (!fundAddress || !rewardAddress || !user.twitter?.username) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
       return;
     }
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/immersveRoutes/register`, {
+      await axios.post(`${API_BASE_URL}/api/immersveRoutes/register`, {
         twitterUsername: user.twitter.username,
         immersveAddress: fundAddress,
         rewardAddress: rewardAddress || connectedWalletAddress
@@ -82,8 +99,19 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
       
       setIsRegistered(true);
       await fetchUserRewardsData();
+      
+      toast({
+        title: "Success",
+        description: "Registration completed successfully",
+        duration: 3000
+      });
     } catch (error) {
       console.error('Registration error:', error);
+      toast({
+        title: "Registration Failed",
+        description: "Unable to complete registration",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -158,27 +186,31 @@ const ImmersveRewardsModal: React.FC<ImmersveProps> = ({
 
           {activePanel === 'transactions' && (
             <div className="space-y-4 p-4 border-2 border-black rounded-lg">
-              {transactions.map((tx, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border-2 border-black rounded-lg">
-                  <div>
-                    <p className="font-semibold">
-                      {new Date(tx.timestamp).toLocaleDateString()}
-                    </p>
-                    <p className="text-sm text-gray-600">${tx.amount} USDC</p>
+              {transactions.length > 0 ? (
+                transactions.map((tx, index) => (
+                  <div 
+                    key={index} 
+                    className="flex items-center justify-between p-4 border-2 border-black rounded-lg"
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        {new Date(tx.timestamp).toLocaleDateString()}
+                      </p>
+                      <p className="text-sm text-gray-600">${tx.amount.toFixed(2)} USDC</p>
+                    </div>
+                    {tx.txId && (
+                      <a
+                        href={`https://explorer.perawallet.app/tx/${tx.txId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        View
+                      </a>
+                    )}
                   </div>
-                  {tx.txId && (
-                    <a
-                      href={`https://explorer.perawallet.app/tx/${tx.txId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
-                    >
-                      View
-                    </a>
-                  )}
-                </div>
-              ))}
-              {transactions.length === 0 && (
+                ))
+              ) : (
                 <p className="text-center text-gray-500">No transactions yet</p>
               )}
             </div>
