@@ -48,10 +48,10 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   
     try {
       console.log('Attempting to fetch user rewards for:', user.twitter.username);
-      console.log('Full URL:', `${API_BASE_URL}/immersveRoutes/user/${user.twitter.username}`);
+      console.log('Full URL:', `${API_BASE_URL}/api/immersveRoutes/user/${user.twitter.username}`);
       console.log('API_BASE_URL:', API_BASE_URL);
   
-      const userResponse = await axios.get(`${API_BASE_URL}/immersveRoutes/user/${user.twitter.username}`, {
+      const userResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/user/${user.twitter.username}`, {
         withCredentials: true
       });
       
@@ -62,7 +62,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         setFundAddress(userResponse.data.immersveAddress || '');
         setRewardAddress(userResponse.data.rewardAddress || '');
         
-        const txResponse = await axios.get(`${API_BASE_URL}/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`, {
+        const txResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`, {
           withCredentials: true
         });
         console.log('Transactions Response:', txResponse.data);
@@ -101,7 +101,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/immersveRoutes/register`, {
+      await axios.post(`${API_BASE_URL}/api/immersveRoutes/register`, {
         twitterUsername: user.twitter.username,
         immersveAddress: fundAddress,
         rewardAddress: rewardAddress || connectedWalletAddress
