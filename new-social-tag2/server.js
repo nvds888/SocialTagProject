@@ -90,7 +90,6 @@ app.use('/api', apiRoutes);
 app.use('/api/theme', themePurchaseRoutes);
 app.use('/api/pera', peraWalletRoutes);
 app.use('/peraWalletRoutes', peraWalletRoutes);
-app.use('/immersveRoutes', immersveRoutes);
 
 
 // Auth status route
