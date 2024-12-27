@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useToast } from "@/components/ui/use-toast";
 
 // Define types for better type safety
@@ -45,11 +45,17 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
 
   const fetchUserRewardsData = useCallback(async () => {
     if (!user.twitter?.username) return;
-
+  
     try {
+      console.log('Attempting to fetch user rewards for:', user.twitter.username);
+      console.log('Full URL:', `${API_BASE_URL}/immersveRoutes/user/${user.twitter.username}`);
+      console.log('API_BASE_URL:', API_BASE_URL);
+  
       const userResponse = await axios.get(`${API_BASE_URL}/immersveRoutes/user/${user.twitter.username}`, {
         withCredentials: true
       });
+      
+      console.log('User Response:', userResponse.data);
       
       if (userResponse.data) {
         setIsRegistered(true);
@@ -59,13 +65,19 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         const txResponse = await axios.get(`${API_BASE_URL}/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`, {
           withCredentials: true
         });
+        console.log('Transactions Response:', txResponse.data);
         setTransactions(txResponse.data.transactions || []);
       }
     } catch (error) {
-      console.error('Error fetching rewards data:', error);
+      console.error('FULL ERROR DETAILS:', {
+        response: (error as AxiosError)?.response,
+        config: (error as AxiosError)?.config,
+        message: (error as Error)?.message || 'Unknown error'
+      });
+      
       toast({
-        title: "Error",
-        description: "Failed to fetch rewards data",
+        title: "Detailed Error",
+        description: JSON.stringify((error as AxiosError)?.response?.data || (error as Error)?.message),
         variant: "destructive"
       });
     }
