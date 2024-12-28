@@ -59,29 +59,35 @@ function isLikelyNFT(asset: Asset): boolean {
     // Skip if essential params are missing
     if (!params) return false;
 
-    // Special handling for known ASAs that aren't NFTs
+    // Skip obvious ASAs that aren't NFTs
     const unitName = params['unit-name']?.toLowerCase() || '';
+    const name = params.name?.toLowerCase() || '';
     const skipTokens = ['usdc', 'algo', 'planet', 'smile', 'fish'];
-    if (skipTokens.some(token => unitName.includes(token))) return false;
+    if (skipTokens.some(token => unitName.includes(token) || name.includes(token))) return false;
     
-    // Check decimals - NFTs should have 0 decimals
-    if (typeof params.decimals === 'number' && params.decimals !== 0) return false;
-    
-    // NFTs typically have a total supply of 1
-    // But some NFTs might report differently, so we'll be lenient here
-    const total = params.total || 0;
-    if (total > 1) return false;
-    
-    // Check if we own exactly 1
-    if (asset.amount !== 1) return false;
+    // For NFTs we want either:
+    // 1. Decimals of 0 AND (total of 1 OR amount of 1)
+    // 2. OR has a URL (might be an NFT metadata URL)
+    // 3. OR has a name that looks like an NFT name
 
-    // If there's a URL in the params, it's more likely to be an NFT
-    if (params.url) return true;
+    // Check for common NFT patterns in name
+    const nftPatterns = ['#', 'nft', 'token', 'card', 'collectible'];
+    const looksLikeNft = nftPatterns.some(pattern => name.includes(pattern) || unitName.includes(pattern));
 
-    // If we get here, use name as a final check
-    // Most NFTs have a name parameter
-    return !!params.name;
+    // Main NFT criteria
+    const hasZeroDecimals = typeof params.decimals !== 'number' || params.decimals === 0;
+    const hasCorrectSupply = !params.total || params.total === 1;
+    const hasOneToken = asset.amount === 1;
+    const hasUrl = !!params.url;
 
+    return (
+      // Traditional NFT criteria
+      (hasZeroDecimals && (hasCorrectSupply || hasOneToken)) ||
+      // Has metadata URL
+      hasUrl ||
+      // Looks like an NFT by name
+      looksLikeNft
+    );
   } catch (error) {
     console.error('Error checking NFT:', error);
     return false;
@@ -157,9 +163,22 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
 
+      // Log total assets found
+      console.log('Total assets found:', assets.data.assets.length);
+
       // Filter for likely NFTs first
-      const nftAssets = assets.data.assets.filter(isLikelyNFT);
+      const nftAssets = assets.data.assets.filter(asset => {
+        const isNft = isLikelyNFT(asset);
+        console.log('Checking asset:', {
+          id: asset['asset-id'],
+          name: asset.params.name,
+          isNft,
+          params: asset.params
+        });
+        return isNft;
+      });
       
+      console.log('NFT assets after filtering:', nftAssets.length);
       setProgress(`Found ${nftAssets.length} potential NFTs`);
 
       // Process NFTs in smaller batches to avoid rate limiting
@@ -173,6 +192,8 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         const batchPromises = batch.map(async (asset): Promise<NFT | null> => {
           try {
             const metadataUrl = await fetchNFTMetadata(asset['asset-id'], network);
+            console.log('MetadataURL for asset', asset['asset-id'], ':', metadataUrl);
+
             if (!metadataUrl) {
               // If no metadata URL, try to create NFT from asset params
               return {
@@ -228,6 +249,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       setProgress('');
     }
   }
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
