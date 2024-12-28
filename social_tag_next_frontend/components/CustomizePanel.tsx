@@ -906,8 +906,8 @@ if (data.nfd) {
   <div className="space-y-4">
   <div className="grid grid-cols-3 gap-4">
   <Button 
+  disabled
   onClick={() => setShowNFTModal(true)} 
-  disabled={!connectedWalletAddress}
   className={`w-full bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#FFB951]/90 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
 >
   {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
