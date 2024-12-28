@@ -53,18 +53,39 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper function to check if an asset is likely an NFT
 function isLikelyNFT(asset: Asset): boolean {
-  const params = asset.params;
-  
-  // Check if total supply is 1
-  if (params.total !== 1) return false;
-  
-  // Check if decimals is 0
-  if (params.decimals !== 0) return false;
-  
-  // Check if amount held is 1
-  if (asset.amount !== 1) return false;
+  try {
+    const params = asset.params;
+    
+    // Skip if essential params are missing
+    if (!params) return false;
 
-  return true;
+    // Special handling for known ASAs that aren't NFTs
+    const unitName = params['unit-name']?.toLowerCase() || '';
+    const skipTokens = ['usdc', 'algo', 'planet', 'smile', 'fish'];
+    if (skipTokens.some(token => unitName.includes(token))) return false;
+    
+    // Check decimals - NFTs should have 0 decimals
+    if (typeof params.decimals === 'number' && params.decimals !== 0) return false;
+    
+    // NFTs typically have a total supply of 1
+    // But some NFTs might report differently, so we'll be lenient here
+    const total = params.total || 0;
+    if (total > 1) return false;
+    
+    // Check if we own exactly 1
+    if (asset.amount !== 1) return false;
+
+    // If there's a URL in the params, it's more likely to be an NFT
+    if (params.url) return true;
+
+    // If we get here, use name as a final check
+    // Most NFTs have a name parameter
+    return !!params.name;
+
+  } catch (error) {
+    console.error('Error checking NFT:', error);
+    return false;
+  }
 }
 
 async function fetchNFTMetadata(assetId: number, network: string): Promise<string | undefined> {
