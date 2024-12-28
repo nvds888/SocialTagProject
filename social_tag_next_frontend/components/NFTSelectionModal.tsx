@@ -169,9 +169,10 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       // Filter for likely NFTs first
       const nftAssets = assets.data.assets.filter(asset => {
         const isNft = isLikelyNFT(asset);
+        // Safe logging that handles undefined params
         console.log('Checking asset:', {
           id: asset['asset-id'],
-          name: asset.params.name,
+          name: asset.params?.name, // Added optional chaining
           isNft,
           params: asset.params
         });
@@ -199,10 +200,10 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               return {
                 assetId: asset['asset-id'],
                 metadata: {
-                  name: asset.params.name || 'Unnamed NFT',
+                  name: asset.params?.name || 'Unnamed NFT',
                   image: undefined
                 },
-                name: asset.params.name,
+                name: asset.params?.name || 'Unnamed NFT',
                 image: undefined
               };
             }
@@ -219,7 +220,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               assetId: asset['asset-id'],
               metadata,
               image: imageUrl,
-              name: metadata.name || asset.params.name
+              name: metadata.name || asset.params?.name || 'Unnamed NFT'
             };
           } catch (err) {
             console.error(`Error processing asset ${asset['asset-id']}:`, err);
