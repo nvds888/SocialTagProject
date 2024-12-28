@@ -8,11 +8,15 @@ import { Loader2 } from 'lucide-react'
 interface AssetParams {
   url?: string;
   name?: string;
+  'unit-name'?: string;
+  total?: number;
+  decimals?: number;
   [key: string]: unknown;
 }
 
 interface Asset {
   'asset-id': number;
+  amount: number;
   params: AssetParams;
   [key: string]: unknown;
 }
@@ -41,13 +45,34 @@ interface NFTSelectionModalProps {
 
 // Create an axios instance specifically for indexer calls
 const indexerAxios = axios.create({
-  withCredentials: false // This is crucial for the CORS issue
+  withCredentials: false
 });
 
+// Helper function to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Helper function to check if an asset is likely an NFT
+function isLikelyNFT(asset: Asset): boolean {
+  const params = asset.params;
+  
+  // Check if total supply is 1
+  if (params.total !== 1) return false;
+  
+  // Check if decimals is 0
+  if (params.decimals !== 0) return false;
+  
+  // Check if amount held is 1
+  if (asset.amount !== 1) return false;
+
+  return true;
+}
+
 async function fetchNFTMetadata(assetId: number, network: string): Promise<string | undefined> {
-  const url = `${getIndexerURL(network)}/v2/assets/${assetId}`;
   try {
-    const response = await indexerAxios.get(url);
+    const response = await indexerAxios.get(
+      `${getIndexerURL(network)}/v2/assets/${assetId}`,
+      { timeout: 5000 } // Add timeout
+    );
     return response.data.asset.params.url;
   } catch (error) {
     console.error(`Error fetching metadata for asset ${assetId}:`, error);
@@ -57,7 +82,17 @@ async function fetchNFTMetadata(assetId: number, network: string): Promise<strin
 
 async function fetchIPFSData(ipfsUrl: string): Promise<NFTMetadata> {
   try {
-    const response = await indexerAxios.get(ipfsUrl);
+    if (!ipfsUrl) {
+      return { name: 'Unknown', image: undefined };
+    }
+
+    // Handle different IPFS gateway formats
+    let url = ipfsUrl;
+    if (url.startsWith('ipfs://')) {
+      url = url.replace('ipfs://', 'https://ipfs.io/ipfs/');
+    }
+
+    const response = await indexerAxios.get(url, { timeout: 5000 });
     return response.data;
   } catch (error) {
     console.error('Error fetching IPFS data:', error);
@@ -84,6 +119,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<string>('');
 
   async function loadNFTs() {
     if (!walletAddress) {
@@ -94,40 +130,81 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
     try {
       setIsLoading(true);
       setError(null);
+      setNfts([]);
 
       const assets = await indexerAxios.get<{ assets: Asset[] }>(
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
 
-      const loadedNfts = await Promise.all(
-        assets.data.assets.map(async (asset): Promise<NFT | null> => {
+      // Filter for likely NFTs first
+      const nftAssets = assets.data.assets.filter(isLikelyNFT);
+      
+      setProgress(`Found ${nftAssets.length} potential NFTs`);
+
+      // Process NFTs in smaller batches to avoid rate limiting
+      const batchSize = 5;
+      const processedNfts: NFT[] = [];
+
+      for (let i = 0; i < nftAssets.length; i += batchSize) {
+        const batch = nftAssets.slice(i, i + batchSize);
+        setProgress(`Processing NFTs ${i + 1}-${Math.min(i + batchSize, nftAssets.length)} of ${nftAssets.length}`);
+
+        const batchPromises = batch.map(async (asset): Promise<NFT | null> => {
           try {
             const metadataUrl = await fetchNFTMetadata(asset['asset-id'], network);
-            if (!metadataUrl) return null;
+            if (!metadataUrl) {
+              // If no metadata URL, try to create NFT from asset params
+              return {
+                assetId: asset['asset-id'],
+                metadata: {
+                  name: asset.params.name || 'Unnamed NFT',
+                  image: undefined
+                },
+                name: asset.params.name,
+                image: undefined
+              };
+            }
 
-            const ipfsUrl = metadataUrl.replace('ipfs://', 'https://ipfs.algonode.dev/ipfs/');
-            const metadata = await fetchIPFSData(ipfsUrl);
+            const metadata = await fetchIPFSData(metadataUrl);
+            let imageUrl = metadata.image;
+            
+            // Handle IPFS image URLs
+            if (imageUrl && imageUrl.startsWith('ipfs://')) {
+              imageUrl = imageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
+            }
 
             return {
               assetId: asset['asset-id'],
               metadata,
-              image: metadata.image?.replace('ipfs://', 'https://ipfs.algonode.dev/ipfs/'),
-              name: metadata.name
+              image: imageUrl,
+              name: metadata.name || asset.params.name
             };
           } catch (err) {
             console.error(`Error processing asset ${asset['asset-id']}:`, err);
             return null;
           }
-        })
-      );
+        });
 
-      // Filter out null values and type assert the result
-      setNfts(loadedNfts.filter((nft): nft is NFT => nft !== null));
+        const batchResults = await Promise.all(batchPromises);
+        const validBatchResults = batchResults.filter((nft): nft is NFT => nft !== null);
+        processedNfts.push(...validBatchResults);
+        setNfts([...processedNfts]); // Update UI with each batch
+
+        // Add delay between batches to avoid rate limiting
+        if (i + batchSize < nftAssets.length) {
+          await delay(1000);
+        }
+      }
+
+      if (processedNfts.length === 0) {
+        setError('No NFTs found in wallet');
+      }
     } catch (err) {
       console.error('Error loading NFTs:', err);
       setError('Failed to load NFTs. Please try again.');
     } finally {
       setIsLoading(false);
+      setProgress('');
     }
   }
 
@@ -153,6 +230,12 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               {error}
             </div>
           )}
+
+          {progress && (
+            <div className="text-blue-500 mb-4">
+              {progress}
+            </div>
+          )}
           
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
@@ -163,7 +246,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               <p className="text-gray-600">
                 {!walletAddress 
                   ? 'Please connect your wallet first'
-                  : 'No NFTs found in your wallet or click Load NFTs to fetch them.'}
+                  : 'No NFTs found in wallet or click Load NFTs to fetch them.'}
               </p>
             </div>
           ) : (
@@ -184,6 +267,9 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                         src={nft.image}
                         alt={nft.metadata.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://placehold.co/200x200?text=No+Image';
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
