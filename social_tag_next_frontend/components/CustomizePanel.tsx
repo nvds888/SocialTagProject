@@ -1172,58 +1172,64 @@ if (data.nfd) {
             {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
 
             {showPurchaseModal && selectedItem && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-lg max-w-md w-full">
-      <h3 className="text-xl font-bold mb-4 text-black">Purchase </h3>
+  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg max-w-sm w-full">
+      <h3 className="text-xl font-bold mb-4 text-black">Purchase</h3>
       <p className="text-gray-700 mb-4">
-        Select your preferred payment method to purchase {selectedItem.name} {selectedItem.type}:
+        Select payment method for {selectedItem.name} {selectedItem.type}:
       </p>
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3 mb-4">
         <Button
           onClick={() => handlePurchaseConfirmation('USDC')}
           disabled={processingPaymentType !== null}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2"
         >
           {processingPaymentType === 'USDC' ? (
             <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               Processing...
             </span>
           ) : (
-            'Buy with USDC (1 USDC)'
+            <div className="flex flex-col items-center">
+              <span>USDC</span>
+              <span className="text-xs opacity-90">1 USDC</span>
+            </div>
           )}
         </Button>
 
         <Button
-  onClick={() => handlePurchaseConfirmation('SOCIALS')}
-  disabled={processingPaymentType !== null}
-  className="w-full bg-[#40E0D0] hover:bg-[#3dd2c3] text-white"
->
-  {processingPaymentType === 'SOCIALS' ? (
-    <span className="flex items-center justify-center">
-      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      Processing...
-    </span>
-  ) : (
-    'Buy with SOCIALS (100M SOCIALS)'
-  )}
-</Button>
-        
-        <Button 
-          variant="outline" 
-          onClick={() => setShowPurchaseModal(false)}
+          onClick={() => handlePurchaseConfirmation('SOCIALS')}
           disabled={processingPaymentType !== null}
-          className="w-full"
+          className="bg-[#40E0D0] hover:bg-[#3dd2c3] text-white text-sm py-2"
         >
-          Cancel
+          {processingPaymentType === 'SOCIALS' ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </span>
+          ) : (
+            <div className="flex flex-col items-center">
+              <span>SOCIALS</span>
+              <span className="text-xs opacity-90">100M SOCIALS</span>
+            </div>
+          )}
         </Button>
       </div>
+
+      <Button
+        variant="outline"
+        onClick={() => setShowPurchaseModal(false)}
+        disabled={processingPaymentType !== null}
+        className="w-full text-sm"
+      >
+        Cancel
+      </Button>
     </div>
   </div>
 )}

@@ -95,23 +95,6 @@ app.use('/api/theme', themePurchaseRoutes);
 app.use('/api/pera', peraWalletRoutes);
 app.use('/peraWalletRoutes', peraWalletRoutes);
 
-// Add this AFTER all other routes
-app.use((req, res, next) => {
-  console.log('UNHANDLED ROUTE:', {
-    method: req.method,
-    url: req.url,
-    originalUrl: req.originalUrl,
-    path: req.path,
-    baseUrl: req.baseUrl
-  });
-  res.status(404).json({ 
-    error: 'Route not found', 
-    details: {
-      method: req.method,
-      url: req.url
-    }
-  });
-});
 
 
 // Auth status route
