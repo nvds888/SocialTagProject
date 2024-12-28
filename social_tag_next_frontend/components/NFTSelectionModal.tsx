@@ -39,10 +39,15 @@ interface NFTSelectionModalProps {
   selectedNFT: NFT | null;
 }
 
+// Create an axios instance specifically for indexer calls
+const indexerAxios = axios.create({
+  withCredentials: false // This is crucial for the CORS issue
+});
+
 async function fetchNFTMetadata(assetId: number, network: string): Promise<string | undefined> {
   const url = `${getIndexerURL(network)}/v2/assets/${assetId}`;
   try {
-    const response = await axios.get(url);
+    const response = await indexerAxios.get(url);
     return response.data.asset.params.url;
   } catch (error) {
     console.error(`Error fetching metadata for asset ${assetId}:`, error);
@@ -52,7 +57,7 @@ async function fetchNFTMetadata(assetId: number, network: string): Promise<strin
 
 async function fetchIPFSData(ipfsUrl: string): Promise<NFTMetadata> {
   try {
-    const response = await axios.get(ipfsUrl);
+    const response = await indexerAxios.get(ipfsUrl);
     return response.data;
   } catch (error) {
     console.error('Error fetching IPFS data:', error);
@@ -90,7 +95,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       setIsLoading(true);
       setError(null);
 
-      const assets = await axios.get<{ assets: Asset[] }>(
+      const assets = await indexerAxios.get<{ assets: Asset[] }>(
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
 
