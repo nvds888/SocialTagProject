@@ -161,21 +161,24 @@ router.get('/social-balance', async (req, res) => {
  });
 
  router.get('/api/immersveUser/:username', sessionCheck, async (req, res) => {
-  console.log('SPECIFIC ROUTE DEBUG:', {
-    params: req.params,
-    query: req.query,
-    username: req.params.username,
-    fullUrl: req.originalUrl,
-    method: req.method
-  });
-
   try {
     const user = await ImmersveUser.findOne({ twitterUsername: req.params.username });
+    
     if (!user) {
-      console.log('USER NOT FOUND:', req.params.username);
-      return res.status(404).json({ error: 'User not found' });
+      // Instead of 404, return a 200 with a not_registered flag
+      return res.json({ 
+        registered: false,
+        message: 'User not yet registered for Immersve'
+      });
     }
-    res.json(user);
+    
+    // User exists, return their data
+    res.json({
+      registered: true,
+      immersveAddress: user.immersveAddress,
+      rewardAddress: user.rewardAddress,
+      transactions: user.transactions || []
+    });
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Failed to fetch user data' });
@@ -186,13 +189,45 @@ router.post('/api/immersveRegister', sessionCheck, async (req, res) => {
   try {
     const { twitterUsername, immersveAddress, rewardAddress } = req.body;
     
-    const user = await ImmersveUser.findOneAndUpdate(
-      { twitterUsername },
-      { immersveAddress, rewardAddress },
-      { upsert: true, new: true }
-    );
+    // Validate input
+    if (!twitterUsername || !immersveAddress || !rewardAddress) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        details: {
+          twitterUsername: !twitterUsername,
+          immersveAddress: !immersveAddress,
+          rewardAddress: !rewardAddress
+        }
+      });
+    }
+
+    // Check if user exists first
+    let user = await ImmersveUser.findOne({ twitterUsername });
     
-    res.json(user);
+    if (user) {
+      // Update existing user
+      user.immersveAddress = immersveAddress;
+      user.rewardAddress = rewardAddress;
+    } else {
+      // Create new user
+      user = new ImmersveUser({
+        twitterUsername,
+        immersveAddress,
+        rewardAddress,
+        transactions: []
+      });
+    }
+    
+    await user.save();
+    
+    res.json({
+      registered: true,
+      user: {
+        twitterUsername: user.twitterUsername,
+        immersveAddress: user.immersveAddress,
+        rewardAddress: user.rewardAddress
+      }
+    });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ error: 'Failed to register user' });

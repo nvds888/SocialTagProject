@@ -51,15 +51,23 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         withCredentials: true
       });
       
-      if (userResponse.data) {
+      if (userResponse.data.registered) {
         setIsRegistered(true);
         setFundAddress(userResponse.data.immersveAddress || '');
         setRewardAddress(userResponse.data.rewardAddress || '');
         
+        // Only fetch transactions if user is registered
         const txResponse = await axios.get(`${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`, {
           withCredentials: true
         });
         setTransactions(txResponse.data.transactions || []);
+      } else {
+        // User not registered yet
+        setIsRegistered(false);
+        // Pre-fill rewardAddress if wallet is connected
+        if (connectedWalletAddress) {
+          setRewardAddress(connectedWalletAddress);
+        }
       }
     } catch (error) {
       console.error('Error fetching rewards data:', error);
@@ -69,7 +77,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         variant: "destructive"
       });
     }
-  }, [user, toast]);
+  }, [user, connectedWalletAddress, toast]);
 
   useEffect(() => {
     if (isOpen && user.twitter?.username) {
