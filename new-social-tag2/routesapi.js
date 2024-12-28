@@ -161,9 +161,18 @@ router.get('/social-balance', async (req, res) => {
  });
 
  router.get('/api/immersveUser/:username', sessionCheck, async (req, res) => {
+  console.log('SPECIFIC ROUTE DEBUG:', {
+    params: req.params,
+    query: req.query,
+    username: req.params.username,
+    fullUrl: req.originalUrl,
+    method: req.method
+  });
+
   try {
     const user = await ImmersveUser.findOne({ twitterUsername: req.params.username });
     if (!user) {
+      console.log('USER NOT FOUND:', req.params.username);
       return res.status(404).json({ error: 'User not found' });
     }
     res.json(user);
