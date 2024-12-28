@@ -39,11 +39,9 @@ import Confetti from 'react-confetti'
 import NFTSelectionModal from '@/components/NFTSelectionModal'
 import NFDSelectionModal from '@/components/NFDSelectionModal'
 import { User } from '@/types/User';
-import { getIndexerURL } from "@/lib/utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 const peraWallet = new PeraWalletConnect();
-const activeNetwork = process.env.NEXT_PUBLIC_NETWORK || 'mainnet';
 
 axios.defaults.withCredentials = true
 
@@ -56,13 +54,14 @@ interface CustomizePanelProps {
 }
 
 interface NFT {
-  id: string;
-  name: string;
-  url?: string;
-  'metadata-hash'?: string;
-  reserve?: string;
+  assetId: number;
+  metadata: {
+    name: string;
+    image?: string;
+    [key: string]: unknown;
+  };
   image?: string;
-  assetId?: string;
+  name?: string;
 }
 
 interface NFD {
@@ -101,19 +100,6 @@ interface ProfileCardProps extends ComponentProps {
 }
 
 
-
-interface AlgorandAsset {
-  'asset-id': number;
-  amount: number;
-  params: {
-    name?: string;
-    'unit-name'?: string;
-    url?: string;
-    decimals?: number;
-    total?: number;
-    [key: string]: unknown;
-  };
-}
 
 export interface AlgorandAssetWithDetails {
   'asset-id': number;
@@ -184,9 +170,8 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const [openTab, setOpenTab] = useState<string | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showNFTModal, setShowNFTModal] = useState(false)
-  const [nfts, setNfts] = useState<NFT[]>([])
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null)
-  const [isLoadingNFTs, setIsLoadingNFTs] = useState(false)
+  const [isLoadingNFTs] = useState(false)
   const [showNFDModal, setShowNFDModal] = useState(false)
   const [nfds, setNfds] = useState<NFD[]>([])
   const [selectedNFD, setSelectedNFD] = useState<NFD | null>(null)
@@ -395,86 +380,9 @@ if (data.nfd) {
   };
 
 
-  const handleFetchNFTs = async () => {
-    if (!connectedWalletAddress) {
-      toast({
-        title: "Wallet Not Connected",
-        description: "Please connect your Pera Wallet to fetch NFTs.",
-        variant: "destructive",
-      });
-      return;
-    }
-  
-    setIsLoadingNFTs(true);
-    setError(null);
-  
-    try {
-      const indexerURL = getIndexerURL(activeNetwork);
-      console.log('Fetching assets from:', indexerURL);
-  
-      // First get all assets
-      const response = await axios.create({ withCredentials: false }).get(
-        `${indexerURL}/v2/accounts/${connectedWalletAddress}/assets`
-      );
-  
-      // Filter for owned assets first
-      const ownedAssets = response.data.assets.filter(
-        (asset: AlgorandAsset) => asset.amount > 0
-      );
-  
-      // Get asset IDs
-      const assetIds = ownedAssets.map(
-        (asset: AlgorandAsset) => asset['asset-id']
-      );
-  
-      // Send asset IDs to backend to fetch metadata
-      const metadataResponse = await axios.post(
-        `${API_BASE_URL}/api/fetch-nft-metadata`,
-        { assetIds },
-        { withCredentials: true }
-      );
-  
-      // Define NFTResponse type
-      interface NFTResponse {
-        id: string;
-        name: string;
-        imageUrl?: string;
-        unitName?: string;
-        metadata?: {
-          description?: string;
-          properties?: Record<string, string | number>;
-        };
-      }
-  
-      const nftsWithMetadata = metadataResponse.data.filter(
-        (nft: NFTResponse) => nft && nft.imageUrl
-      );
-  
-      console.log('NFTs with metadata:', nftsWithMetadata);
-      setNfts(nftsWithMetadata);
-      setShowNFTModal(true);
-  
-    } catch (error) {
-      console.error('Error fetching NFTs:', error);
-      setError('Failed to fetch NFTs. Please try again.');
-      toast({
-        title: "Error",
-        description: "Failed to fetch NFTs. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingNFTs(false);
-    }
-  };
 
-  const handleSelectNFT = (nft: NFT) => {
-    const formattedNFT = {
-      id: nft.id,
-      name: nft.name,
-      image: nft.image || '',
-      url: nft.url || ''
-    };
-    setSelectedNFT(formattedNFT);
+  const handleSelectNFT = (nft: NFT | null) => {
+    setSelectedNFT(nft);
     setShowNFTModal(false);
   };
 
@@ -998,8 +906,8 @@ if (data.nfd) {
   <div className="space-y-4">
   <div className="grid grid-cols-3 gap-4">
   <Button 
-  disabled
-  onClick={handleFetchNFTs} 
+  onClick={() => setShowNFTModal(true)} 
+  disabled={!connectedWalletAddress}
   className={`w-full bg-[#FFB951] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#FFB951]/90 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
 >
   {isLoadingNFTs ? 'Loading...' : 'Select NFT'}
@@ -1234,14 +1142,14 @@ if (data.nfd) {
   </div>
 )}
 
-            <NFTSelectionModal
-              isOpen={showNFTModal}
-              onClose={() => setShowNFTModal(false)}
-              nfts={nfts}
-              selectedNFT={selectedNFT}
-              onSelectNFT={handleSelectNFT}
-              isLoading={isLoadingNFTs}
-            />
+<NFTSelectionModal
+  isOpen={showNFTModal}
+  onClose={() => setShowNFTModal(false)}
+  walletAddress={connectedWalletAddress}  // Add this line
+  network="mainnet"                       // Add this line
+  selectedNFT={selectedNFT}
+  onSelectNFT={handleSelectNFT}
+/>
 
             <NFDSelectionModal
               isOpen={showNFDModal}
