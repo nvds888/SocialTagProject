@@ -56,38 +56,13 @@ function isLikelyNFT(asset: Asset): boolean {
   try {
     const params = asset.params;
     
-    // Skip if essential params are missing
+    // Skip if no params
     if (!params) return false;
-
-    // Skip obvious ASAs that aren't NFTs
-    const unitName = params['unit-name']?.toLowerCase() || '';
-    const name = params.name?.toLowerCase() || '';
-    const skipTokens = ['usdc', 'algo', 'planet', 'smile', 'fish'];
-    if (skipTokens.some(token => unitName.includes(token) || name.includes(token))) return false;
     
-    // For NFTs we want either:
-    // 1. Decimals of 0 AND (total of 1 OR amount of 1)
-    // 2. OR has a URL (might be an NFT metadata URL)
-    // 3. OR has a name that looks like an NFT name
+    // Only check for decimals being 0
+    // If decimals is undefined or 0, consider it a potential NFT
+    return params.decimals === 0 || params.decimals === undefined;
 
-    // Check for common NFT patterns in name
-    const nftPatterns = ['#', 'nft', 'token', 'card', 'collectible'];
-    const looksLikeNft = nftPatterns.some(pattern => name.includes(pattern) || unitName.includes(pattern));
-
-    // Main NFT criteria
-    const hasZeroDecimals = typeof params.decimals !== 'number' || params.decimals === 0;
-    const hasCorrectSupply = !params.total || params.total === 1;
-    const hasOneToken = asset.amount === 1;
-    const hasUrl = !!params.url;
-
-    return (
-      // Traditional NFT criteria
-      (hasZeroDecimals && (hasCorrectSupply || hasOneToken)) ||
-      // Has metadata URL
-      hasUrl ||
-      // Looks like an NFT by name
-      looksLikeNft
-    );
   } catch (error) {
     console.error('Error checking NFT:', error);
     return false;
