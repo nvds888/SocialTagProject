@@ -27,7 +27,6 @@ interface ImmersveRewardsModalProps {
   connectedWalletAddress: string | null;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   isOpen,
@@ -47,7 +46,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
     if (!user.twitter?.username) return;
   
     try {
-      const userResponse = await axios.get(`${API_BASE_URL}/api/immersveUser/${user.twitter.username}`, {
+      const userResponse = await axios.get(`/api/immersveUser/${user.twitter.username}`, {
         withCredentials: true
       });
       
@@ -56,7 +55,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         setFundAddress(userResponse.data.immersveAddress || '');
         setRewardAddress(userResponse.data.rewardAddress || '');
         
-        const txResponse = await axios.get(`${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`, {
+        const txResponse = await axios.get(`/api/immersveTransactions?address=${userResponse.data.immersveAddress}`, {
           withCredentials: true
         });
         setTransactions(txResponse.data.transactions || []);
@@ -89,7 +88,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/api/immersveRegister`, {
+      await axios.post(`/api/immersveRegister`, {
         twitterUsername: user.twitter.username,
         immersveAddress: fundAddress,
         rewardAddress: rewardAddress || connectedWalletAddress
