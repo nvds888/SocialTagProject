@@ -160,7 +160,7 @@ router.get('/social-balance', async (req, res) => {
   }
  });
 
- router.get('/immersveRoutes/user/:username', sessionCheck, async (req, res) => {
+ router.get('/api/immersveUser/:username', sessionCheck, async (req, res) => {
   try {
     const user = await ImmersveUser.findOne({ twitterUsername: req.params.username });
     if (!user) {
@@ -173,7 +173,7 @@ router.get('/social-balance', async (req, res) => {
   }
 });
 
-router.post('/immersveRoutes/register', sessionCheck, async (req, res) => {
+router.post('/api/immersveRegister', sessionCheck, async (req, res) => {
   try {
     const { twitterUsername, immersveAddress, rewardAddress } = req.body;
     
@@ -190,7 +190,7 @@ router.post('/immersveRoutes/register', sessionCheck, async (req, res) => {
   }
 });
 
-router.get('/immersveRoutes/transactions', sessionCheck, async (req, res) => {
+router.get('/api/immersveTransactions', sessionCheck, async (req, res) => {
   const { address } = req.query;
   
   if (!address) {

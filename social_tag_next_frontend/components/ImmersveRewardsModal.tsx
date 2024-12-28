@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useToast } from "@/components/ui/use-toast";
 
 // Define types for better type safety
@@ -47,37 +47,25 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
     if (!user.twitter?.username) return;
   
     try {
-      console.log('Attempting to fetch user rewards for:', user.twitter.username);
-      console.log('Full URL:', `${API_BASE_URL}/api/immersveRoutes/user/${user.twitter.username}`);
-      console.log('API_BASE_URL:', API_BASE_URL);
-  
-      const userResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/user/${user.twitter.username}`, {
+      const userResponse = await axios.get(`${API_BASE_URL}/api/immersveUser/${user.twitter.username}`, {
         withCredentials: true
       });
-      
-      console.log('User Response:', userResponse.data);
       
       if (userResponse.data) {
         setIsRegistered(true);
         setFundAddress(userResponse.data.immersveAddress || '');
         setRewardAddress(userResponse.data.rewardAddress || '');
         
-        const txResponse = await axios.get(`${API_BASE_URL}/api/immersveRoutes/transactions?address=${userResponse.data.immersveAddress}`, {
+        const txResponse = await axios.get(`${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`, {
           withCredentials: true
         });
-        console.log('Transactions Response:', txResponse.data);
         setTransactions(txResponse.data.transactions || []);
       }
     } catch (error) {
-      console.error('FULL ERROR DETAILS:', {
-        response: (error as AxiosError)?.response,
-        config: (error as AxiosError)?.config,
-        message: (error as Error)?.message || 'Unknown error'
-      });
-      
+      console.error('Error fetching rewards data:', error);
       toast({
-        title: "Detailed Error",
-        description: JSON.stringify((error as AxiosError)?.response?.data || (error as Error)?.message),
+        title: "Error",
+        description: "Failed to fetch rewards data",
         variant: "destructive"
       });
     }
@@ -101,7 +89,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/api/immersveRoutes/register`, {
+      await axios.post(`${API_BASE_URL}/api/immersveRegister`, {
         twitterUsername: user.twitter.username,
         immersveAddress: fundAddress,
         rewardAddress: rewardAddress || connectedWalletAddress
