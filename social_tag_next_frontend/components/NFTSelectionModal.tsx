@@ -53,20 +53,8 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper function to check if an asset is likely an NFT
 function isLikelyNFT(asset: Asset): boolean {
-  try {
-    const params = asset.params;
-    
-    // Skip if no params
-    if (!params) return false;
-    
-    // Only check for decimals being 0
-    // If decimals is undefined or 0, consider it a potential NFT
-    return params.decimals === 0 || params.decimals === undefined;
-
-  } catch (error) {
-    console.error('Error checking NFT:', error);
-    return false;
-  }
+  // Only check if the asset exists and has params
+  return !!asset && !!asset.params;
 }
 
 async function fetchNFTMetadata(assetId: number, network: string): Promise<string | undefined> {
