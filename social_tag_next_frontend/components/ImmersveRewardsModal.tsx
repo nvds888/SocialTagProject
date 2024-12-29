@@ -4,9 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useToast } from "@/components/ui/use-toast";
-import { AxiosError } from 'axios';
 
 interface Transaction {
   amount: number;
@@ -29,8 +28,6 @@ interface ImmersveRewardsModalProps {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
-axios.defaults.withCredentials = true;
-
 const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   isOpen,
   onClose,
@@ -51,7 +48,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
     try {
       setLoading(true);
       
-      const userResponse = await axios.get(`${API_BASE_URL}/immersveUser/${user.twitter.username}`, {
+      const userResponse = await axios.get(`${API_BASE_URL}/api/immersveUser/${user.twitter.username}`, {
         withCredentials: true
       });
       
@@ -61,7 +58,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         setRewardAddress(userResponse.data.rewardAddress || '');
         
         const txResponse = await axios.get(
-          `${API_BASE_URL}/immersveTransactions?address=${userResponse.data.immersveAddress}`,
+          `${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`,
           { withCredentials: true }
         );
         setTransactions(txResponse.data.transactions || []);
@@ -89,10 +86,17 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   }, [isOpen, user, fetchUserRewardsData]);
 
   const handleRegistration = async () => {
-    if (!fundAddress || !rewardAddress || !user.twitter?.username) {
+    console.log('Registration attempt:', { fundAddress, rewardAddress, twitterUsername: user.twitter?.username });
+    
+    if (!fundAddress || (!rewardAddress && !connectedWalletAddress) || !user.twitter?.username) {
+      const missing = [];
+      if (!fundAddress) missing.push('fund address');
+      if (!rewardAddress && !connectedWalletAddress) missing.push('reward address');
+      if (!user.twitter?.username) missing.push('Twitter connection');
+      
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: `Please provide: ${missing.join(', ')}`,
         variant: "destructive"
       });
       return;
@@ -100,12 +104,22 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/immersveRegister`, {
+      const finalRewardAddress = rewardAddress || connectedWalletAddress;
+      console.log('Sending registration request:', {
         twitterUsername: user.twitter.username,
         immersveAddress: fundAddress,
-        rewardAddress: rewardAddress || connectedWalletAddress
+        rewardAddress: finalRewardAddress
+      });
+      
+      await axios.post(`${API_BASE_URL}/api/immersveRegister`, {
+        twitterUsername: user.twitter.username,
+        immersveAddress: fundAddress,
+        rewardAddress: finalRewardAddress
       }, {
-        withCredentials: true
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       
       setIsRegistered(true);
