@@ -4,8 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useToast } from "@/components/ui/use-toast";
+import { AxiosError } from 'axios';
 
 interface Transaction {
   amount: number;
@@ -52,21 +53,19 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         withCredentials: true
       });
       
-      if (userResponse.data) {
+      if (userResponse.data && userResponse.data.immersveAddress) {
         setIsRegistered(true);
         setFundAddress(userResponse.data.immersveAddress || '');
         setRewardAddress(userResponse.data.rewardAddress || '');
         
-        if (userResponse.data.immersveAddress) {
-          const txResponse = await axios.get(
-            `${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`,
-            { withCredentials: true }
-          );
-          setTransactions(txResponse.data.transactions || []);
-        }
+        const txResponse = await axios.get(
+          `${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`,
+          { withCredentials: true }
+        );
+        setTransactions(txResponse.data.transactions || []);
       }
     } catch (error: unknown) {
-      // 404 is expected for new users, only show error for other cases
+      // 404 is expected for new users
       if (error instanceof AxiosError && error.response?.status !== 404) {
         console.error('Error fetching rewards data:', error);
         toast({
@@ -116,7 +115,6 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         duration: 3000
       });
       
-      // Switch to transactions panel after successful registration
       setActivePanel('transactions');
     } catch (error: unknown) {
       if (error instanceof AxiosError) {

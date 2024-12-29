@@ -102,6 +102,14 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  immersveAddress: {
+    type: String,
+    default: null
+  },
+  immersveRewardAddress: {
+    type: String,
+    default: null
+  },
   // Add view history tracking
   viewHistory: [ViewHistorySchema]
 }, { 

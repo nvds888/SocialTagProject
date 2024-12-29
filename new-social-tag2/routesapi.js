@@ -9,7 +9,6 @@ const peraWalletService = require('./perawalletservice');
 const OptInWallet = require('./modelsOptInWallet');
 const { AlgorandNFTViewer } = require('@gradian/arcviewer');
 const algosdk = require('algosdk');
-const ImmersveUser = require('./modelsImmersveUser');
 
 
 // Set up multer for file uploads
@@ -161,21 +160,20 @@ router.get('/social-balance', async (req, res) => {
  });
 
  router.get('/api/immersveUser/:username', sessionCheck, async (req, res) => {
-  console.log('SPECIFIC ROUTE DEBUG:', {
-    params: req.params,
-    query: req.query,
-    username: req.params.username,
-    fullUrl: req.originalUrl,
-    method: req.method
-  });
+  console.log('Fetching Immersve data for username:', req.params.username);
 
   try {
-    const user = await ImmersveUser.findOne({ twitterUsername: req.params.username });
+    const user = await User.findOne({ 'twitter.username': req.params.username });
     if (!user) {
-      console.log('USER NOT FOUND:', req.params.username);
+      console.log('User not found:', req.params.username);
       return res.status(404).json({ error: 'User not found' });
     }
-    res.json(user);
+    
+    // Only return Immersve-related data
+    res.json({
+      immersveAddress: user.immersveAddress,
+      rewardAddress: user.immersveRewardAddress
+    });
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Failed to fetch user data' });
@@ -186,13 +184,23 @@ router.post('/api/immersveRegister', sessionCheck, async (req, res) => {
   try {
     const { twitterUsername, immersveAddress, rewardAddress } = req.body;
     
-    const user = await ImmersveUser.findOneAndUpdate(
-      { twitterUsername },
-      { immersveAddress, rewardAddress },
-      { upsert: true, new: true }
+    const user = await User.findOneAndUpdate(
+      { 'twitter.username': twitterUsername },
+      { 
+        immersveAddress: immersveAddress,
+        immersveRewardAddress: rewardAddress
+      },
+      { new: true }
     );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
     
-    res.json(user);
+    res.json({
+      immersveAddress: user.immersveAddress,
+      rewardAddress: user.immersveRewardAddress
+    });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ error: 'Failed to register user' });
