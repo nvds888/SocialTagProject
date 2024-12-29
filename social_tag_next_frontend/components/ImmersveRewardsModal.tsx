@@ -29,6 +29,8 @@ interface ImmersveRewardsModalProps {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
+axios.defaults.withCredentials = true;
+
 const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   isOpen,
   onClose,
