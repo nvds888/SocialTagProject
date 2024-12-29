@@ -11,6 +11,7 @@ interface Transaction {
   amount: number;
   timestamp: string;
   txId: string;
+  isInnerTx?: boolean;
 }
 
 interface User {
@@ -182,108 +183,112 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
             <CreditCard className="h-6 w-6" />
             Immersve Payment Rewards
           </h2>
-        </div>
+          </div>
 
-        <div className="space-y-4">
-          <Button
-            onClick={() => togglePanel('register')}
-            className="w-full flex justify-between items-center py-2 px-4"
-            variant="outline"
-          >
-            <span>{isRegistered ? 'Registered' : 'Register'}</span>
-            {activePanel === 'register' ? <ChevronUp /> : <ChevronDown />}
-          </Button>
+<div className="space-y-4">
+  <Button
+    onClick={() => togglePanel('register')}
+    className="w-full flex justify-between items-center py-2 px-4"
+    variant="outline"
+  >
+    <span>{isRegistered ? 'Registered' : 'Register'}</span>
+    {activePanel === 'register' ? <ChevronUp /> : <ChevronDown />}
+  </Button>
 
-          {activePanel === 'register' && (
-            <div className="space-y-4 p-4 border-2 border-black rounded-lg">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Immersve Fund Address</label>
-                <Input
-                  placeholder="Enter your fund contract address"
-                  value={fundAddress}
-                  onChange={(e) => setFundAddress(e.target.value)}
-                  className="border-2 border-black"
-                  disabled={isRegistered || loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Reward Receiving Address</label>
-                <Input
-                  placeholder={connectedWalletAddress || "Enter address to receive rewards"}
-                  value={rewardAddress || connectedWalletAddress || ''}
-                  onChange={(e) => setRewardAddress(e.target.value)}
-                  className="border-2 border-black"
-                  disabled={!!connectedWalletAddress || isRegistered || loading}
-                />
-              </div>
-              {!isRegistered && (
-                <Button 
-                  onClick={handleRegistration} 
-                  className="w-full bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-2 border-black"
-                  disabled={loading}
-                >
-                  {loading ? 'Processing...' : 'Register'}
-                </Button>
-              )}
-            </div>
-          )}
-
-          <Button
-            onClick={() => togglePanel('transactions')}
-            className="w-full flex justify-between items-center"
-            variant="outline"
-          >
-            <span>Transactions</span>
-            {activePanel === 'transactions' ? <ChevronUp /> : <ChevronDown />}
-          </Button>
-
-          {activePanel === 'transactions' && (
-            <div className="space-y-4 p-4 border-2 border-black rounded-lg">
-              {loading ? (
-                <p className="text-center">Loading transactions...</p>
-              ) : isRegistered ? (
-                transactions.length > 0 ? (
-                  transactions.map((tx, index) => (
-                    <div 
-                      key={index} 
-                      className="flex items-center justify-between p-4 border-2 border-black rounded-lg"
-                    >
-                      <div>
-                        <p className="font-semibold">
-                          {new Date(tx.timestamp).toLocaleDateString()}
-                        </p>
-                        <p className="text-sm text-gray-600">${tx.amount.toFixed(2)} USDC</p>
-                      </div>
-                      {tx.txId && (
-                        <a
-                          href={`https://explorer.perawallet.app/tx/${tx.txId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline"
-                        >
-                          View
-                        </a>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-500">No transactions yet</p>
-                )
-              ) : (
-                <p className="text-center text-gray-500">Please register to view transactions</p>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <Button onClick={onClose} variant="outline">
-            Close
-          </Button>
-        </div>
+  {activePanel === 'register' && (
+    <div className="space-y-4 p-4 border-2 border-black rounded-lg">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Immersve Fund Address</label>
+        <Input
+          placeholder="Enter your fund contract address"
+          value={fundAddress}
+          onChange={(e) => setFundAddress(e.target.value)}
+          className="border-2 border-black"
+          disabled={isRegistered || loading}
+        />
       </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Reward Receiving Address</label>
+        <Input
+          placeholder={connectedWalletAddress || "Enter address to receive rewards"}
+          value={rewardAddress || connectedWalletAddress || ''}
+          onChange={(e) => setRewardAddress(e.target.value)}
+          className="border-2 border-black"
+          disabled={!!connectedWalletAddress || isRegistered || loading}
+        />
+      </div>
+      {!isRegistered && (
+        <Button 
+          onClick={handleRegistration} 
+          className="w-full bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-2 border-black"
+          disabled={loading}
+        >
+          {loading ? 'Processing...' : 'Register'}
+        </Button>
+      )}
     </div>
-  );
+  )}
+
+  <Button
+    onClick={() => togglePanel('transactions')}
+    className="w-full flex justify-between items-center"
+    variant="outline"
+  >
+    <span>Transactions</span>
+    {activePanel === 'transactions' ? <ChevronUp /> : <ChevronDown />}
+  </Button>
+
+  {activePanel === 'transactions' && (
+    <div className="space-y-4 p-4 border-2 border-black rounded-lg">
+      {loading ? (
+        <p className="text-center">Loading transactions...</p>
+      ) : isRegistered ? (
+        transactions.length > 0 ? (
+          transactions.map((tx, index) => {
+            const displayAmount = tx.amount.toFixed(2);
+            const txDate = new Date(tx.timestamp).toLocaleDateString();
+            return (
+              <div 
+                key={index} 
+                className="flex items-center justify-between p-4 border-2 border-black rounded-lg"
+              >
+                <div>
+                  <p className="font-semibold">{txDate}</p>
+                  <p className="text-sm text-gray-600">
+                    ${displayAmount} USDC {tx.isInnerTx ? '(Inner Transaction)' : ''}
+                  </p>
+                </div>
+                {tx.txId && (
+                  <a
+                    href={`https://explorer.perawallet.app/tx/${tx.txId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    View
+                  </a>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-center text-gray-500">No transactions yet</p>
+        )
+      ) : (
+        <p className="text-center text-gray-500">Please register to view transactions</p>
+      )}
+    </div>
+  )}
+</div>
+
+<div className="mt-6 flex justify-end">
+  <Button onClick={onClose} variant="outline">
+    Close
+  </Button>
+</div>
+</div>
+</div>
+);
 };
 
 export default ImmersveRewardsModal;

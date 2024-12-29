@@ -215,32 +215,57 @@ router.get('/immersveTransactions', sessionCheck, async (req, res) => {
   }
   
   try {
+    console.log('Fetching transactions for address:', address);
+    
     const response = await fetch(
       `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}/transactions?address=${IMMERSVE_MASTER_CONTRACT}`
     );
     
+    if (!response.ok) {
+      console.error('Indexer error:', await response.text());
+      throw new Error('Failed to fetch from indexer');
+    }
+    
     const data = await response.json();
+    console.log('Raw transaction data:', JSON.stringify(data, null, 2));
+    
     const transactions = [];
 
-    for (const tx of data.transactions) {
-      const allTxns = [tx, ...(tx['inner-txns'] || [])];
-      
-      for (const t of allTxns) {
-        if (
-          t['tx-type'] === 'axfer' && 
-          t['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
-          t['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT &&
-          t['application-transaction']?.['application-id'] === IMMERSVE_APP_ID
-        ) {
-          transactions.push({
-            amount: t['asset-transfer-transaction'].amount / 1000000, // Convert from microUSDC
-            timestamp: new Date(tx['round-time'] * 1000).toISOString(),
-            txId: tx.id
-          });
+    // Process both main and inner transactions
+    for (const tx of data.transactions || []) {
+      // Check main transaction
+      if (
+        tx['tx-type'] === 'axfer' &&
+        tx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
+        tx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
+      ) {
+        transactions.push({
+          amount: tx['asset-transfer-transaction'].amount / 1000000,
+          timestamp: new Date(tx['round-time'] * 1000).toISOString(),
+          txId: tx.id
+        });
+      }
+
+      // Check inner transactions
+      if (tx['inner-txns']) {
+        for (const innerTx of tx['inner-txns']) {
+          if (
+            innerTx['tx-type'] === 'axfer' &&
+            innerTx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
+            innerTx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
+          ) {
+            transactions.push({
+              amount: innerTx['asset-transfer-transaction'].amount / 1000000,
+              timestamp: new Date(tx['round-time'] * 1000).toISOString(),
+              txId: tx.id,
+              isInnerTx: true
+            });
+          }
         }
       }
     }
 
+    console.log('Processed transactions:', transactions);
     res.json({ transactions });
   } catch (error) {
     console.error('Error fetching transactions:', error);
