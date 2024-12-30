@@ -92,14 +92,28 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       console.log("Assets response:", response.data);
   
       const assets = response.data.assets.filter((asset: Asset) => {
-        console.log("Checking asset:", asset);
+        console.log("Asset details:", {
+          id: asset['asset-id'],
+          amount: asset.amount,
+          total: asset.params?.total,
+          url: asset.params?.url,
+          name: asset.params?.name
+        });
         return asset.amount > 0 && 
-               !asset.deleted &&
                asset.params && 
-               (asset.params.total === 1 || 
-                asset.params.url || 
-                (asset.params['unit-name'] && asset.params['unit-name'].toString().toLowerCase().includes('nft')));
-       });
+               (
+                 (asset.params.total === 1) ||
+                 (asset.params.url?.includes('ipfs')) ||
+                 (asset.params['unit-name'] && 
+                  typeof asset.params['unit-name'] === 'string' && 
+                  (
+                    asset.params['unit-name'].toLowerCase().includes('nft') ||
+                    asset.params['unit-name'].toLowerCase().includes('arc3') ||
+                    asset.params['unit-name'].toLowerCase().includes('arc69')
+                  )
+                 )
+               );
+      });
   
       console.log("Filtered assets:", assets);
       setProgress(`Found ${assets.length} potential NFTs`);
