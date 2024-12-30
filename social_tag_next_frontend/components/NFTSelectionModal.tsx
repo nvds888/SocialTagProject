@@ -79,22 +79,29 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       setError('No wallet address provided');
       return;
     }
-
+  
     try {
       setIsLoading(true);
       setError(null);
       setNfts([]);
-
+  
+      console.log("Fetching assets...");
       const response = await indexerAxios.get(
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
-
-      const assets = response.data.assets.filter((asset: Asset) => 
-        asset.amount > 0 && 
-        asset.params && 
-        (asset.params.total === 1 || asset.params.url)
-      );
-
+      console.log("Assets response:", response.data);
+  
+      const assets = response.data.assets.filter((asset: Asset) => {
+        console.log("Checking asset:", asset);
+        return asset.amount > 0 && 
+               !asset.deleted &&
+               asset.params && 
+               (asset.params.total === 1 || 
+                asset.params.url || 
+                (asset.params['unit-name'] && asset.params['unit-name'].toString().toLowerCase().includes('nft')));
+       });
+  
+      console.log("Filtered assets:", assets);
       setProgress(`Found ${assets.length} potential NFTs`);
       const processedNfts: NFT[] = [];
 
