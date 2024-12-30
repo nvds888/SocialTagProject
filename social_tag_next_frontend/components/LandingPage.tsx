@@ -262,7 +262,7 @@ export default function LandingPage() {
                 >
                   <FeatureIcon Icon={Coins} color="#FF6B6B" />
                   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Earn & Redeem</h3>
-                  <p className="text-gray-600">Earn points for every activity. Redeem rewards for exclusive items in the marketplace and boost your leaderboard ranking!</p>
+                  <p className="text-gray-600">Earn points for every activity. Unlock exclusive items in the marketplace and boost your leaderboard ranking!</p>
                 </motion.div>
               </div>
             </div>
