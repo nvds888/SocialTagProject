@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 5000;
 
 const { initializeDistributionScheduler } = require('./token_distribution_wrapper');
 
-initializeImmersveRewardsScheduler();
+// initializeImmersveRewardsScheduler();
 initializeDistributionScheduler();
 
 // MongoDB connection
