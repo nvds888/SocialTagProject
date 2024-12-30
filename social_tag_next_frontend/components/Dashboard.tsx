@@ -431,7 +431,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       {showConfetti && <Confetti />}
       <div className="relative z-10">
       <header className="flex flex-col sm:flex-row justify-between items-center p-4 sm:p-6 bg-white shadow-md gap-4">
-          <h1 className="text-4xl font-bold">SocialTag</h1>
+          <h1 className="text-4xl font-bold">SocialTag Protocol</h1>
           <nav className="flex items-center flex-wrap justify-center gap-2 sm:gap-4">
           <Link 
   href="/" 
