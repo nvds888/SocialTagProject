@@ -108,7 +108,7 @@ export default function LandingPage() {
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
             <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-              Web3 Social <span className="relative">
+              Authentic Social <span className="relative">
                 Identity
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
@@ -123,7 +123,7 @@ export default function LandingPage() {
                 />
               </span>.<br />
               IRL meets <span className="relative">
-                Memes
+                memes
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
