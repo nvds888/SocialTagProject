@@ -112,7 +112,7 @@ router.get('/user', sessionCheck, async (req, res) => {
   });
 });
 
-router.get('/rewardPools', async (req, res) => {
+router.get('/rewardPools', sessionCheck, async (_, res) => {
   try {
     const stats = await Statistics.findOne({ type: 'reward_pool' }) || { socials_distributed: 0 };
     
