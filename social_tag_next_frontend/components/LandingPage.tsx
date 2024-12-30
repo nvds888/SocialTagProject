@@ -100,7 +100,7 @@ export default function LandingPage() {
           <div className="bg-[#FFB951] border-2 border-black rounded-lg mx-4 px-4 py-3 flex items-center justify-center space-x-3 shadow-[4px_4px_0px_0px_rgba(0,0,0)]">
             <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
             <p className="text-black font-semibold">
-              🎉 Earn Cashback  on your everyday purchases! Fill out your info and start earning <span className="underline decoration-2">$socials</span> tokens now!
+              🎉 Daily Beta Rewards live now! Create an account and start earning <span className="underline decoration-2">$socials</span> tokens now!
             </p>
           </div>
         </motion.div>
@@ -108,7 +108,7 @@ export default function LandingPage() {
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
             <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-              Authentic Social <span className="relative">
+              Verified Social <span className="relative">
                 Identity
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
@@ -143,8 +143,8 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              Deploy your immutable, blockchain-verified Social Profile. Earn cashback rewards on everyday purchases - soon!
-              Where memes meet irl payments, and cashback levels up. 
+              SocialTag Protocol enables users to deploy immutable, blockchain-verified Social Profiles, and earn cashback rewards for irl spending - soon!
+              Deploy your tag now; 
             </motion.p>
             <motion.button
               className="create-profile-button bg-[#FF6B6B] text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[#FF6B6B]/90 transition-all border-2 border-black relative overflow-hidden mb-6"
