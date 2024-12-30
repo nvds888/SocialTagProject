@@ -43,6 +43,22 @@ const IMMERSVE_MASTER_CONTRACT = "UAKUGWMTFQJLUWMY4DYLVVAC67NOLUGGW6MIVAIPUU2APL
 const IMMERSVE_APP_ID = 2174001591;
 const USDC_ASSET_ID = 31566704;
 
+const StatisticsSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    required: true,
+    enum: ['reward_pool']
+  },
+  socials_distributed: {
+    type: Number,
+    default: 0
+  }
+}, { 
+  timestamps: true 
+});
+
+const Statistics = mongoose.model('Statistics', StatisticsSchema);
+
 
 
 const initAlgorandClient = () => {
@@ -108,6 +124,27 @@ router.get('/user', sessionCheck, async (req, res) => {
     stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null,
     reverifyCount: req.user.reverifyCount || 0,
   });
+});
+
+router.get('/rewardPools', async (req, res) => {
+  try {
+    // Get statistics from database
+    const stats = await Statistics.findOne({ type: 'reward_pool' }) || { socials_distributed: 0 };
+
+    // Define the pools configuration
+    const pools = [{
+      token: "SOCIALS",
+      icon: "/SocialTag.png",
+      totalPool: 8000000000000000, // 8B tokens
+      distributed: stats.socials_distributed,
+      rewardRate: "1M per USDC"
+    }];
+
+    res.json({ pools });
+  } catch (error) {
+    console.error('Error fetching reward pools:', error);
+    res.status(500).json({ error: 'Failed to fetch reward pools' });
+  }
 });
 
 router.get('/user/reward-points', sessionCheck, async (req, res) => {
