@@ -9,6 +9,7 @@ const peraWalletService = require('./perawalletservice');
 const OptInWallet = require('./modelsOptInWallet');
 const { AlgorandNFTViewer } = require('@gradian/arcviewer');
 const algosdk = require('algosdk');
+const Statistics = require('./modelsStatistics');
 
 
 // Set up multer for file uploads
@@ -43,21 +44,6 @@ const IMMERSVE_MASTER_CONTRACT = "UAKUGWMTFQJLUWMY4DYLVVAC67NOLUGGW6MIVAIPUU2APL
 const IMMERSVE_APP_ID = 2174001591;
 const USDC_ASSET_ID = 31566704;
 
-const StatisticsSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    required: true,
-    enum: ['reward_pool']
-  },
-  socials_distributed: {
-    type: Number,
-    default: 0
-  }
-}, { 
-  timestamps: true 
-});
-
-const Statistics = mongoose.model('Statistics', StatisticsSchema);
 
 
 
@@ -128,14 +114,12 @@ router.get('/user', sessionCheck, async (req, res) => {
 
 router.get('/rewardPools', async (req, res) => {
   try {
-    // Get statistics from database
     const stats = await Statistics.findOne({ type: 'reward_pool' }) || { socials_distributed: 0 };
-
-    // Define the pools configuration
+    
     const pools = [{
       token: "SOCIALS",
       icon: "/SocialTag.png",
-      totalPool: 8000000000000000, // 8B tokens
+      totalPool: 8000000000000000,
       distributed: stats.socials_distributed,
       rewardRate: "1M per USDC"
     }];
