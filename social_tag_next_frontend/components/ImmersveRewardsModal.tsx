@@ -8,6 +8,7 @@ import axios, { AxiosError } from 'axios';
 import { useToast } from "@/components/ui/use-toast";
 import Image from 'next/image';
 
+// Keep all interfaces exactly the same
 interface Transaction {
   amount: number;
   timestamp: string;
@@ -46,6 +47,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   user,
   connectedWalletAddress
 }) => {
+  // Keep all state declarations exactly the same
   const [fundAddress, setFundAddress] = useState<string>('');
   const [rewardAddress, setRewardAddress] = useState<string>('');
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
@@ -55,6 +57,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   const [pools, setPools] = useState<RewardPool[]>([]);
   const { toast } = useToast();
 
+  // Keep all the callbacks exactly the same
   const fetchPoolData = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/rewardPools`, {
@@ -63,7 +66,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
       setPools(response.data.pools || [{
         token: "SOCIALS",
         icon: "/SocialTag.png",
-        totalPool: 8000000000000000, // 8B tokens
+        totalPool: 8000000000000000,
         distributed: 0,
         rewardRate: "1M per USDC"
       }]);
@@ -184,13 +187,13 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
 
   if (!user.twitter?.username) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-black text-white p-6 rounded-lg max-w-3xl w-full border-2 border-white">
+      <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg max-w-3xl w-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0)]">
           <div className="text-red-500 mb-4">
             Please connect your Twitter account to access Immersve rewards.
           </div>
           <div className="flex justify-end">
-            <Button onClick={onClose} className="border-2 border-white text-white hover:bg-white hover:text-black">
+            <Button onClick={onClose} className="bg-white text-black border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]">
               Close
             </Button>
           </div>
@@ -200,8 +203,8 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-black text-white p-6 rounded-lg max-w-3xl w-full border-2 border-white">
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div className="bg-white text-black p-6 rounded-lg max-w-3xl w-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0)]">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <CreditCard className="h-6 w-6" />
@@ -213,21 +216,21 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
           {/* Register Panel */}
           <Button
             onClick={() => togglePanel('register')}
-            className="w-full flex justify-between items-center py-2 px-4 bg-black text-white border-2 border-white hover:bg-white hover:text-black"
+            className="w-full flex justify-between items-center py-2 px-4 bg-white text-black border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
           >
             <span>{isRegistered ? 'Registered' : 'Register'}</span>
             {activePanel === 'register' ? <ChevronUp /> : <ChevronDown />}
           </Button>
 
           {activePanel === 'register' && (
-            <div className="space-y-4 p-4 border-2 border-white rounded-lg">
+            <div className="space-y-4 p-4 border-2 border-black rounded-lg">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Immersve Fund Address</label>
                 <Input
                   placeholder="Enter your fund contract address"
                   value={fundAddress}
                   onChange={(e) => setFundAddress(e.target.value)}
-                  className="border-2 border-white bg-black text-white"
+                  className="border-2 border-black bg-white text-black"
                   disabled={isRegistered || loading}
                 />
               </div>
@@ -237,14 +240,14 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
                   placeholder={connectedWalletAddress || "Enter address to receive rewards"}
                   value={rewardAddress || connectedWalletAddress || ''}
                   onChange={(e) => setRewardAddress(e.target.value)}
-                  className="border-2 border-white bg-black text-white"
+                  className="border-2 border-black bg-white text-black"
                   disabled={!!connectedWalletAddress || isRegistered || loading}
                 />
               </div>
               {!isRegistered && (
                 <Button 
                   onClick={handleRegistration} 
-                  className="w-full bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-2 border-black"
+                  className="w-full bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
                   disabled={loading}
                 >
                   {loading ? 'Processing...' : 'Register'}
@@ -256,82 +259,84 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
           {/* Transactions Panel */}
           <Button
             onClick={() => togglePanel('transactions')}
-            className="w-full flex justify-between items-center py-2 px-4 bg-black text-white border-2 border-white hover:bg-white hover:text-black"
+            className="w-full flex justify-between items-center py-2 px-4 bg-white text-black border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
           >
             <span>Transactions</span>
             {activePanel === 'transactions' ? <ChevronUp /> : <ChevronDown />}
           </Button>
 
           {activePanel === 'transactions' && (
-            <div className="space-y-4 p-4 border-2 border-white rounded-lg">
-              {loading ? (
-                <p className="text-center">Loading transactions...</p>
-              ) : isRegistered ? (
-                transactions.length > 0 ? (
-                  transactions.map((tx, index) => (
-                    <div 
-                      key={index} 
-                      className="flex items-center justify-between p-4 border-2 border-white rounded-lg"
-                    >
-                      <div>
-                        <p className="font-semibold">{new Date(tx.timestamp).toLocaleDateString()}</p>
-                        <p className="text-sm text-gray-300">
-                          ${tx.amount.toFixed(2)} USDC {tx.isInnerTx ? '(Inner Transaction)' : ''}
-                        </p>
-                        {tx.rewardAmount && (
-                          <p className="text-xs text-green-400">
-                            +{(tx.rewardAmount / 1_000_000_000).toFixed(2)}B SOCIALS
+            <div className="border-2 border-black rounded-lg">
+              <div className="max-h-[400px] overflow-y-auto p-4 space-y-4">
+                {loading ? (
+                  <p className="text-center">Loading transactions...</p>
+                ) : isRegistered ? (
+                  transactions.length > 0 ? (
+                    transactions.map((tx, index) => (
+                      <div 
+                        key={index} 
+                        className="flex items-center justify-between p-4 border-2 border-black rounded-lg"
+                      >
+                        <div>
+                          <p className="font-semibold">{new Date(tx.timestamp).toLocaleDateString()}</p>
+                          <p className="text-sm text-gray-600">
+                            ${tx.amount.toFixed(2)} USDC {tx.isInnerTx ? '(Inner Transaction)' : ''}
                           </p>
-                        )}
+                          {tx.rewardAmount && (
+                            <p className="text-xs text-[#40E0D0] font-medium">
+                              +{(tx.rewardAmount / 1_000_000_000).toFixed(2)}B SOCIALS
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex space-x-2">
+                          {tx.rewardTxId && (
+                            <a
+                              href={`https://algoexplorer.io/tx/${tx.rewardTxId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#40E0D0] hover:underline text-sm"
+                            >
+                              Reward
+                            </a>
+                          )}
+                          {tx.txId && (
+                            <a
+                              href={`https://algoexplorer.io/tx/${tx.txId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#FF6B6B] hover:underline text-sm"
+                            >
+                              Payment
+                            </a>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex space-x-2">
-                        {tx.rewardTxId && (
-                          <a
-                            href={`https://algoexplorer.io/tx/${tx.rewardTxId}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-green-400 hover:underline text-sm"
-                          >
-                            Reward
-                          </a>
-                        )}
-                        {tx.txId && (
-                          <a
-                            href={`https://algoexplorer.io/tx/${tx.txId}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-400 hover:underline text-sm"
-                          >
-                            Payment
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-600">No transactions yet</p>
+                  )
                 ) : (
-                  <p className="text-center text-gray-400">No transactions yet</p>
-                )
-              ) : (
-                <p className="text-center text-gray-400">Please register to view transactions</p>
-              )}
+                  <p className="text-center text-gray-600">Please register to view transactions</p>
+                )}
+              </div>
             </div>
           )}
 
           {/* Reward Pools Panel */}
           <Button
             onClick={() => togglePanel('pools')}
-            className="w-full flex justify-between items-center py-2 px-4 bg-black text-white border-2 border-white hover:bg-white hover:text-black"
+            className="w-full flex justify-between items-center py-2 px-4 bg-white text-black border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
           >
             <span>Reward Pools</span>
             {activePanel === 'pools' ? <ChevronUp /> : <ChevronDown />}
           </Button>
 
           {activePanel === 'pools' && (
-            <div className="space-y-4 p-4 border-2 border-white rounded-lg">
+            <div className="space-y-4 p-4 border-2 border-black rounded-lg">
               {pools.map((pool) => (
                 <div 
                   key={pool.token}
-                  className="flex items-center justify-between p-4 border-2 border-white rounded-lg"
+                  className="flex items-center justify-between p-4 border-2 border-black rounded-lg"
                 >
                   <div className="flex items-center space-x-3">
                     <Image 
@@ -343,16 +348,16 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
                     />
                     <div>
                       <p className="font-semibold">{pool.token}</p>
-                      <p className="text-sm text-gray-300">
+                      <p className="text-sm text-gray-600">
                         {((pool.totalPool - pool.distributed) / 1_000_000_000).toFixed(2)}B available
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-500">
                         Rate: {pool.rewardRate}
                       </p>
                     </div>
                   </div>
                   <div className="w-1/3">
-                    <div className="h-2 bg-gray-800 rounded-full">
+                    <div className="h-2 bg-gray-200 rounded-full">
                       <div 
                         className="h-full bg-[#FF6B6B] rounded-full"
                         style={{ 
@@ -368,7 +373,10 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         </div>
 
         <div className="mt-6 flex justify-end">
-          <Button onClick={onClose} className="border-2 border-white text-white hover:bg-white hover:text-black">
+          <Button 
+            onClick={onClose} 
+            className="bg-white text-black border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
+          >
             Close
           </Button>
         </div>
