@@ -100,7 +100,7 @@ export default function LandingPage() {
           <div className="bg-[#FFB951] border-2 border-black rounded-lg mx-4 px-4 py-3 flex items-center justify-center space-x-3 shadow-[4px_4px_0px_0px_rgba(0,0,0)]">
             <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
             <p className="text-black font-semibold">
-              🎉 Daily Beta Rewards live now! Create an account and start earning <span className="underline decoration-2">$socials</span> tokens now!
+              🎉 Daily Beta Rewards live! Create an account and start earning <span className="underline decoration-2">$socials</span> tokens now!
             </p>
           </div>
         </motion.div>
@@ -143,8 +143,8 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              SocialTag Protocol enables users to deploy immutable, blockchain-verified Social Profiles, and earn cashback rewards for irl spending - soon!
-              Deploy your tag now; 
+              SocialTag Protocol is the backbone of everything social & rewards. Deploy your immutable, blockchain-verified Social Profile. Compete on the leaderboard. Play and earn!
+              Deploy your tag; 
             </motion.p>
             <motion.button
               className="create-profile-button bg-[#FF6B6B] text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[#FF6B6B]/90 transition-all border-2 border-black relative overflow-hidden mb-6"
@@ -202,7 +202,7 @@ export default function LandingPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
                   <div className="bg-white/10 p-6 rounded-xl">
                     <h3 className="text-2xl font-bold mb-4">Tap and earn</h3>
-                    <p>Cashback on everyday purchases for linked debit cards</p>
+                    <p>Cashback on everyday purchases for linked onchain checking accounts</p>
                   </div>
                   <div className="bg-white/10 p-6 rounded-xl">
                     <h3 className="text-2xl font-bold mb-4">ASA Reward Pools</h3>
@@ -210,7 +210,7 @@ export default function LandingPage() {
                   </div>
                   <div className="bg-white/10 p-6 rounded-xl">
                     <h3 className="text-2xl font-bold mb-4">Web3 + IRL</h3>
-                    <p>Bridging digital and physical experiences through rewards</p>
+                    <p>Bridging digital and physical experiences through cashback</p>
                   </div>
                 </div>
               </div>
@@ -249,8 +249,8 @@ export default function LandingPage() {
                   whileHover={{ y: -5 }}
                 >
                   <FeatureIcon Icon={CreditCard} color="#40E0D0" />
-                  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Cashback for irl payments</h3>
-                  <p className="text-gray-600">Link your card&apos;s fund wallet and start earning cashback rewards in $socials and other ASAs. The more you spend, the more you earn!</p>
+                  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Pay and earn</h3>
+                  <p className="text-gray-600">Link your onchain checking account and start earning cashback rewards in $socials and other ASAs. The more you spend, the more you earn!</p>
                 </motion.div>
 
                 <motion.div 
@@ -262,7 +262,7 @@ export default function LandingPage() {
                 >
                   <FeatureIcon Icon={Coins} color="#FF6B6B" />
                   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Earn & Redeem</h3>
-                  <p className="text-gray-600">Earn tokens for every activity. Redeem rewards for exclusive items in the marketplace and boost your leaderboard ranking!</p>
+                  <p className="text-gray-600">Earn points for every activity. Redeem rewards for exclusive items in the marketplace and boost your leaderboard ranking!</p>
                 </motion.div>
               </div>
             </div>
