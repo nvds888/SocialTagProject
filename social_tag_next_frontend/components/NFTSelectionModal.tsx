@@ -27,6 +27,18 @@ interface NFTSelectionModalProps {
   selectedNFT: NFT | null;
 }
 
+interface Asset {
+  'asset-id': number;
+  amount: number;
+  params: {
+    name?: string;
+    url?: string;
+    total?: number;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
 const IPFS_GATEWAYS = [
   'https://ipfs.io/ipfs/',
   'https://cloudflare-ipfs.com/ipfs/',
@@ -77,7 +89,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
 
-      const assets = response.data.assets.filter((asset: any) => 
+      const assets = response.data.assets.filter((asset: Asset) => 
         asset.amount > 0 && 
         asset.params && 
         (asset.params.total === 1 || asset.params.url)
@@ -90,7 +102,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         const batch = assets.slice(i, i + 5);
         setProgress(`Processing NFTs ${i + 1}-${Math.min(i + 5, assets.length)} of ${assets.length}`);
 
-        const batchPromises = batch.map(async (asset: any) => {
+        const batchPromises = batch.map(async (asset: Asset) => {
           try {
             let imageUrl = asset.params.url;
             if (imageUrl) {
@@ -138,9 +150,9 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <div className="max-w-4xl w-full bg-white p-6 rounded-lg border-2 border-black">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-black mb-4">
-            Select NFT
-          </DialogTitle>
+          <div className="text-2xl font-bold text-black mb-4">
+            <DialogTitle>Select NFT</DialogTitle>
+          </div>
         </DialogHeader>
         <DialogContent>
           <Button
