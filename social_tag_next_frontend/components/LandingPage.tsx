@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import axios from 'axios'
-import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, User, Coins, CreditCard } from 'lucide-react'
+import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, User, Coins, CreditCard, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SpotifyIcon from '@/components/SpotifyIcon' 
 import Leaderboard from '@/components/Leaderboard'
@@ -108,8 +108,8 @@ export default function LandingPage() {
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
             <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-              Where <span className="relative">
-                Social
+              Authentic <span className="relative">
+                you
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
@@ -122,8 +122,8 @@ export default function LandingPage() {
                   }}
                 />
               </span>.<br />
-              Meets <span className="relative">
-                Rewards
+              That&apos;s the play <span className="relative">
+              
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
@@ -203,17 +203,31 @@ export default function LandingPage() {
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                <motion.div 
-                  className="feature-card backdrop-blur-md bg-[#FFB951]/40 p-8 rounded-2xl border border-[#FFB951]/50 shadow-xl hover:shadow-2xl transition-all duration-300"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <FeatureIcon Icon={CheckCircle} color="#FFB951" />
-                  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Authentic You</h3>
-                  <p className="text-gray-600">Immutable, blockchain-verified profiles with API authentication. No blockchain expertise required to get started.</p>
-                </motion.div>
+              <motion.div 
+  className="feature-card backdrop-blur-md bg-[#FFB951]/40 p-8 rounded-2xl border border-[#FFB951]/50 shadow-xl hover:shadow-2xl transition-all duration-300"
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: 0.1 }}
+  whileHover={{ y: -5 }}
+>
+  <FeatureIcon Icon={CheckCircle} color="#FFB951" />
+  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Authentic You</h3>
+  <p className="text-gray-600 mb-4">Immutable, blockchain-verified profiles with API authentication. No blockchain expertise required to get started.</p>
+  
+  <button 
+    onClick={() => {
+      // You can either embed the video in a modal or redirect to a video page
+      window.location.href = '/SocialTag-Veed.mp4';
+    }}
+    className="flex items-center space-x-2 text-black hover:text-[#FFB951] transition-colors group mt-2"
+  >
+    <span className="text-sm font-medium">Learn More</span>
+    <ArrowRight 
+      size={16} 
+      className="transform transition-transform group-hover:translate-x-1"
+    />
+  </button>
+</motion.div>
 
                 <motion.div 
                   className="feature-card backdrop-blur-md bg-[#40E0D0]/40 p-8 rounded-2xl border border-[#40E0D0]/50 shadow-xl hover:shadow-2xl transition-all duration-300"
