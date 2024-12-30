@@ -109,8 +109,8 @@ const LandingPage: React.FC = () => {
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
             <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-               <span className="relative">
-                Authentic
+               Authentic You<span className="relative">
+            
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
@@ -122,10 +122,10 @@ const LandingPage: React.FC = () => {
                     repeatDelay: 1
                   }}
                 />
-                You
-              </span>.<br />
-              That&apos;s the play <span className="relative">
               
+              </span>.<br />
+               <span className="relative">
+              That&apos;s the play
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
