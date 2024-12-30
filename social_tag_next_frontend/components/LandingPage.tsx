@@ -122,8 +122,8 @@ export default function LandingPage() {
                   }}
                 />
               </span>.<br />
-              IRL <span className="relative">
-                Rewards
+              IRL meets <span className="relative">
+                Memes
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
@@ -195,17 +195,17 @@ export default function LandingPage() {
           <section ref={aboutRef} className="rewards-section mb-20">
             <div className="bg-black text-white rounded-3xl px-8 py-16 max-w-4xl mx-auto border-4 border-white shadow-lg">
               <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-4xl font-bold mb-8">Cashback Rewards That Make Sense</h2>
+                <h2 className="text-4xl font-bold mb-8">Cashback Rewards Leveled Up</h2>
                 <p className="text-xl mb-8">
-                  Leveraging onchain data to connect the web3 bubble to IRL payments, and making cashback and buying groceries more fun.
+                  Leveraging onchain data to connect the web3 bubble to IRL payments, and making buying groceries more fun.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
                   <div className="bg-white/10 p-6 rounded-xl">
-                    <h3 className="text-2xl font-bold mb-4">For every $ spend</h3>
-                    <p>Cashback on everyday purchases with linked debit cards</p>
+                    <h3 className="text-2xl font-bold mb-4">Tap and earn</h3>
+                    <p>Cashback on everyday purchases for linked debit cards</p>
                   </div>
                   <div className="bg-white/10 p-6 rounded-xl">
-                    <h3 className="text-2xl font-bold mb-4">$socials & other ASAs</h3>
+                    <h3 className="text-2xl font-bold mb-4">ASA Reward Pools</h3>
                     <p>Tap into multiple Reward Pools that can be created for any ASA</p>
                   </div>
                   <div className="bg-white/10 p-6 rounded-xl">
@@ -250,7 +250,7 @@ export default function LandingPage() {
                 >
                   <FeatureIcon Icon={CreditCard} color="#40E0D0" />
                   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Cashback for irl payments</h3>
-                  <p className="text-gray-600">Link your card&apos;s fund wallet and start earning cashback rewards in $socials and soon other ASAs. The more you spend, the more you earn!</p>
+                  <p className="text-gray-600">Link your card&apos;s fund wallet and start earning cashback rewards in $socials and other ASAs. The more you spend, the more you earn!</p>
                 </motion.div>
 
                 <motion.div 
