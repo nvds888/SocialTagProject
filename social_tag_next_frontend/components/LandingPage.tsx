@@ -143,8 +143,8 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              SocialTag Protocol is the backbone of everything social & rewards. Deploy your immutable, blockchain-verified Social Profile. Compete on the leaderboard. Play and earn!
-              Deploy your tag; 
+              SocialTag Protocol envisions a social & rewards centric universe. Deploy your immutable, blockchain-verified Social Profile, and compete on the leaderboard!
+             
             </motion.p>
             <motion.button
               className="create-profile-button bg-[#FF6B6B] text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[#FF6B6B]/90 transition-all border-2 border-black relative overflow-hidden mb-6"
@@ -195,7 +195,7 @@ export default function LandingPage() {
           <section ref={aboutRef} className="rewards-section mb-20">
             <div className="bg-black text-white rounded-3xl px-8 py-16 max-w-4xl mx-auto border-4 border-white shadow-lg">
               <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-4xl font-bold mb-8">Cashback Rewards Leveled Up</h2>
+                <h2 className="text-4xl font-bold mb-8">Cashback Rewards Leveled Up - soon!</h2>
                 <p className="text-xl mb-8">
                   Leveraging onchain data to connect the web3 bubble to IRL payments, and making buying groceries more fun.
                 </p>
