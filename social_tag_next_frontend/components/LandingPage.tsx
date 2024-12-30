@@ -143,8 +143,8 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              Deploy your immutable, blockchain-verified Social Profile. Earn cashback rewards on everyday purchases.
-              Where memes meet Web3 and real-world payments, creating a new standard for social protocols.
+              Deploy your immutable, blockchain-verified Social Profile. Earn cashback rewards on everyday purchases - soon!
+              Where memes meet irl payments, and cashback levels up. 
             </motion.p>
             <motion.button
               className="create-profile-button bg-[#FF6B6B] text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[#FF6B6B]/90 transition-all border-2 border-black relative overflow-hidden mb-6"
@@ -197,16 +197,16 @@ export default function LandingPage() {
               <div className="max-w-3xl mx-auto text-center">
                 <h2 className="text-4xl font-bold mb-8">Cashback Rewards That Make Sense</h2>
                 <p className="text-xl mb-8">
-                  Leveraging onchain data to connect the web3 bubble to IRL payments, and making cashback more fun.
+                  Leveraging onchain data to connect the web3 bubble to IRL payments, and making cashback and buying groceries more fun.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
                   <div className="bg-white/10 p-6 rounded-xl">
-                    <h3 className="text-2xl font-bold mb-4">Up to 10%</h3>
-                    <p>Cashback on everyday purchases with connected cards</p>
+                    <h3 className="text-2xl font-bold mb-4">For every $ spend</h3>
+                    <p>Cashback on everyday purchases with linked debit cards</p>
                   </div>
                   <div className="bg-white/10 p-6 rounded-xl">
-                    <h3 className="text-2xl font-bold mb-4">$socials</h3>
-                    <p>Earn tokens for every transaction and social interaction</p>
+                    <h3 className="text-2xl font-bold mb-4">$socials & other ASAs</h3>
+                    <p>Tap into multiple Reward Pools that can be created for any ASA</p>
                   </div>
                   <div className="bg-white/10 p-6 rounded-xl">
                     <h3 className="text-2xl font-bold mb-4">Web3 + IRL</h3>
@@ -249,8 +249,8 @@ export default function LandingPage() {
                   whileHover={{ y: -5 }}
                 >
                   <FeatureIcon Icon={CreditCard} color="#40E0D0" />
-                  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Smart Cashback</h3>
-                  <p className="text-gray-600">Connect your debit cards and start earning cashback rewards in $socials tokens. The more you use it, the more you earn!</p>
+                  <h3 className="text-xl font-semibold mb-4 text-black mt-6">Cashback for irl payments</h3>
+                  <p className="text-gray-600">Link your card&apos;s fund wallet and start earning cashback rewards in $socials and soon other ASAs. The more you spend, the more you earn!</p>
                 </motion.div>
 
                 <motion.div 
