@@ -92,16 +92,9 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       console.log("Assets response:", response.data);
   
       const assets = response.data.assets.filter((asset: Asset) => {
-        console.log("Asset details:", asset);
         return asset.amount > 0 && 
                asset.params && 
-               !asset.deleted &&
-               (
-                 asset.params.total === 1 ||
-                 asset.params.url ||
-                 asset.params['unit-name'] ||
-                 asset.params.name
-               );
+               (asset.params.decimals === 0 || !asset.params.decimals);
        });
   
       console.log("Filtered assets:", assets);
@@ -115,32 +108,24 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         const batchPromises = batch.map(async (asset: Asset) => {
           try {
             let imageUrl = asset.params.url;
-            if (!imageUrl && asset.params['reserve']) {
-              // Try to construct IPFS URL from reserve address
-              imageUrl = `ipfs://${asset.params['reserve']}`;
-            }
             if (imageUrl) {
               imageUrl = await processIPFSUrl(imageUrl);
             }
-        
-            // Try to get metadata from notes or other sources if no URL exists
-            const metadata = {
-              name: asset.params.name || asset.params['unit-name'] || 'Unnamed NFT',
-              image: imageUrl,
-              description: asset.params.metadata || '',
-            };
-        
+            
             return {
               assetId: asset['asset-id'],
-              metadata,
+              metadata: {
+                name: asset.params.name || asset.params['unit-name'] || 'Unnamed NFT',
+                image: imageUrl
+              },
               image: imageUrl,
-              name: metadata.name
+              name: asset.params.name || asset.params['unit-name'] || 'Unnamed NFT'
             };
           } catch (err) {
-            console.log(`Processing asset ${asset['asset-id']}:`, asset);
+            console.log('Asset processing error:', asset, err);
             return null;
           }
-        });
+         });
 
         const batchResults = await Promise.all(batchPromises);
         const validResults = batchResults.filter((nft): nft is NFT => nft !== null);
