@@ -108,8 +108,8 @@ export default function LandingPage() {
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
             <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-              <span className="relative">
-                Authentic You
+              Where <span className="relative">
+                Social
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
@@ -122,8 +122,8 @@ export default function LandingPage() {
                   }}
                 />
               </span>.<br />
-              & where IRL meets <span className="relative">
-                memes
+              Meets <span className="relative">
+                Rewards
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
@@ -143,7 +143,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              SocialTag Protocol enables authentic online social experiences. Deploy your immutable, blockchain-verified Social Profile, and compete on the leaderboard!
+              Shaping authentic online social experiences. Deploy your immutable Social Profile, compete on the leaderboard, and reap rewards!
              
             </motion.p>
             <motion.button
@@ -191,32 +191,6 @@ export default function LandingPage() {
             <ChevronDown size={32} className="bounce mx-auto text-black" />
           </div>
 
-          {/* Cashback Rewards Section */}
-          <section ref={aboutRef} className="rewards-section mb-20">
-            <div className="bg-black text-white rounded-3xl px-8 py-16 max-w-4xl mx-auto border-4 border-white shadow-lg">
-              <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-4xl font-bold mb-8">Cashback Rewards Leveled Up - soon!</h2>
-                <p className="text-xl mb-8">
-                  Leveraging onchain data to connect the web3 bubble to IRL payments, and making buying groceries more fun.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                  <div className="bg-white/10 p-6 rounded-xl">
-                    <h3 className="text-2xl font-bold mb-4">Tap and earn</h3>
-                    <p>Cashback on everyday purchases for linked onchain checking accounts</p>
-                  </div>
-                  <div className="bg-white/10 p-6 rounded-xl">
-                    <h3 className="text-2xl font-bold mb-4">ASA Reward Pools</h3>
-                    <p>Tap into multiple Reward Pools that can be created for any ASA</p>
-                  </div>
-                  <div className="bg-white/10 p-6 rounded-xl">
-                    <h3 className="text-2xl font-bold mb-4">Web3 + IRL</h3>
-                    <p>Bridging digital and physical experiences through cashback</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* Features Section */}
           <section ref={featuresRef} className="features-section relative mb-20 min-h-[600px] overflow-hidden">
             <div className="absolute inset-0">
@@ -250,7 +224,7 @@ export default function LandingPage() {
                 >
                   <FeatureIcon Icon={CreditCard} color="#40E0D0" />
                   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Pay and earn</h3>
-                  <p className="text-gray-600">Link your onchain checking account and start earning cashback rewards in $socials and other ASAs. The more you spend, the more you earn!</p>
+                  <p className="text-gray-600">Start earning cashback rewards in $socials and other ASAs. The more you spend, the more you earn!</p>
                 </motion.div>
 
                 <motion.div 
@@ -267,6 +241,39 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
+
+          {/* Cashback Rewards Section */}
+          <section ref={aboutRef} className="rewards-section mb-20 relative">
+  {/* Coming Soon Stamp */}
+  <div className="absolute -right-4 top-8 transform rotate-12 z-10">
+    <div className="bg-[#FF6B6B] text-black px-8 py-2 rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0)] font-bold text-lg">
+      Coming Soon
+    </div>
+  </div>
+
+  <div className="bg-black text-white rounded-3xl px-8 py-16 max-w-4xl mx-auto border-4 border-white shadow-lg relative overflow-hidden">
+    <div className="max-w-3xl mx-auto text-center">
+      <h2 className="text-4xl font-bold mb-8">Cashback Rewards Leveled Up</h2>
+      <p className="text-xl mb-8">
+        Leveraging onchain data to connect the web3 bubble to IRL payments, making buying groceries more fun.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+        <div className="bg-white/10 p-6 rounded-xl border-2 border-white/20 hover:border-white/40 transition-colors">
+          <h3 className="text-2xl font-bold mb-4">Tap and earn</h3>
+          <p>Streamlined cashback rewards for everyday purchases</p>
+        </div>
+        <div className="bg-white/10 p-6 rounded-xl border-2 border-white/20 hover:border-white/40 transition-colors">
+          <h3 className="text-2xl font-bold mb-4">Reward Pools</h3>
+          <p>Tap into multiple Reward Pools that can be created for any ASA</p>
+        </div>
+        <div className="bg-white/10 p-6 rounded-xl border-2 border-white/20 hover:border-white/40 transition-colors">
+          <h3 className="text-2xl font-bold mb-4">Web3 + IRL</h3>
+          <p>Bridging digital and physical experiences through cashback</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
         </main>
 
         <footer className="landing-footer text-center p-6 bg-black text-white">
