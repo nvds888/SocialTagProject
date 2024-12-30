@@ -188,6 +188,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Balance:</span>
             <div className="flex items-center space-x-2">
+            <span className="text-sm font-bold">{socialBalance} </span>
               <Image
                 src="/SocialTag.png"
                 alt="SocialTag"
@@ -195,7 +196,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
                 height={20}
                 className="rounded-full"
               />
-              <span className="text-sm font-bold">{socialBalance} $SOCIALS</span>
             </div>
           </div>
         </div>
