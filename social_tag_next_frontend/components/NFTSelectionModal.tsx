@@ -91,11 +91,14 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       );
       console.log("Assets response:", response.data);
   
-      const assets = response.data.assets.filter((asset: Asset) => {
-        return asset.amount > 0 && 
-               asset.params && 
-               (asset.params.decimals === 0 || !asset.params.decimals);
-       });
+      const assets = response.data.assets;
+console.log("All assets:", assets);
+
+const nftAssets = assets.filter((asset: Asset) => {
+ return asset.amount > 0 && asset.params;
+});
+
+console.log("NFT assets:", nftAssets);
   
       console.log("Filtered assets:", assets);
       setProgress(`Found ${assets.length} potential NFTs`);
