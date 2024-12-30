@@ -92,28 +92,17 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       console.log("Assets response:", response.data);
   
       const assets = response.data.assets.filter((asset: Asset) => {
-        console.log("Asset details:", {
-          id: asset['asset-id'],
-          amount: asset.amount,
-          total: asset.params?.total,
-          url: asset.params?.url,
-          name: asset.params?.name
-        });
+        console.log("Asset details:", asset);
         return asset.amount > 0 && 
                asset.params && 
+               !asset.deleted &&
                (
-                 (asset.params.total === 1) ||
-                 (asset.params.url?.includes('ipfs')) ||
-                 (asset.params['unit-name'] && 
-                  typeof asset.params['unit-name'] === 'string' && 
-                  (
-                    asset.params['unit-name'].toLowerCase().includes('nft') ||
-                    asset.params['unit-name'].toLowerCase().includes('arc3') ||
-                    asset.params['unit-name'].toLowerCase().includes('arc69')
-                  )
-                 )
+                 asset.params.total === 1 ||
+                 asset.params.url ||
+                 asset.params['unit-name'] ||
+                 asset.params.name
                );
-      });
+       });
   
       console.log("Filtered assets:", assets);
       setProgress(`Found ${assets.length} potential NFTs`);
@@ -126,21 +115,29 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         const batchPromises = batch.map(async (asset: Asset) => {
           try {
             let imageUrl = asset.params.url;
+            if (!imageUrl && asset.params['reserve']) {
+              // Try to construct IPFS URL from reserve address
+              imageUrl = `ipfs://${asset.params['reserve']}`;
+            }
             if (imageUrl) {
               imageUrl = await processIPFSUrl(imageUrl);
             }
-
+        
+            // Try to get metadata from notes or other sources if no URL exists
+            const metadata = {
+              name: asset.params.name || asset.params['unit-name'] || 'Unnamed NFT',
+              image: imageUrl,
+              description: asset.params.metadata || '',
+            };
+        
             return {
               assetId: asset['asset-id'],
-              metadata: {
-                name: asset.params.name || 'Unnamed NFT',
-                image: imageUrl
-              },
+              metadata,
               image: imageUrl,
-              name: asset.params.name || 'Unnamed NFT'
+              name: metadata.name
             };
           } catch (err) {
-            console.error(`Error processing asset ${asset['asset-id']}:`, err);
+            console.log(`Processing asset ${asset['asset-id']}:`, asset);
             return null;
           }
         });
