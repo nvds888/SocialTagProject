@@ -21,6 +21,7 @@ import VerificationDialog from '@/components/VerificationDialog'
 import ReVerificationDialog from '@/components/ReVerificationDialog'
 import Leaderboard from '@/components/Leaderboard'
 import { NFT, Verification } from '@/types/User'
+import Image from 'next/image';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
@@ -186,7 +187,16 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         <div className="border-b border-gray-200 pb-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Balance:</span>
-            <span className="text-sm font-bold">{socialBalance} $SOCIALS</span>
+            <div className="flex items-center space-x-2">
+              <Image
+                src="/SocialTag.png"
+                alt="SocialTag"
+                width={20}
+                height={20}
+                className="rounded-full"
+              />
+              <span className="text-sm font-bold">{socialBalance} $SOCIALS</span>
+            </div>
           </div>
         </div>
         <button
