@@ -108,8 +108,8 @@ export default function LandingPage() {
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
             <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-              Verified Social <span className="relative">
-                Identity
+              Verified <span className="relative">
+                Public Profile
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
@@ -143,7 +143,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              SocialTag Protocol envisions a social & rewards centric universe. Deploy your immutable, blockchain-verified Social Profile, and compete on the leaderboard!
+              SocialTag Protocol is the backbone of social centric universe. Deploy your immutable, blockchain-verified Social Profile, and compete on the leaderboard!
              
             </motion.p>
             <motion.button
