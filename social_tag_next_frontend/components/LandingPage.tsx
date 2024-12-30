@@ -21,7 +21,8 @@ const FeatureIcon = ({ Icon, color }: { Icon: React.ElementType; color: string }
   </div>
 )
 
-export default function LandingPage() {
+const LandingPage: React.FC = () => {
+  const [showVideoModal, setShowVideoModal] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -108,8 +109,8 @@ export default function LandingPage() {
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
             <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-              Authentic <span className="relative">
-                you
+               <span className="relative">
+                Authentic
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
@@ -121,6 +122,7 @@ export default function LandingPage() {
                     repeatDelay: 1
                   }}
                 />
+                You
               </span>.<br />
               That&apos;s the play <span className="relative">
               
@@ -215,10 +217,7 @@ export default function LandingPage() {
   <p className="text-gray-600 mb-4">Immutable, blockchain-verified profiles with API authentication. No blockchain expertise required to get started.</p>
   
   <button 
-    onClick={() => {
-      // You can either embed the video in a modal or redirect to a video page
-      window.location.href = '/SocialTag-Veed.mp4';
-    }}
+    onClick={() => setShowVideoModal(true)}
     className="flex items-center space-x-2 text-black hover:text-[#FFB951] transition-colors group mt-2"
   >
     <span className="text-sm font-medium">Learn More</span>
@@ -390,6 +389,32 @@ export default function LandingPage() {
           60% { transform: translateY(-5px); }
         }
       `}</style>
+
+{showVideoModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div className="bg-black p-6 rounded-lg max-w-4xl w-full border-2 border-white shadow-[4px_4px_0px_0px_rgba(255,255,255)] relative">
+                    <button
+                        onClick={() => setShowVideoModal(false)}
+                        className="absolute -top-4 -right-4 w-8 h-8 bg-[#FF6B6B] text-black rounded-full border-2 border-black flex items-center justify-center hover:bg-[#FF6B6B]/90 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
+                    >
+                        ×
+                    </button>
+                    <div className="relative rounded-lg overflow-hidden aspect-video">
+                        <video
+                            className="w-full h-full"
+                            controls
+                            autoPlay
+                            playsInline
+                        >
+                            <source src="/SocialTag-Veed.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        )}
     </div>
-  )
+  );
 }
+
+export default LandingPage;
