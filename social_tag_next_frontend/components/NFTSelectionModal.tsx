@@ -1,25 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { motion } from 'framer-motion'
-import { Loader2 } from 'lucide-react'
-
-interface AssetParams {
-  url?: string;
-  name?: string;
-  'unit-name'?: string;
-  total?: number;
-  decimals?: number;
-  [key: string]: unknown;
-}
-
-interface Asset {
-  'asset-id': number;
-  amount: number;
-  params: AssetParams;
-  [key: string]: unknown;
-}
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 
 interface NFTMetadata {
   name: string;
@@ -43,59 +27,26 @@ interface NFTSelectionModalProps {
   selectedNFT: NFT | null;
 }
 
-// Create an axios instance specifically for indexer calls
+const IPFS_GATEWAYS = [
+  'https://ipfs.io/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/',
+  'https://nftstorage.link/ipfs/'
+];
+
 const indexerAxios = axios.create({
-  withCredentials: false
+  withCredentials: false,
+  timeout: 10000
 });
 
-// Helper function to delay execution
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const getIndexerURL = (network: string): string => 
+  network === 'mainnet' ? 'https://mainnet-idx.algonode.cloud' : 'https://testnet-idx.algonode.cloud';
 
-// Helper function to check if an asset is likely an NFT
-function isLikelyNFT(asset: Asset): boolean {
-  // Only check if the asset exists and has params
-  return !!asset && !!asset.params;
-}
-
-async function fetchNFTMetadata(assetId: number, network: string): Promise<string | undefined> {
-  try {
-    const response = await indexerAxios.get(
-      `${getIndexerURL(network)}/v2/assets/${assetId}`,
-      { timeout: 5000 } // Add timeout
-    );
-    return response.data.asset.params.url;
-  } catch (error) {
-    console.error(`Error fetching metadata for asset ${assetId}:`, error);
-    return undefined;
+async function processIPFSUrl(url: string): Promise<string> {
+  if (url.startsWith('ipfs://')) {
+    const cid = url.replace('ipfs://', '');
+    return `${IPFS_GATEWAYS[0]}${cid}`;
   }
-}
-
-async function fetchIPFSData(ipfsUrl: string): Promise<NFTMetadata> {
-  try {
-    if (!ipfsUrl) {
-      return { name: 'Unknown', image: undefined };
-    }
-
-    // Handle different IPFS gateway formats
-    let url = ipfsUrl;
-    if (url.startsWith('ipfs://')) {
-      url = url.replace('ipfs://', 'https://ipfs.io/ipfs/');
-    }
-
-    const response = await indexerAxios.get(url, { timeout: 5000 });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching IPFS data:', error);
-    return { name: 'Unknown', image: undefined };
-  }
-}
-
-function getIndexerURL(network: string): string {
-  if (network === 'mainnet') {
-    return 'https://mainnet-idx.algonode.cloud';
-  } else {
-    return 'https://testnet-idx.algonode.cloud';
-  }
+  return url;
 }
 
 const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
@@ -111,7 +62,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string>('');
 
-  async function loadNFTs() {
+  async function loadNFTs(): Promise<void> {
     if (!walletAddress) {
       setError('No wallet address provided');
       return;
@@ -122,68 +73,38 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       setError(null);
       setNfts([]);
 
-      const assets = await indexerAxios.get<{ assets: Asset[] }>(
+      const response = await indexerAxios.get(
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
 
-      // Log total assets found
-      console.log('Total assets found:', assets.data.assets.length);
+      const assets = response.data.assets.filter((asset: any) => 
+        asset.amount > 0 && 
+        asset.params && 
+        (asset.params.total === 1 || asset.params.url)
+      );
 
-      // Filter for likely NFTs first
-      const nftAssets = assets.data.assets.filter(asset => {
-        const isNft = isLikelyNFT(asset);
-        // Safe logging that handles undefined params
-        console.log('Checking asset:', {
-          id: asset['asset-id'],
-          name: asset.params?.name, // Added optional chaining
-          isNft,
-          params: asset.params
-        });
-        return isNft;
-      });
-      
-      console.log('NFT assets after filtering:', nftAssets.length);
-      setProgress(`Found ${nftAssets.length} potential NFTs`);
-
-      // Process NFTs in smaller batches to avoid rate limiting
-      const batchSize = 5;
+      setProgress(`Found ${assets.length} potential NFTs`);
       const processedNfts: NFT[] = [];
 
-      for (let i = 0; i < nftAssets.length; i += batchSize) {
-        const batch = nftAssets.slice(i, i + batchSize);
-        setProgress(`Processing NFTs ${i + 1}-${Math.min(i + batchSize, nftAssets.length)} of ${nftAssets.length}`);
+      for (let i = 0; i < assets.length; i += 5) {
+        const batch = assets.slice(i, i + 5);
+        setProgress(`Processing NFTs ${i + 1}-${Math.min(i + 5, assets.length)} of ${assets.length}`);
 
-        const batchPromises = batch.map(async (asset): Promise<NFT | null> => {
+        const batchPromises = batch.map(async (asset: any) => {
           try {
-            const metadataUrl = await fetchNFTMetadata(asset['asset-id'], network);
-            console.log('MetadataURL for asset', asset['asset-id'], ':', metadataUrl);
-
-            if (!metadataUrl) {
-              // If no metadata URL, try to create NFT from asset params
-              return {
-                assetId: asset['asset-id'],
-                metadata: {
-                  name: asset.params?.name || 'Unnamed NFT',
-                  image: undefined
-                },
-                name: asset.params?.name || 'Unnamed NFT',
-                image: undefined
-              };
-            }
-
-            const metadata = await fetchIPFSData(metadataUrl);
-            let imageUrl = metadata.image;
-            
-            // Handle IPFS image URLs
-            if (imageUrl && imageUrl.startsWith('ipfs://')) {
-              imageUrl = imageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
+            let imageUrl = asset.params.url;
+            if (imageUrl) {
+              imageUrl = await processIPFSUrl(imageUrl);
             }
 
             return {
               assetId: asset['asset-id'],
-              metadata,
+              metadata: {
+                name: asset.params.name || 'Unnamed NFT',
+                image: imageUrl
+              },
               image: imageUrl,
-              name: metadata.name || asset.params?.name || 'Unnamed NFT'
+              name: asset.params.name || 'Unnamed NFT'
             };
           } catch (err) {
             console.error(`Error processing asset ${asset['asset-id']}:`, err);
@@ -192,13 +113,12 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         });
 
         const batchResults = await Promise.all(batchPromises);
-        const validBatchResults = batchResults.filter((nft): nft is NFT => nft !== null);
-        processedNfts.push(...validBatchResults);
-        setNfts([...processedNfts]); // Update UI with each batch
+        const validResults = batchResults.filter((nft): nft is NFT => nft !== null);
+        processedNfts.push(...validResults);
+        setNfts([...processedNfts]);
 
-        // Add delay between batches to avoid rate limiting
-        if (i + batchSize < nftAssets.length) {
-          await delay(1000);
+        if (i + 5 < assets.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
 
@@ -214,35 +134,25 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
     }
   }
 
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <div className="max-w-4xl w-full bg-white p-6 rounded-lg border-2 border-black">
         <DialogHeader>
-          <div className="text-2xl font-bold text-black mb-4">
-            <DialogTitle>Select NFT</DialogTitle>
-          </div>
+          <DialogTitle className="text-2xl font-bold text-black mb-4">
+            Select NFT
+          </DialogTitle>
         </DialogHeader>
         <DialogContent>
           <Button
             onClick={loadNFTs}
             disabled={isLoading || !walletAddress}
-            className="bg-[#40E0D0] text-black hover:bg-[#40E0D0]/90 border-2 border-black mb-4"
+            className="w-full bg-[#FFB951] text-black hover:bg-[#FFB951]/90 border-2 border-black mb-4"
           >
             {isLoading ? 'Loading...' : 'Load NFTs'}
           </Button>
 
-          {error && (
-            <div className="text-red-500 mb-4">
-              {error}
-            </div>
-          )}
-
-          {progress && (
-            <div className="text-blue-500 mb-4">
-              {progress}
-            </div>
-          )}
+          {error && <div className="text-red-500 mb-4">{error}</div>}
+          {progress && <div className="text-blue-500 mb-4">{progress}</div>}
           
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
@@ -264,7 +174,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={`relative cursor-pointer rounded-lg overflow-hidden border-2 ${
-                    selectedNFT?.assetId === nft.assetId ? 'border-[#40E0D0]' : 'border-gray-200'
+                    selectedNFT?.assetId === nft.assetId ? 'border-[#FFB951]' : 'border-gray-200'
                   }`}
                   onClick={() => onSelectNFT(nft)}
                 >
@@ -272,10 +182,12 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                     {nft.image ? (
                       <img
                         src={nft.image}
-                        alt={nft.metadata.name}
+                        alt={nft.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://placehold.co/200x200?text=No+Image';
+                          const target = e.currentTarget;
+                          target.onerror = null;
+                          target.src = 'https://placehold.co/200x200?text=No+Image';
                         }}
                       />
                     ) : (
@@ -285,26 +197,13 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
                     )}
                   </div>
                   <div className="p-2 bg-white">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {nft.metadata.name || 'Unnamed NFT'}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      ID: {nft.assetId}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{nft.name}</p>
+                    <p className="text-xs text-gray-500 truncate">ID: {nft.assetId}</p>
                   </div>
                   {selectedNFT?.assetId === nft.assetId && (
-                    <div className="absolute top-2 right-2 bg-[#40E0D0] text-white p-1 rounded-full">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
+                    <div className="absolute top-2 right-2 bg-[#FFB951] text-white p-1 rounded-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                       </svg>
                     </div>
                   )}
@@ -314,15 +213,12 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
           )}
 
           <div className="flex justify-end space-x-4 mt-6">
-            <Button
-              onClick={onClose}
-              className="bg-white text-black hover:bg-gray-100 border-2 border-black"
-            >
+            <Button onClick={onClose} className="bg-white text-black hover:bg-gray-100 border-2 border-black">
               Cancel
             </Button>
             <Button
               onClick={onClose}
-              className="bg-[#40E0D0] text-black hover:bg-[#40E0D0]/90 border-2 border-black"
+              className="bg-[#FFB951] text-black hover:bg-[#FFB951]/90 border-2 border-black"
               disabled={!selectedNFT}
             >
               Confirm Selection
