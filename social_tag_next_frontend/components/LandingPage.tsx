@@ -108,37 +108,30 @@ const LandingPage: React.FC = () => {
 
         <main className="landing-main">
           <div className="hero-content text-center mt-20 mb-12">
-            <h2 className="hero-title text-5xl font-bold mb-6 text-black">
-               <span className="relative">
-             Authentic You
-                <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
-                  initial={{ width: 0 }}
-                  animate={{ width: ['0%', '110%', '110%', '110%', '110%', '110%'] }}
-                  transition={{
-                    duration: 4,
-                    times: [0, 0.2, 0.8, 0.8001],
-                    repeat: Infinity,
-                    repeatDelay: 1
-                  }}
-                />
-              
-              </span>.<br />
-              That&apos;s the play<span className="relative">
-              
-                <motion.span
-                  className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
-                  initial={{ width: 0 }}
-                  animate={{ width: ['0%', '0%', '110%', '110%'] }}
-                  transition={{
-                    duration: 2,
-                    times: [0, 0.2, 0.4, 0.8, 0.8001],
-                    repeat: Infinity,
-                    repeatDelay: 1
-                  }}
-                />
-              </span>.
-            </h2>
+  <h2 className="hero-title text-5xl font-bold mb-6 text-black flex flex-col items-center gap-4">
+    <div className="relative">
+      <div className="bg-[#40E0D0] px-6 py-3 rounded-lg border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0)] transform transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0)]">
+        <span className="relative text-black">
+          Authentic You
+        </span>
+      </div>
+    </div>
+    <div className="relative">
+      That&apos;s the play
+      <motion.span
+        className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
+        initial={{ width: 0 }}
+        animate={{ width: ['0%', '0%', '110%', '110%'] }}
+        transition={{
+          duration: 2,
+          times: [0, 0.2, 0.4, 0.8, 0.8001],
+          repeat: Infinity,
+          repeatDelay: 1
+        }}
+      />
+    </div>
+    <span>.</span>
+  </h2>
             <motion.p 
               className="hero-subtitle text-xl mb-8 max-w-2xl mx-auto text-gray-600"
               initial={{ opacity: 0, y: 20 }}
