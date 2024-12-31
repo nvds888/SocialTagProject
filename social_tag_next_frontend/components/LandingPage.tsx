@@ -116,7 +116,7 @@ const LandingPage: React.FC = () => {
                   initial={{ width: 0 }}
                   animate={{ width: ['0%', '110%', '110%', '110%', '110%', '110%'] }}
                   transition={{
-                    duration: 2,
+                    duration: 4,
                     times: [0, 0.2, 0.8, 0.8001],
                     repeat: Infinity,
                     repeatDelay: 1
