@@ -59,7 +59,7 @@ const LandingPage: React.FC = () => {
       <div className="relative z-10">
         <header className="landing-header flex justify-between items-center p-4 bg-white bg-opacity-90">
           <div className="flex items-center">
-            <h1 className="logo text-4xl font-bold text-black">SocialTag Protocol</h1>
+            <h1 className="logo text-4xl font-bold text-black">SocialTag</h1>
             <div className="ml-2 px-2 py-1 bg-[#40E0D0] text-xs font-semibold text-black rounded-md border border-black">
               BETA
             </div>
@@ -114,7 +114,7 @@ const LandingPage: React.FC = () => {
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
                   initial={{ width: 0 }}
-                  animate={{ width: ['0%', '110%', '110%'] }}
+                  animate={{ width: ['0%', '110%', '110%', '110%', '110%', '110%'] }}
                   transition={{
                     duration: 2,
                     times: [0, 0.2, 0.8, 0.8001],
@@ -294,7 +294,7 @@ const LandingPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
                 <h3 className="text-lg font-semibold mb-4">About Us</h3>
-                <p className="text-sm">SocialTag Protocol: Where Social Meets Rewards. Built on Algorand blockchain.</p>
+                <p className="text-sm">SocialTag: Authentic You, That&apos;s The Play. Built on Algorand.</p>
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
@@ -345,7 +345,7 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
             <div className="mt-8 pt-8 border-t border-gray-700">
-              <p className="text-sm">&copy; 2024 SocialTag Protocol. All rights reserved.</p>
+              <p className="text-sm">&copy; 2024 SocialTag. All rights reserved.</p>
             </div>
           </div>
         </footer>
