@@ -188,7 +188,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         <div className="border-b border-gray-200 pb-3">
           <div className="flex flex-col space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">SOCIAL Balance:</span>
+              <span className="text-sm font-medium">Balance:</span>
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-bold">{socialBalance}</span>
                 <Image
@@ -201,7 +201,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">USDC Balance:</span>
+              <span className="text-sm font-medium">Balance:</span>
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-bold">${usdcBalance}</span>
                 <Image
