@@ -119,7 +119,6 @@ const LandingPage: React.FC = () => {
     <div className="relative">
       That&apos;s the play
     </div>
-    <span>.</span>
   </h2>
             <motion.p 
               className="hero-subtitle text-xl mb-8 max-w-2xl mx-auto text-gray-600"
