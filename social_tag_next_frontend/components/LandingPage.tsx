@@ -118,17 +118,6 @@ const LandingPage: React.FC = () => {
     </div>
     <div className="relative">
       That&apos;s the play
-      <motion.span
-        className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
-        initial={{ width: 0 }}
-        animate={{ width: ['0%', '0%', '110%', '110%'] }}
-        transition={{
-          duration: 2,
-          times: [0, 0.2, 0.4, 0.8, 0.8001],
-          repeat: Infinity,
-          repeatDelay: 1
-        }}
-      />
     </div>
     <span>.</span>
   </h2>
