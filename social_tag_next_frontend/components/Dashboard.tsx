@@ -203,7 +203,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium"></span>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-bold">${usdcBalance}</span>
+                <span className="text-sm font-bold">{usdcBalance}</span>
                 <Image
                   src="/usd-coin.png"
                   alt="USDC"
