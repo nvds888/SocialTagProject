@@ -124,7 +124,7 @@ const LandingPage: React.FC = () => {
                 />
               
               </span>.<br />
-              That&apos;s the play <span className="relative">
+              That&apos;s the play<span className="relative">
               
                 <motion.span
                   className="absolute bottom-0 left-0 w-full h-2 bg-[#40E0D0] rounded-sm"
