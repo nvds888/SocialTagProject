@@ -107,6 +107,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showImmersveModal, setShowImmersveModal] = useState(false);
   const [socialBalance, setSocialBalance] = useState<string>('0');
+  const [usdcBalance, setUsdcBalance] = useState<string>('0');
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const peraWallet = useMemo(() => {
     return typeof window !== 'undefined' ? new PeraWalletConnect() : null;
@@ -185,17 +186,32 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     <PopoverContent className="w-full bg-white border-2 border-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] rounded-lg p-4 mt-2">
       <div className="flex flex-col space-y-3">
         <div className="border-b border-gray-200 pb-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Balance:</span>
-            <div className="flex items-center space-x-2">
-            <span className="text-sm font-bold">{socialBalance} </span>
-              <Image
-                src="/SocialTag.png"
-                alt="SocialTag"
-                width={20}
-                height={20}
-                className="rounded-full"
-              />
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">SOCIAL Balance:</span>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-bold">{socialBalance}</span>
+                <Image
+                  src="/SocialTag.png"
+                  alt="SocialTag"
+                  width={20}
+                  height={20}
+                  className="rounded-full"
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">USDC Balance:</span>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-bold">${usdcBalance}</span>
+                <Image
+                  src="/usd-coin.png"
+                  alt="USDC"
+                  width={20}
+                  height={20}
+                  className="rounded-full"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -350,12 +366,16 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     if (!address) return;
     try {
       const response = await apiClient.get(`${API_BASE_URL}/social-balance?address=${address}`);
-      if (response.data?.balance) {
-        setSocialBalance(response.data.balance);
+      if (response.data?.social) {
+        setSocialBalance(response.data.social);
+      }
+      if (response.data?.usdc) {
+        setUsdcBalance(response.data.usdc);
       }
     } catch (error) {
-      console.error('Error fetching social balance:', error);
+      console.error('Error fetching balances:', error);
       setSocialBalance('0');
+      setUsdcBalance('0');
     }
   }, []);
 

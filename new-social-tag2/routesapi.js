@@ -150,35 +150,55 @@ router.get('/user/reward-points', sessionCheck, async (req, res) => {
 
 router.get('/social-balance', async (req, res) => {
   const { address } = req.query;
- 
+  
   if (!address) {
     return res.status(400).json({ error: 'Address is required' });
   }
- 
+  
   try {
-    const response = await fetch(
-      `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}?assetId=2607097066`
-    );
+    // Fetch both SOCIAL and USDC balances in parallel
+    const [socialResponse, usdcResponse] = await Promise.all([
+      fetch(`https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}?assetId=2607097066`),
+      fetch(`https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}?assetId=31566704`)
+    ]);
     
-    const data = await response.json();
-    let balance = '0';
- 
-    if (data?.account?.assets) {
-      const socialAsset = data.account.assets.find(
+    const socialData = await socialResponse.json();
+    const usdcData = await usdcResponse.json();
+    
+    let socialBalance = '0';
+    let usdcBalance = '0';
+    
+    // Process SOCIAL balance
+    if (socialData?.account?.assets) {
+      const socialAsset = socialData.account.assets.find(
         (asset) => asset['asset-id'] === 2607097066
       );
       if (socialAsset) {
         const rawBalance = socialAsset.amount / 1000000;
-        balance = (rawBalance / 1000000000).toFixed(2) + 'B';
+        socialBalance = (rawBalance / 1000000000).toFixed(2) + 'B';
       }
     }
- 
-    res.status(200).json({ balance });
+    
+    // Process USDC balance
+    if (usdcData?.account?.assets) {
+      const usdcAsset = usdcData.account.assets.find(
+        (asset) => asset['asset-id'] === 31566704
+      );
+      if (usdcAsset) {
+        usdcBalance = (usdcAsset.amount / 1000000).toFixed(2); // USDC has 6 decimals
+      }
+    }
+    
+    res.status(200).json({ 
+      social: socialBalance,
+      usdc: usdcBalance 
+    });
+
   } catch (error) {
-    console.error('Error fetching balance:', error);
-    res.status(500).json({ error: 'Failed to fetch balance' });
+    console.error('Error fetching balances:', error);
+    res.status(500).json({ error: 'Failed to fetch balances' });
   }
- });
+});
 
  router.get('/immersveUser/:username', sessionCheck, async (req, res) => {
   console.log('Fetching Immersve data for username:', req.params.username);
