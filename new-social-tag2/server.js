@@ -9,17 +9,13 @@ const apiRoutes = require('./routesapi');
 const peraWalletRoutes = require('./peraWalletRoutes');
 const cors = require('cors');
 const themePurchaseRoutes = require('./themePurchaseRoutes');  
-const { initializeImmersveRewardsScheduler } = require('./immersve_rewards_wrapper');
+
 
 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const { initializeDistributionScheduler } = require('./token_distribution_wrapper');
-
-// initializeImmersveRewardsScheduler();
-initializeDistributionScheduler();
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
