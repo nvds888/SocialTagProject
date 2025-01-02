@@ -34,6 +34,22 @@ const apiClient = axios.create({
   }
 });
 
+interface ImmersveReward {
+  assetId: number;
+  amount: number;
+  txId: string;
+  timestamp: Date;
+}
+
+interface ImmersveTransaction {
+  usdcAmount: number;
+  timestamp: Date;
+  txId: string;
+  isInnerTx?: boolean;
+  rewards: ImmersveReward[];
+  processed: boolean;
+}
+
 interface SocialCardProps {
   platform: string;
   icon: React.ReactNode;
@@ -62,6 +78,7 @@ interface User {
   reverifyCount: number;
   walletAddress?: string;
   saveWalletAddress?: boolean;
+  immersveAddress?: string;
 }
 
 
@@ -108,6 +125,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [showImmersveModal, setShowImmersveModal] = useState(false);
   const [socialBalance, setSocialBalance] = useState<string>('0');
   const [usdcBalance, setUsdcBalance] = useState<string>('0');
+  const [recentTransactions, setRecentTransactions] = useState<ImmersveTransaction[]>([]);
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const peraWallet = useMemo(() => {
     return typeof window !== 'undefined' ? new PeraWalletConnect() : null;
@@ -147,6 +165,24 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
       fetchUser();
     }
   }, [router.isReady, username, fetchUser]);
+
+  const fetchRecentTransactions = useCallback(async () => {
+    if (!user?.immersveAddress) return;
+    
+    try {
+      const response = await apiClient.get(`/immersveTransactions?address=${user.immersveAddress}`);
+      setRecentTransactions(response.data.transactions.slice(0, 10)); // Only take latest 10
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  }, [user?.immersveAddress]);
+
+  useEffect(() => {
+    if (user?.immersveAddress) {
+      fetchRecentTransactions();
+    }
+  }, [user?.immersveAddress, fetchRecentTransactions]);
+
 
   const handleDisconnectWalletClick = useCallback(async () => {
     if (peraWallet) {
@@ -478,7 +514,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
 </Button>
 
 <Button
-disabled
   onClick={() => setShowImmersveModal(true)}
   className="bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-black/10 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
 >
@@ -665,7 +700,64 @@ disabled
               <h3 className="text-xl font-bold mb-4">Verification</h3>
               {renderVerificationHistory()}
             </div>
-          </motion.div>
+            {/* Recent Payments Section */}
+{user?.immersveAddress && (
+  <div className="mt-6">
+    <h3 className="text-xl font-bold mb-4">Recent Payments</h3>
+    <div className="space-y-2">
+      {recentTransactions.length > 0 ? (
+        recentTransactions.map((tx, index) => (
+          <div 
+            key={index}
+            className="bg-white p-3 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium">
+                  ${tx.usdcAmount.toFixed(2)} USDC
+                  {tx.isInnerTx && <span className="text-xs text-gray-500 ml-1">(Inner TX)</span>}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {new Date(tx.timestamp).toLocaleDateString()}
+                </p>
+                {tx.rewards.map((reward, rIndex) => (
+                  <p key={rIndex} className="text-xs text-[#40E0D0] mt-1">
+                    +{(reward.amount / 1_000_000_000).toFixed(2)}B {' '}
+                    {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
+                  </p>
+                ))}
+              </div>
+              <div className="flex flex-col gap-1">
+                <a
+                  href={`https://algoexplorer.io/tx/${tx.txId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#FF6B6B] hover:underline"
+                >
+                  Payment
+                </a>
+                {tx.rewards.map((reward, rIndex) => (
+                  <a
+                    key={rIndex}
+                    href={`https://algoexplorer.io/tx/${reward.txId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-[#40E0D0] hover:underline"
+                  >
+                    Reward {rIndex + 1}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))
+      ) : (
+        <p className="text-gray-200 text-center">No recent payments</p>
+      )}
+    </div>
+  </div>
+)}
+</motion.div>
         </main>
       </div>
       <CustomizePanel

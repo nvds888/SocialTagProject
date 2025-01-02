@@ -8,14 +8,20 @@ import axios, { AxiosError } from 'axios';
 import { useToast } from "@/components/ui/use-toast";
 import Image from 'next/image';
 
-// Keep all interfaces exactly the same
-interface Transaction {
+interface ImmersveReward {
+  assetId: number;
   amount: number;
-  timestamp: string;
+  txId: string;
+  timestamp: Date;
+}
+
+interface Transaction {
+  usdcAmount: number;
+  timestamp: Date;
   txId: string;
   isInnerTx?: boolean;
-  rewardAmount?: number;
-  rewardTxId?: string;
+  rewards: ImmersveReward[];
+  processed: boolean;
 }
 
 interface User {
@@ -24,19 +30,21 @@ interface User {
   };
 }
 
+interface RewardPool {
+  token: string;
+  assetId: number;
+  icon: string;
+  totalPool: number;
+  distributed: number;
+  rewardRate: string;
+  isOptedIn: boolean;
+}
+
 interface ImmersveRewardsModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User;
   connectedWalletAddress: string | null;
-}
-
-interface RewardPool {
-  token: string;
-  icon: string;
-  totalPool: number;
-  distributed: number;
-  rewardRate: string;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
@@ -47,7 +55,6 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   user,
   connectedWalletAddress
 }) => {
-  // Keep all state declarations exactly the same
   const [fundAddress, setFundAddress] = useState<string>('');
   const [rewardAddress, setRewardAddress] = useState<string>('');
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
@@ -57,23 +64,18 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   const [pools, setPools] = useState<RewardPool[]>([]);
   const { toast } = useToast();
 
-  // Keep all the callbacks exactly the same
   const fetchPoolData = useCallback(async () => {
+    if (!rewardAddress) return;
+    
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/rewardPools`, {
+      const response = await axios.get(`${API_BASE_URL}/reward-pools/${rewardAddress}`, {
         withCredentials: true
       });
-      setPools(response.data.pools || [{
-        token: "SOCIALS",
-        icon: "/SocialTag.png",
-        totalPool: 8000000000000000,
-        distributed: 0,
-        rewardRate: "1M per USDC"
-      }]);
+      setPools(response.data.pools);
     } catch (error) {
       console.error('Error fetching pool data:', error);
     }
-  }, []);
+  }, [rewardAddress]);
 
   const fetchUserRewardsData = useCallback(async () => {
     if (!user.twitter?.username) return;
@@ -81,20 +83,26 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
     try {
       setLoading(true);
       
-      const userResponse = await axios.get(`${API_BASE_URL}/api/immersveUser/${user.twitter.username}`, {
+      const userResponse = await axios.get(`${API_BASE_URL}/immersveUser/${user.twitter.username}`, {
         withCredentials: true
       });
       
       if (userResponse.data && userResponse.data.immersveAddress) {
         setIsRegistered(true);
         setFundAddress(userResponse.data.immersveAddress || '');
-        setRewardAddress(userResponse.data.rewardAddress || '');
+        setRewardAddress(userResponse.data.immersveRewardAddress || '');
         
+        // Fetch transactions from backend which now includes rewards
         const txResponse = await axios.get(
-          `${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`,
+          `${API_BASE_URL}/immersveTransactions?address=${userResponse.data.immersveAddress}`,
           { withCredentials: true }
         );
         setTransactions(txResponse.data.transactions || []);
+        
+        // After setting reward address, fetch pool data
+        if (userResponse.data.immersveRewardAddress) {
+          await fetchPoolData();
+        }
       }
     } catch (error: unknown) {
       if (error instanceof AxiosError && error.response?.status !== 404) {
@@ -109,14 +117,13 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, fetchPoolData]);
 
   useEffect(() => {
     if (isOpen) {
       fetchUserRewardsData();
-      fetchPoolData();
     }
-  }, [isOpen, fetchUserRewardsData, fetchPoolData]);
+  }, [isOpen, fetchUserRewardsData]);
 
   const handleRegistration = async () => {
     if (!fundAddress || (!rewardAddress && !connectedWalletAddress) || !user.twitter?.username) {
@@ -137,7 +144,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
     try {
       const finalRewardAddress = rewardAddress || connectedWalletAddress;
       
-      await axios.post(`${API_BASE_URL}/api/immersveRegister`, {
+      await axios.post(`${API_BASE_URL}/immersveRegister`, {
         twitterUsername: user.twitter.username,
         immersveAddress: fundAddress,
         rewardAddress: finalRewardAddress
@@ -280,35 +287,34 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
                         <div>
                           <p className="font-semibold">{new Date(tx.timestamp).toLocaleDateString()}</p>
                           <p className="text-sm text-gray-600">
-                            ${tx.amount.toFixed(2)} USDC {tx.isInnerTx ? '(Inner Transaction)' : ''}
+                            ${tx.usdcAmount.toFixed(2)} USDC {tx.isInnerTx ? '(Inner Transaction)' : ''}
                           </p>
-                          {tx.rewardAmount && (
-                            <p className="text-xs text-[#40E0D0] font-medium">
-                              +{(tx.rewardAmount / 1_000_000_000).toFixed(2)}B SOCIALS
+                          {tx.rewards.map((reward, rewardIndex) => (
+                            <p key={rewardIndex} className="text-xs text-[#40E0D0] font-medium">
+                              +{(reward.amount / 1_000_000_000).toFixed(2)}B {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
                             </p>
-                          )}
+                          ))}
                         </div>
-                        <div className="flex space-x-2">
-                          {tx.rewardTxId && (
+                        <div className="flex flex-col space-y-2">
+                          {tx.rewards.map((reward, rewardIndex) => (
                             <a
-                              href={`https://algoexplorer.io/tx/${tx.rewardTxId}`}
+                              key={rewardIndex}
+                              href={`https://algoexplorer.io/tx/${reward.txId}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-[#40E0D0] hover:underline text-sm"
                             >
-                              Reward
+                              Reward {rewardIndex + 1}
                             </a>
-                          )}
-                          {tx.txId && (
-                            <a
-                              href={`https://algoexplorer.io/tx/${tx.txId}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[#FF6B6B] hover:underline text-sm"
-                            >
-                              Payment
-                            </a>
-                          )}
+                          ))}
+                          <a
+                            href={`https://algoexplorer.io/tx/${tx.txId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#FF6B6B] hover:underline text-sm"
+                          >
+                            Payment
+                          </a>
                         </div>
                       </div>
                     ))
@@ -354,12 +360,15 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
                       <p className="text-xs text-gray-500">
                         Rate: {pool.rewardRate}
                       </p>
+                      <p className={`text-xs ${pool.isOptedIn ? 'text-green-500' : 'text-red-500'}`}>
+                        {pool.isOptedIn ? 'Active' : 'Not Opted In'}
+                      </p>
                     </div>
                   </div>
                   <div className="w-1/3">
                     <div className="h-2 bg-gray-200 rounded-full">
                       <div 
-                        className="h-full bg-[#FF6B6B] rounded-full"
+                        className={`h-full rounded-full ${pool.isOptedIn ? 'bg-[#FF6B6B]' : 'bg-gray-400'}`}
                         style={{ 
                           width: `${((pool.totalPool - pool.distributed) / pool.totalPool) * 100}%` 
                         }}

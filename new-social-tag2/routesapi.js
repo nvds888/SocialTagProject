@@ -225,17 +225,74 @@ router.post('/immersveRegister', sessionCheck, async (req, res) => {
   try {
     const { twitterUsername, immersveAddress, rewardAddress } = req.body;
     
+    // First update the user with new addresses
     const user = await User.findOneAndUpdate(
       { 'twitter.username': twitterUsername },
       { 
         immersveAddress: immersveAddress,
-        immersveRewardAddress: rewardAddress
+        immersveRewardAddress: rewardAddress,
+        lastProcessedTimestamp: new Date() // Set this as starting point for new rewards
       },
       { new: true }
     );
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Fetch historical transactions
+    const response = await fetch(
+      `https://mainnet-idx.4160.nodely.dev/v2/accounts/${immersveAddress}/transactions?address=${IMMERSVE_MASTER_CONTRACT}`
+    );
+    
+    const data = await response.json();
+    const historicalTransactions = [];
+
+    // Process historical transactions
+    for (const tx of data.transactions || []) {
+      if (
+        tx['tx-type'] === 'axfer' &&
+        tx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
+        tx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
+      ) {
+        const transaction = {
+          usdcAmount: tx['asset-transfer-transaction'].amount / 1000000,
+          timestamp: new Date(tx['round-time'] * 1000),
+          txId: tx.id,
+          rewards: [], // Empty rewards for historical transactions
+          processed: true, // Mark as processed so reward distributor ignores it
+          isHistorical: true // Flag to indicate this was a pre-registration transaction
+        };
+        historicalTransactions.push(transaction);
+      }
+
+      // Check inner transactions
+      if (tx['inner-txns']) {
+        for (const innerTx of tx['inner-txns']) {
+          if (
+            innerTx['tx-type'] === 'axfer' &&
+            innerTx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
+            innerTx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
+          ) {
+            const transaction = {
+              usdcAmount: innerTx['asset-transfer-transaction'].amount / 1000000,
+              timestamp: new Date(tx['round-time'] * 1000),
+              txId: tx.id,
+              isInnerTx: true,
+              rewards: [],
+              processed: true, // Mark as processed
+              isHistorical: true // Flag as historical
+            };
+            historicalTransactions.push(transaction);
+          }
+        }
+      }
+    }
+
+    // Add historical transactions to user
+    if (historicalTransactions.length > 0) {
+      user.immersveTransactions = historicalTransactions;
+      await user.save();
     }
     
     res.json({
@@ -248,6 +305,72 @@ router.post('/immersveRegister', sessionCheck, async (req, res) => {
   }
 });
 
+router.get('/user-assets/:address', async (req, res) => {
+  try {
+    const { address } = req.params;
+    const response = await fetch(
+      `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}/assets`
+    );
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch assets');
+    }
+    
+    const data = await response.json();
+    const optedInAssets = data.assets.map(asset => asset['asset-id']);
+    
+    res.json({ assets: optedInAssets });
+  } catch (error) {
+    console.error('Error fetching user assets:', error);
+    res.status(500).json({ error: 'Failed to fetch assets' });
+  }
+});
+
+router.get('/reward-pools/:address', async (req, res) => {
+  try {
+    const { address } = req.params;
+    
+    // Get user's opted-in assets
+    const assetResponse = await fetch(
+      `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}/assets`
+    );
+    const assetData = await assetResponse.json();
+    const optedInAssets = assetData.assets.map(asset => asset['asset-id']);
+    
+    // Get pool data
+    const stats = await Statistics.findOne({ type: 'reward_pool' }) || { 
+      socials_distributed: 0,
+      meep_distributed: 0 
+    };
+    
+    const pools = [
+      {
+        token: "SOCIALS",
+        assetId: 2607097066,
+        icon: "/SocialTag.png",
+        totalPool: 8000000000000000,
+        distributed: stats.socials_distributed,
+        rewardRate: "1M per USDC",
+        isOptedIn: optedInAssets.includes(2607097066)
+      },
+      {
+        token: "MEEP",
+        assetId: 1234567, // Replace with actual MEEP asset ID
+        icon: "/meep.png",
+        totalPool: 1000000000000,
+        distributed: stats.meep_distributed,
+        rewardRate: "100K per USDC",
+        isOptedIn: optedInAssets.includes(1234567)
+      }
+    ];
+
+    res.json({ pools });
+  } catch (error) {
+    console.error('Error fetching reward pools:', error);
+    res.status(500).json({ error: 'Failed to fetch reward pools' });
+  }
+});
+
 router.get('/immersveTransactions', sessionCheck, async (req, res) => {
   const { address } = req.query;
   
@@ -256,57 +379,19 @@ router.get('/immersveTransactions', sessionCheck, async (req, res) => {
   }
   
   try {
-    console.log('Fetching transactions for address:', address);
-    
-    const response = await fetch(
-      `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}/transactions?address=${IMMERSVE_MASTER_CONTRACT}`
-    );
-    
-    if (!response.ok) {
-      console.error('Indexer error:', await response.text());
-      throw new Error('Failed to fetch from indexer');
-    }
-    
-    const data = await response.json();
-    console.log('Raw transaction data:', JSON.stringify(data, null, 2));
-    
-    const transactions = [];
-
-    // Process both main and inner transactions
-    for (const tx of data.transactions || []) {
-      // Check main transaction
-      if (
-        tx['tx-type'] === 'axfer' &&
-        tx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
-        tx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
-      ) {
-        transactions.push({
-          amount: tx['asset-transfer-transaction'].amount / 1000000,
-          timestamp: new Date(tx['round-time'] * 1000).toISOString(),
-          txId: tx.id
-        });
-      }
-
-      // Check inner transactions
-      if (tx['inner-txns']) {
-        for (const innerTx of tx['inner-txns']) {
-          if (
-            innerTx['tx-type'] === 'axfer' &&
-            innerTx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
-            innerTx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
-          ) {
-            transactions.push({
-              amount: innerTx['asset-transfer-transaction'].amount / 1000000,
-              timestamp: new Date(tx['round-time'] * 1000).toISOString(),
-              txId: tx.id,
-              isInnerTx: true
-            });
-          }
-        }
-      }
+    const user = await User.findOne({ immersveAddress: address });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    console.log('Processed transactions:', transactions);
+    // Return processed transactions with rewards
+    const transactions = user.immersveTransactions.map(tx => ({
+      usdcAmount: tx.usdcAmount, // Match frontend interface
+      timestamp: tx.timestamp,
+      txId: tx.txId,
+      rewards: tx.rewards
+    }));
+
     res.json({ transactions });
   } catch (error) {
     console.error('Error fetching transactions:', error);
@@ -551,6 +636,8 @@ router.get('/user/:username', sessionCheck, async (req, res) => {
       algorandTransactionId: latestVerification ? latestVerification.algorandTransactionId : null,
       stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null,
       reverifyCount: user.reverifyCount || 0,
+      immersveAddress: user.immersveAddress,
+  reverifyCount: user.reverifyCount || 0,
     });
   } catch (error) {
     console.error('Error fetching user data:', error);

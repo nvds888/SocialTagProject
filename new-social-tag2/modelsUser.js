@@ -9,6 +9,35 @@ const ViewHistorySchema = new mongoose.Schema({
   }
 });
 
+// Define schema for rewards from Immersve transactions
+const ImmersveRewardSchema = new mongoose.Schema({
+  assetId: Number,
+  amount: Number,
+  txId: String,
+  timestamp: Date
+});
+
+// Define schema for Immersve transactions
+const ImmersveTransactionSchema = new mongoose.Schema({
+  usdcAmount: Number,
+  timestamp: Date,
+  txId: String,
+  isInnerTx: {
+    type: Boolean,
+    default: false
+  },
+  rewards: [ImmersveRewardSchema],
+  processed: {
+    type: Boolean,
+    default: false
+  },
+  isHistorical: {
+    type: Boolean,
+    default: false
+  }
+});
+
+// Main User Schema
 const UserSchema = new mongoose.Schema({
   twitter: {
     id: String,
@@ -49,7 +78,7 @@ const UserSchema = new mongoose.Schema({
     github: String,
     spotify: String,
     algorandTransactionId: String,
-    stellarTransactionHash: String, 
+    stellarTransactionHash: String,
   }],
   theme: {
     type: String,
@@ -94,9 +123,9 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  reverifyCount: { 
+  reverifyCount: {
     type: Number,
-    default: 0 
+    default: 0
   },
   baseVerifyPoints: {
     type: Number,
@@ -110,9 +139,16 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  // Add view history tracking
+  // Immersve related fields
+  immersveTransactions: [ImmersveTransactionSchema],
+  optedInAssets: [Number],
+  lastProcessedTimestamp: {
+    type: Date,
+    default: null
+  },
+  // View history tracking
   viewHistory: [ViewHistorySchema]
-}, { 
+}, {
   timestamps: true
 });
 
@@ -124,6 +160,10 @@ UserSchema.index({ 'github.id': 1 });
 UserSchema.index({ 'spotify.id': 1 });
 UserSchema.index({ 'twitter.username': 1 }); // Add index for twitter username searches
 UserSchema.index({ 'viewHistory.ip': 1, 'viewHistory.timestamp': 1 }); // Add index for view history
+UserSchema.index({ 'immersveAddress': 1 }); // Add index for Immersve address lookups
+UserSchema.index({ 'immersveRewardAddress': 1 }); // Add index for reward address lookups
+UserSchema.index({ 'immersveTransactions.timestamp': 1 }); // Add index for transaction queries
+UserSchema.index({ 'immersveTransactions.processed': 1 }); // Add index for unprocessed transaction queries
 
 // Add a method to validate user
 UserSchema.methods.isValid = function() {
