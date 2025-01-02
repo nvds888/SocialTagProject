@@ -64,22 +64,10 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   const [pools, setPools] = useState<RewardPool[]>([]);
   const { toast } = useToast();
 
-  const fetchPoolData = useCallback(async () => {
-    if (!rewardAddress) return;
-    
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/reward-pools/${rewardAddress}`, {
-        withCredentials: true
-      });
-      setPools(response.data.pools);
-    } catch (error) {
-      console.error('Error fetching pool data:', error);
-    }
-  }, [rewardAddress]);
 
   const fetchUserRewardsData = useCallback(async () => {
     if (!user.twitter?.username) return;
-  
+    
     try {
       setLoading(true);
       
@@ -90,18 +78,21 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
       if (userResponse.data && userResponse.data.immersveAddress) {
         setIsRegistered(true);
         setFundAddress(userResponse.data.immersveAddress || '');
-        setRewardAddress(userResponse.data.immersveRewardAddress || '');
+        const newRewardAddress = userResponse.data.rewardAddress;
+        setRewardAddress(newRewardAddress);
         
-        // Fetch transactions from backend which now includes rewards
         const txResponse = await axios.get(
           `${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`,
           { withCredentials: true }
         );
         setTransactions(txResponse.data.transactions || []);
         
-        // After setting reward address, fetch pool data
-        if (userResponse.data.immersveRewardAddress) {
-          await fetchPoolData();
+        // Fetch pool data if reward address exists
+        if (newRewardAddress) {
+          const poolResponse = await axios.get(`${API_BASE_URL}/api/reward-pools/${newRewardAddress}`, {
+            withCredentials: true
+          });
+          setPools(poolResponse.data.pools);
         }
       }
     } catch (error: unknown) {
@@ -117,7 +108,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [user, toast, fetchPoolData]);
+  }, [user, toast]);
 
   useEffect(() => {
     if (isOpen) {
