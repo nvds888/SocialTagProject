@@ -171,7 +171,7 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
     if (!user?.immersveAddress) return;
     
     try {
-      const response = await apiClient.get(`/immersveTransactions?address=${user.immersveAddress}`);
+      const response = await apiClient.get(`/api/immersveTransactions?address=${user.immersveAddress}`);
       setRecentTransactions(response.data.transactions.slice(0, 10)); // Only take latest 10
     } catch (error) {
       console.error('Error fetching transactions:', error);

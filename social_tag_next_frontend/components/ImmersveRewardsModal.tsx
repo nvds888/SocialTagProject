@@ -94,7 +94,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
         
         // Fetch transactions from backend which now includes rewards
         const txResponse = await axios.get(
-          `${API_BASE_URL}/immersveTransactions?address=${userResponse.data.immersveAddress}`,
+          `${API_BASE_URL}/api/immersveTransactions?address=${userResponse.data.immersveAddress}`,
           { withCredentials: true }
         );
         setTransactions(txResponse.data.transactions || []);
