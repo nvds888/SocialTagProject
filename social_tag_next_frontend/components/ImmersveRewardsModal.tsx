@@ -230,38 +230,40 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
           </Button>
 
           {activePanel === 'register' && (
-            <div className="space-y-4 p-4 border-2 border-black rounded-lg">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Immersve Fund Address</label>
-                <Input
-                  placeholder="Enter your fund contract address"
-                  value={fundAddress}
-                  onChange={(e) => setFundAddress(e.target.value)}
-                  className="border-2 border-black bg-white text-black"
-                  disabled={isRegistered || loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Reward Receiving Address</label>
-                <Input
-                  placeholder={connectedWalletAddress || "Enter address to receive rewards"}
-                  value={rewardAddress || connectedWalletAddress || ''}
-                  onChange={(e) => setRewardAddress(e.target.value)}
-                  className="border-2 border-black bg-white text-black"
-                  disabled={!!connectedWalletAddress || isRegistered || loading}
-                />
-              </div>
-              {!isRegistered && (
-                <Button 
-                  onClick={handleRegistration} 
-                  className="w-full bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
-                  disabled={loading}
-                >
-                  {loading ? 'Processing...' : 'Register'}
-                </Button>
-              )}
-            </div>
-          )}
+  <div className="space-y-4 p-4 border-2 border-black rounded-lg">
+    <div className="space-y-2">
+      <label className="text-sm font-medium">Immersve Fund Address</label>
+      <Input
+        placeholder="Enter your fund contract address"
+        value={fundAddress}
+        onChange={(e) => setFundAddress(e.target.value)}
+        className="border-2 border-black bg-white text-black"
+        disabled={isRegistered || loading}
+        readOnly={isRegistered}
+      />
+    </div>
+    <div className="space-y-2">
+      <label className="text-sm font-medium">Reward Receiving Address</label>
+      <Input
+        placeholder={connectedWalletAddress || "Enter address to receive rewards"}
+        value={rewardAddress || connectedWalletAddress || ''}
+        onChange={(e) => setRewardAddress(e.target.value)}
+        className="border-2 border-black bg-white text-black"
+        disabled={!!connectedWalletAddress || isRegistered || loading}
+        readOnly={isRegistered}
+      />
+    </div>
+    {!isRegistered && (
+      <Button 
+        onClick={handleRegistration} 
+        className="w-full bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
+        disabled={loading}
+      >
+        {loading ? 'Processing...' : 'Register'}
+      </Button>
+    )}
+  </div>
+)}
 
           {/* Transactions Panel */}
           <Button

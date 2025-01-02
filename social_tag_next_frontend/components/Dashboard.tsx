@@ -79,6 +79,7 @@ interface User {
   walletAddress?: string;
   saveWalletAddress?: boolean;
   immersveAddress?: string;
+  immersveRewardAddress?: string;
 }
 
 

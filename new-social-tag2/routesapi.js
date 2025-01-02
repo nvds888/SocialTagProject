@@ -637,7 +637,7 @@ router.get('/user/:username', sessionCheck, async (req, res) => {
       stellarTransactionHash: latestVerification ? latestVerification.stellarTransactionHash : null,
       reverifyCount: user.reverifyCount || 0,
       immersveAddress: user.immersveAddress,
-  reverifyCount: user.reverifyCount || 0,
+    immersveRewardAddress: user.immersveRewardAddress,
     });
   } catch (error) {
     console.error('Error fetching user data:', error);
