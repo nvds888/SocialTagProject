@@ -564,81 +564,11 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
         </header>
         <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <motion.div 
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5 }}
-  className="dashboard-card bg-[#8B7AB4] rounded-lg p-3 sm:p-6 shadow-lg max-w-4xl mx-auto w-full"
->
-  {/* After motion.div opens and before anything else */}
-<div className="flex gap-4">
-  <div className="flex-1">
-    {user?.twitter?.username && (
-      <div className="profile-operator mb-6...">
-        {/* Profile operator content stays the same */}
-      </div>
-    )}
-    <div className="social-cards grid gap-1 mb-6">
-      {/* Social cards stay the same */}
-    </div>
-  </div>
-
-  {user?.immersveAddress && (
-    <div className="w-96">
-      <h3 className="text-xl font-bold mb-4 text-white">Recent Payments</h3>
-      <div className="space-y-2 max-h-[500px] overflow-y-auto">
-        {recentTransactions.length > 0 ? (
-          recentTransactions.map((tx, index) => (
-            <div 
-              key={index}
-              className="bg-white p-3 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium">
-                    ${tx.usdcAmount.toFixed(2)} USDC
-                    {tx.isInnerTx && <span className="text-xs text-gray-500 ml-1">(Inner TX)</span>}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(tx.timestamp).toLocaleDateString()}
-                  </p>
-                  {tx.rewards.map((reward, rIndex) => (
-                    <p key={rIndex} className="text-xs text-[#40E0D0] mt-1">
-                      +{(reward.amount / 1_000_000_000).toFixed(2)}B {' '}
-                      {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
-                    </p>
-                  ))}
-                </div>
-                <div className="flex flex-col gap-1">
-                  <a
-                    href={`https://explorer.perawallet.app/tx/${tx.txId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-[#FF6B6B] hover:underline"
-                  >
-                    Payment
-                  </a>
-                  {tx.rewards.map((reward, rIndex) => (
-                    <a
-                      key={rIndex}
-                      href={`https://explorer.perawallet.app/tx/${reward.txId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-[#40E0D0] hover:underline"
-                    >
-                      Reward {rIndex + 1}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-200 text-center">No recent payments</p>
-        )}
-      </div>
-    </div>
-  )}
-</div>
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="dashboard-card bg-[#8B7AB4] rounded-lg p-3 sm:p-6 shadow-lg max-w-2xl mx-auto w-full"
+          >
             {user?.twitter?.username && (
             <div className="profile-operator mb-6 bg-black p-4 rounded-lg relative overflow-hidden">
               <LavaEffect />
@@ -771,7 +701,63 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
               <h3 className="text-xl font-bold mb-4">Verification</h3>
               {renderVerificationHistory()}
             </div>
-            
+            {/* Recent Payments Section */}
+{user?.immersveAddress && (
+  <div className="mt-6">
+    <h3 className="text-xl font-bold mb-4">Recent Payments</h3>
+    <div className="space-y-2">
+      {recentTransactions.length > 0 ? (
+        recentTransactions.map((tx, index) => (
+          <div 
+            key={index}
+            className="bg-white p-3 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium">
+                  ${tx.usdcAmount.toFixed(2)} USDC
+                  {tx.isInnerTx && <span className="text-xs text-gray-500 ml-1">(Inner TX)</span>}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {new Date(tx.timestamp).toLocaleDateString()}
+                </p>
+                {tx.rewards.map((reward, rIndex) => (
+                  <p key={rIndex} className="text-xs text-[#40E0D0] mt-1">
+                    +{(reward.amount / 1_000_000_000).toFixed(2)}B {' '}
+                    {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
+                  </p>
+                ))}
+              </div>
+              <div className="flex flex-col gap-1">
+                <a
+                  href={`https://algoexplorer.io/tx/${tx.txId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#FF6B6B] hover:underline"
+                >
+                  Payment
+                </a>
+                {tx.rewards.map((reward, rIndex) => (
+                  <a
+                    key={rIndex}
+                    href={`https://algoexplorer.io/tx/${reward.txId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-[#40E0D0] hover:underline"
+                  >
+                    Reward {rIndex + 1}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))
+      ) : (
+        <p className="text-gray-200 text-center">No recent payments</p>
+      )}
+    </div>
+  </div>
+)}
 </motion.div>
         </main>
       </div>
