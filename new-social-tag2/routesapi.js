@@ -340,7 +340,6 @@ router.get('/reward-pools/:address', async (req, res) => {
     // Get pool data
     const stats = await Statistics.findOne({ type: 'reward_pool' }) || { 
       socials_distributed: 0,
-      meep_distributed: 0 
     };
     
     const pools = [
@@ -353,15 +352,6 @@ router.get('/reward-pools/:address', async (req, res) => {
         rewardRate: "1M per USDC",
         isOptedIn: optedInAssets.includes(2607097066)
       },
-      {
-        token: "MEEP",
-        assetId: 1234567, // Replace with actual MEEP asset ID
-        icon: "/meep.png",
-        totalPool: 1000000000000,
-        distributed: stats.meep_distributed,
-        rewardRate: "100K per USDC",
-        isOptedIn: optedInAssets.includes(1234567)
-      }
     ];
 
     res.json({ pools });
