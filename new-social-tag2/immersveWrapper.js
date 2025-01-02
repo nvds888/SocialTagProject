@@ -244,13 +244,13 @@ async function runRewardProcessor() {
   }
 }
 
-function initializeRewardProcessor() {
+//function initializeRewardProcessor() {
   // Run every 30 minutes
   const job = schedule.scheduleJob('*/30 * * * *', runRewardProcessor);
   
   console.log('Reward processor initialized - will run every 30 minutes');
   console.log('Next scheduled run:', job.nextInvocation().toString());
-}
+//}
 
 module.exports = {
   runRewardProcessor,
