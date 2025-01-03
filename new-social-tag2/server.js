@@ -9,6 +9,7 @@ const apiRoutes = require('./routesapi');
 const peraWalletRoutes = require('./peraWalletRoutes');
 const cors = require('cors');
 const themePurchaseRoutes = require('./themePurchaseRoutes');  
+const { initializeDistributionScheduler } = require('./token_distribution_wrapper');
 
 
 
@@ -16,6 +17,8 @@ const themePurchaseRoutes = require('./themePurchaseRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Initialize token distribution scheduler
+initializeDistributionScheduler();
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
