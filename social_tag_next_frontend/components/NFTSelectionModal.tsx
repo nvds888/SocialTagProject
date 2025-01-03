@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { X } from 'lucide-react';
 import axios from 'axios';
 
-const IPFS_ENDPOINT = "https://ipfs.algonode.xyz/ipfs/";
 
 interface NFT {
   id: string;
@@ -40,59 +39,92 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const convertToAlgoNodeIPFS = (url: string) => {
-    if (url.startsWith('ipfs://')) {
-      return `${IPFS_ENDPOINT}${url.slice(7)}`;
-    }
-    const ipfsMatch = url.match(/\/ipfs\/([a-zA-Z0-9]+)/);
-    if (ipfsMatch && ipfsMatch[1]) {
-      return `${IPFS_ENDPOINT}${ipfsMatch[1]}`;
-    }
-    return url;
-  };
 
   const isNFD = (nft: NFT): boolean => {
     return !!(nft.name?.toLowerCase().includes('nfd') || nft.name?.toLowerCase().includes('.algo'));
   };
 
-  const getImageUrl = async (nft: NFT): Promise<string> => {
+  const IPFS_GATEWAYS = [
+  'https://ipfs.io/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/',
+  'https://nftstorage.link/ipfs/',
+  'https://ipfs.algonode.xyz/ipfs/'
+];
+
+const tryIPFSGateways = async (url: string): Promise<string> => {
+  for (const gateway of IPFS_GATEWAYS) {
     try {
-      if (isNFD(nft)) return '';
-
-      if (nft.image) {
-        return convertToAlgoNodeIPFS(nft.image);
-      }
-
-      if (nft.metadata?.image || nft.metadata?.image_url || nft.metadata?.animation_url) {
-        return convertToAlgoNodeIPFS(nft.metadata.image || nft.metadata.image_url || nft.metadata.animation_url || '');
-      }
-
-      if (nft.url?.includes('#arc3')) {
-        try {
-          let baseUrl = nft.url.split('#')[0];
-          baseUrl = baseUrl.startsWith('ipfs://') ? `${IPFS_ENDPOINT}${baseUrl.slice(7)}` : baseUrl;
-          const response = await axios.get(baseUrl);
-          if (response.data.image) {
-            return convertToAlgoNodeIPFS(response.data.image);
-          }
-        } catch (error) {}
-      }
-
-      if (nft.url?.startsWith('ipfs://')) {
-        return `${IPFS_ENDPOINT}${nft.url.split('#')[0].slice(7)}`;
-      }
-
-      if (nft.url && !nft.url.includes('ipfs://')) {
-        if (nft.url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-          return nft.url;
-        }
-      }
-
-      return '/placeholder-nft.png';
+      const ipfsUrl = url.replace('ipfs://', gateway);
+      await axios.head(ipfsUrl);
+      return ipfsUrl;
     } catch (error) {
-      return '/placeholder-nft.png';
+      continue;
     }
-  };
+  }
+  return url.replace('ipfs://', IPFS_GATEWAYS[0]);
+};
+
+const getImageUrl = async (nft: NFT): Promise<string> => {
+  try {
+    if (isNFD(nft)) return '';
+
+    // Handle direct image URL
+    if (nft.image) {
+      return nft.image.startsWith('ipfs://') ? await tryIPFSGateways(nft.image) : nft.image;
+    }
+
+    // Handle metadata URLs
+    if (nft.metadata?.image || nft.metadata?.image_url || nft.metadata?.animation_url) {
+      const metadataUrl = nft.metadata.image || nft.metadata.image_url || nft.metadata.animation_url;
+      if (metadataUrl) {
+        return metadataUrl.startsWith('ipfs://') ? await tryIPFSGateways(metadataUrl) : metadataUrl;
+      }
+    }
+
+    // Handle ARC-3
+    if (nft.url?.includes('#arc3')) {
+      try {
+        let baseUrl = nft.url.split('#')[0];
+        if (baseUrl.startsWith('ipfs://')) {
+          baseUrl = await tryIPFSGateways(baseUrl);
+        }
+        const response = await axios.get(baseUrl);
+        if (response.data.image) {
+          return response.data.image.startsWith('ipfs://') ? 
+            await tryIPFSGateways(response.data.image) : 
+            response.data.image;
+        }
+      } catch (error) {
+        console.error('ARC-3 fetch error:', error);
+      }
+    }
+
+    // Handle ARC-69
+    if (nft.url && !nft.url.includes('#arc3')) {
+      if (nft.url.startsWith('ipfs://')) {
+        return await tryIPFSGateways(nft.url);
+      }
+      if (nft.url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        return nft.url;
+      }
+      try {
+        const response = await axios.get(nft.url);
+        if (response.data.image) {
+          return response.data.image.startsWith('ipfs://') ?
+            await tryIPFSGateways(response.data.image) :
+            response.data.image;
+        }
+      } catch (error) {
+        console.error('ARC-69 fetch error:', error);
+      }
+    }
+
+    return '/placeholder-nft.png';
+  } catch (error) {
+    console.error('Image processing error:', error);
+    return '/placeholder-nft.png';
+  }
+};
 
   const resolveNFTImage = async (nft: NFT) => {
     setLoadingStates(prev => ({ ...prev, [nft.id]: true }));
