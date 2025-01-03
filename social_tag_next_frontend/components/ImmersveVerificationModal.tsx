@@ -35,28 +35,28 @@ interface ImmersveVerificationModalProps {
   useEffect(() => {
     // Fetch the creator address when component mounts
     const fetchCreatorAddress = async () => {
-      try {
-        const response = await fetch(
-          `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/created-applications`
-        );
-        const data = await response.json();
-        
-        // Find the cardFundDeployInit transaction
-        const createTx = (data.transactions as Transaction[])?.find(tx => 
-          tx["application-transaction"]?.["application-id"] === 2174001591 && // Master contract ID
-          tx["application-transaction"]?.["application-args"]?.[0] === 'cardFundDeployInit'
-        );
-        
-        if (createTx) {
-          setCreatorAddress(createTx.sender);
-        } else {
-          throw new Error('Creator address not found');
+        try {
+          const response = await fetch(
+            `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/created-applications`
+          );
+          const data = await response.json();
+          
+          // Find the cardFundDeployInit transaction
+          const createTx = (data.transactions as Transaction[])?.find(tx => 
+            tx["application-transaction"]?.["application-id"] === 2174001591 && // Master contract ID
+            tx["application-transaction"]?.["application-args"]?.[0] === 'cardFundDeployInit'
+          );
+          
+          if (createTx) {
+            setCreatorAddress(createTx.sender);
+          } else {
+            throw new Error('Creator address not found');
+          }
+        } catch (error) {
+          console.error('Error fetching creator address:', error);
+          setVerificationStatus('failed');
         }
-      } catch (error) {
-        console.error('Error fetching creator address:', error);
-        setVerificationStatus('failed');
-      }
-    };
+      };
 
     fetchCreatorAddress();
   }, [fundAddress]);
