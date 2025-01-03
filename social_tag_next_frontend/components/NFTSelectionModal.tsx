@@ -28,6 +28,7 @@ interface NFTSelectionModalProps {
   selectedNFT: NFT | null;
 }
 
+
 const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   isOpen,
   onClose,
@@ -44,24 +45,14 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
     return !!(nft.name?.toLowerCase().includes('nfd') || nft.name?.toLowerCase().includes('.algo'));
   };
 
-  const IPFS_GATEWAYS = [
-  'https://ipfs.io/ipfs/',
-  'https://cloudflare-ipfs.com/ipfs/',
-  'https://nftstorage.link/ipfs/',
-  'https://ipfs.algonode.xyz/ipfs/'
-];
 
-const tryIPFSGateways = async (url: string): Promise<string> => {
-  for (const gateway of IPFS_GATEWAYS) {
-    try {
-      const ipfsUrl = url.replace('ipfs://', gateway);
-      await axios.head(ipfsUrl);
-      return ipfsUrl;
-    } catch (error) {
-      continue;
-    }
+const tryIPFSGateways = (url: string): string => {
+  if (!url) return '/placeholder-nft.png';
+  if (url.startsWith('ipfs://')) {
+    const cid = url.replace('ipfs://', '').split('#')[0];
+    return `https://ipfs.io/ipfs/${cid}`;
   }
-  return url.replace('ipfs://', IPFS_GATEWAYS[0]);
+  return url;
 };
 
 const getImageUrl = async (nft: NFT): Promise<string> => {
