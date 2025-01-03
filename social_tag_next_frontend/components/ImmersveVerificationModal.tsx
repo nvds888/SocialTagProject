@@ -10,15 +10,13 @@ interface ImmersveVerificationModalProps {
   }
   
   interface Transaction {
-    "application-transaction"?: {
-      "application-id": number;
-      "application-args"?: string[];
-    };
+    'tx-type': string;
+    'group'?: string;
+    'application-id'?: number;
     sender: string;
-    "payment-transaction"?: {
-      amount: number; // Assuming amount is a number
+    'payment-transaction'?: {
+      amount: number;
     };
-    // Add other relevant properties here
   }
   
   const ImmersveVerificationModal: React.FC<ImmersveVerificationModalProps> = ({
@@ -36,7 +34,6 @@ interface ImmersveVerificationModalProps {
     // Fetch the creator address when component mounts
     const fetchCreatorAddress = async () => {
         try {
-          // We need to get app calls to the master contract for this fund address
           const response = await fetch(
             `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/transactions?application-id=2174001591`
           );
@@ -45,14 +42,14 @@ interface ImmersveVerificationModalProps {
           
           if (data && data.transactions) {
             // Find the first group's app call from the group
-            const createTx = (data.transactions as Transaction[])?.find(tx => 
-              tx["application-transaction"]?.["application-id"] === 2174001591 && // Master contract ID
-              tx["application-transaction"]?.["application-args"]?.[0] === 'cardFundDeployInit'
+            const createTx = (data.transactions as Transaction[]).find(tx => 
+              tx['tx-type'] === 'appl' && 
+              tx['group'] // Make sure it's part of a group
             );
             
             if (createTx) {
               setCreatorAddress(createTx.sender);
-              console.log("Found creator:", createTx.sender); // Debug log
+              console.log("Found creator:", createTx.sender);
             } else {
               throw new Error('Creator address not found');
             }
