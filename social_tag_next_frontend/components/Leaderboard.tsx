@@ -26,6 +26,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'points' | 'spent'>('points');
 
   useEffect(() => {
     if (isOpen) {
@@ -37,7 +38,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/api/leaderboard`);
-      const sortedData = response.data.sort((a: LeaderboardEntry, b: LeaderboardEntry) => b.rewardPoints - a.rewardPoints);
+      const sortedData = response.data.sort((a: LeaderboardEntry, b: LeaderboardEntry) => 
+        sortBy === 'points' 
+          ? b.rewardPoints - a.rewardPoints 
+          : b.totalUsdSpent - a.totalUsdSpent
+      );
       setLeaderboard(sortedData);
     } catch (err) {
       console.error('Error fetching leaderboard data:', err);
@@ -75,12 +80,25 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
               {/* Reduced padding and simplified header */}
               <CardHeader className="flex flex-row justify-between items-center bg-[#8B7AB4] p-4 border-b-2 border-black">
                 <div>
-                  <CardTitle className="text-2xl font-bold text-white tracking-wide">
-                    VERIFIED LEADERBOARD
-                  </CardTitle>
-                  <p className="text-white text-xs mt-1 opacity-90">
-                    Ranking of verified users by earned points
-                  </p>
+                <CardTitle className="text-2xl font-bold text-white tracking-wide">
+  VERIFIED LEADERBOARD
+</CardTitle>
+<div className="flex gap-2 mt-2">
+  <Button
+    variant="ghost" 
+    onClick={() => setSortBy('points')}
+    className={`text-xs border ${sortBy === 'points' ? 'bg-white text-black' : 'text-white border-white'} rounded-lg transition-all`}
+  >
+    Sort by Points
+  </Button>
+  <Button
+    variant="ghost"
+    onClick={() => setSortBy('spent')}
+    className={`text-xs border ${sortBy === 'spent' ? 'bg-white text-black' : 'text-white border-white'} rounded-lg transition-all`}
+  >
+    Sort by USD Spent
+  </Button>
+</div>
                 </div>
                 <Button 
                   variant="ghost" 
