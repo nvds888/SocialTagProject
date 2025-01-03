@@ -4,10 +4,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { Buffer } from 'buffer';
 
 interface NFTMetadata {
   name: string;
   image?: string;
+  description?: string;
+  properties?: Record<string, unknown>;
   [key: string]: unknown;
 }
 
@@ -34,9 +37,10 @@ interface Asset {
     name?: string;
     url?: string;
     total?: number;
+    reserve?: string;
+    'unit-name'?: string;
     [key: string]: unknown;
   };
-  [key: string]: unknown;
 }
 
 const IPFS_GATEWAYS = [
@@ -44,6 +48,8 @@ const IPFS_GATEWAYS = [
   'https://cloudflare-ipfs.com/ipfs/',
   'https://nftstorage.link/ipfs/'
 ];
+
+const templateIPFSRegex = /template-ipfs:\/\/.*/;
 
 const indexerAxios = axios.create({
   withCredentials: false,
@@ -53,12 +59,94 @@ const indexerAxios = axios.create({
 const getIndexerURL = (network: string): string => 
   network === 'mainnet' ? 'https://mainnet-idx.algonode.cloud' : 'https://testnet-idx.algonode.cloud';
 
-async function processIPFSUrl(url: string): Promise<string> {
-  if (url.startsWith('ipfs://')) {
-    const cid = url.replace('ipfs://', '');
-    return `${IPFS_GATEWAYS[0]}${cid}`;
+async function tryIPFSGateways(cid: string): Promise<string | null> {
+  for (const gateway of IPFS_GATEWAYS) {
+    try {
+      const url = `${gateway}${cid}`;
+      const response = await axios.head(url, { timeout: 3000 });
+      if (response.status === 200) return url;
+    } catch (error) {
+      continue;
+    }
   }
-  return url;
+  return null;
+}
+
+async function decodeARC19URL(url: string, reserveAddr: string): Promise<string | null> {
+  const matches = url.match(templateIPFSRegex);
+  if (!matches?.groups) return null;
+
+  try {
+    // Simplified CID generation - replace with full implementation in production
+    const cidv1 = Buffer.from(reserveAddr).toString('base64url');
+    return `ipfs://${cidv1}`;
+  } catch (error) {
+    console.error('Error decoding ARC-19 URL:', error);
+    return null;
+  }
+}
+
+async function fetchMetadata(url: string): Promise<NFTMetadata | null> {
+  try {
+    if (!url) return null;
+
+    let metadataUrl = url;
+    if (url.startsWith('ipfs://')) {
+      const cid = url.replace('ipfs://', '');
+      const ipfsUrl = await tryIPFSGateways(cid);
+      if (!ipfsUrl) return null;
+      metadataUrl = ipfsUrl;
+    }
+
+    const response = await axios.get(metadataUrl, { timeout: 5000 });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching metadata:', error);
+    return null;
+  }
+}
+
+async function processNFTAsset(asset: Asset): Promise<NFTMetadata | null> {
+  const params = asset.params;
+  
+  // Try ARC-3
+  if (params.url?.endsWith('#arc3')) {
+    const metadata = await fetchMetadata(params.url.replace('#arc3', ''));
+    if (metadata) return metadata;
+  }
+
+  // Try ARC-19
+  if (params.url?.startsWith('template-ipfs://')) {
+    const decodedUrl = await decodeARC19URL(params.url, params.reserve || '');
+    if (decodedUrl) {
+      const metadata = await fetchMetadata(decodedUrl);
+      if (metadata) return metadata;
+    }
+  }
+
+  // Try ARC-69
+  if (params.url && !params.url.includes('#arc3')) {
+    const metadata = await fetchMetadata(params.url);
+    if (metadata) return metadata;
+  }
+
+  // Fallback to basic ASA params
+  return {
+    name: params.name || params['unit-name'] || 'Unnamed NFT',
+    image: params.url || undefined,
+  };
+}
+
+async function loadNFTBatch(assets: Asset[]): Promise<NFTMetadata[]> {
+  const results = await Promise.allSettled(
+    assets.map(asset => processNFTAsset(asset))
+  );
+  
+  return results
+    .filter((result): result is PromiseFulfilledResult<NFTMetadata> => 
+      result.status === 'fulfilled' && result.value !== null
+    )
+    .map(result => result.value);
 }
 
 const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
@@ -79,68 +167,42 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       setError('No wallet address provided');
       return;
     }
-  
+
     try {
       setIsLoading(true);
       setError(null);
       setNfts([]);
-  
-      console.log("Fetching assets...");
+
       const response = await indexerAxios.get(
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
-      console.log("Assets response:", response.data);
-  
-      const assets = response.data.assets;
-console.log("All assets:", assets);
 
-const nftAssets = assets.filter((asset: Asset) => {
- return asset.amount > 0 && asset.params;
-});
+      const assets = response.data.assets.filter((asset: Asset) => 
+        asset.amount > 0 && asset.params
+      );
 
-console.log("NFT assets:", nftAssets);
-  
-      console.log("Filtered assets:", assets);
       setProgress(`Found ${assets.length} potential NFTs`);
-      const processedNfts: NFT[] = [];
-
+      
       for (let i = 0; i < assets.length; i += 5) {
         const batch = assets.slice(i, i + 5);
         setProgress(`Processing NFTs ${i + 1}-${Math.min(i + 5, assets.length)} of ${assets.length}`);
+        
+        const processedBatch = await loadNFTBatch(batch);
+        const nftBatch = processedBatch.map((metadata, index) => ({
+          assetId: batch[index]['asset-id'],
+          metadata,
+          image: metadata.image,
+          name: metadata.name
+        }));
 
-        const batchPromises = batch.map(async (asset: Asset) => {
-          try {
-            let imageUrl = asset.params.url;
-            if (imageUrl) {
-              imageUrl = await processIPFSUrl(imageUrl);
-            }
-            
-            return {
-              assetId: asset['asset-id'],
-              metadata: {
-                name: asset.params.name || asset.params['unit-name'] || 'Unnamed NFT',
-                image: imageUrl
-              },
-              image: imageUrl,
-              name: asset.params.name || asset.params['unit-name'] || 'Unnamed NFT'
-            };
-          } catch (err) {
-            console.log('Asset processing error:', asset, err);
-            return null;
-          }
-         });
-
-        const batchResults = await Promise.all(batchPromises);
-        const validResults = batchResults.filter((nft): nft is NFT => nft !== null);
-        processedNfts.push(...validResults);
-        setNfts([...processedNfts]);
-
+        setNfts(current => [...current, ...nftBatch]);
+        
         if (i + 5 < assets.length) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
 
-      if (processedNfts.length === 0) {
+      if (nfts.length === 0) {
         setError('No NFTs found in wallet');
       }
     } catch (err) {
