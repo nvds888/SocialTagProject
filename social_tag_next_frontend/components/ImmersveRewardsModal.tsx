@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ImmersveVerificationModal from '@/components/ImmersveVerificationModal';
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import axios, { AxiosError } from 'axios';
 import { useToast } from "@/components/ui/use-toast";
@@ -61,6 +62,8 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [activePanel, setActivePanel] = useState<string | null>('register');
   const [loading, setLoading] = useState<boolean>(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+const [, setIsVerified] = useState(false);
   const [pools, setPools] = useState<RewardPool[]>([]);
   const { toast } = useToast();
 
@@ -130,13 +133,19 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
       });
       return;
     }
-
+  
+    // Show verification modal instead of proceeding directly
+    setShowVerificationModal(true);
+  };
+  
+  // Add this new function to handle the actual registration
+  const completeRegistration = async () => {
     setLoading(true);
     try {
       const finalRewardAddress = rewardAddress || connectedWalletAddress;
       
       await axios.post(`${API_BASE_URL}/api/immersveRegister`, {
-        twitterUsername: user.twitter.username,
+        twitterUsername: user.twitter?.username,
         immersveAddress: fundAddress,
         rewardAddress: finalRewardAddress
       }, {
@@ -156,7 +165,7 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
       });
       
       setActivePanel('transactions');
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof AxiosError) {
         console.error('Registration error:', error);
         toast({
@@ -371,8 +380,22 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
                 </div>
               ))}
             </div>
+            
           )}
         </div>
+        {/* Add Verification Modal */}
+      {showVerificationModal && (
+        <ImmersveVerificationModal
+          fundAddress={fundAddress}
+          rewardAddress={rewardAddress}
+          onVerificationComplete={() => {
+            setIsVerified(true);
+            setShowVerificationModal(false);
+            completeRegistration(); // Proceed with registration after verification
+          }}
+          onClose={() => setShowVerificationModal(false)}
+        />
+      )}
 
         <div className="mt-6 flex justify-end">
           <Button 
