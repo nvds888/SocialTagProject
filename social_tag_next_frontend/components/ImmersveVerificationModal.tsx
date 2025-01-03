@@ -37,19 +37,19 @@ interface ImmersveVerificationModalProps {
     const fetchCreatorAddress = async () => {
         try {
           const response = await fetch(
-            `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/created-applications`
+            `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/transactions?limit=1&tx-type=appl`
           );
+          
+          console.log("Response data:", await response.clone().json()); // Debug log
+          
           const data = await response.json();
           
-          // Find the cardFundDeployInit transaction
-          const createTx = (data.transactions as Transaction[])?.find(tx => 
-            tx["application-transaction"]?.["application-id"] === 2174001591 && // Master contract ID
-            tx["application-transaction"]?.["application-args"]?.[0] === 'cardFundDeployInit'
-          );
-          
-          if (createTx) {
-            setCreatorAddress(createTx.sender);
+          if (data && data.transactions && data.transactions.length > 0) {
+            const tx = data.transactions[0];
+            console.log("Found transaction:", tx); // Debug log
+            setCreatorAddress(tx.sender);
           } else {
+            console.log("No transactions found"); // Debug log
             throw new Error('Creator address not found');
           }
         } catch (error) {
