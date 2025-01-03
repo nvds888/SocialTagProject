@@ -36,21 +36,26 @@ interface ImmersveVerificationModalProps {
     // Fetch the creator address when component mounts
     const fetchCreatorAddress = async () => {
         try {
+          // We need to get app calls to the master contract for this fund address
           const response = await fetch(
-            `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/transactions?limit=1&tx-type=appl`
+            `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/transactions?application-id=2174001591`
           );
-          
-          console.log("Response data:", await response.clone().json()); // Debug log
           
           const data = await response.json();
           
-          if (data && data.transactions && data.transactions.length > 0) {
-            const tx = data.transactions[0];
-            console.log("Found transaction:", tx); // Debug log
-            setCreatorAddress(tx.sender);
-          } else {
-            console.log("No transactions found"); // Debug log
-            throw new Error('Creator address not found');
+          if (data && data.transactions) {
+            // Find the first group's app call from the group
+            const createTx = (data.transactions as Transaction[])?.find(tx => 
+              tx["application-transaction"]?.["application-id"] === 2174001591 && // Master contract ID
+              tx["application-transaction"]?.["application-args"]?.[0] === 'cardFundDeployInit'
+            );
+            
+            if (createTx) {
+              setCreatorAddress(createTx.sender);
+              console.log("Found creator:", createTx.sender); // Debug log
+            } else {
+              throw new Error('Creator address not found');
+            }
           }
         } catch (error) {
           console.error('Error fetching creator address:', error);
