@@ -902,24 +902,30 @@ router.get('/leaderboard', async (req, res) => {
     // Only fetch users who have at least one verification
     const users = await User.find(
       { 'verifications.0': { $exists: true } }, // This checks if there's at least one element in verifications array
-      'twitter.username nfd profileViews purchasedItems verifications profileNFT reverifyCount baseVerifyPoints'
+      'twitter.username nfd profileViews purchasedItems verifications profileNFT reverifyCount baseVerifyPoints immersveTransactions'
     );
     
-    const leaderboardData = users.map(user => ({
-      twitterUsername: user.twitter?.username || 'Unknown',
-      nfdName: user.nfd?.name || null,
-      rewardPoints: calculateRewardPoints(
-        user.profileViews, 
-        user.purchasedItems, 
-        user.verifications, 
-        user.profileNFT, 
-        user.nfd, 
-        user.reverifyCount, 
-        user.baseVerifyPoints
-      ),
-      verified: true, // Adding this field for clarity in the frontend
-      lastVerified: user.verifications[user.verifications.length - 1].timestamp
-    }));
+    const leaderboardData = users.map(user => {
+      const totalUsdSpent = user.immersveTransactions?.reduce((total, tx) => 
+        total + (tx.usdcAmount || 0), 0) || 0;
+
+      return {
+        twitterUsername: user.twitter?.username || 'Unknown',
+        nfdName: user.nfd?.name || null,
+        rewardPoints: calculateRewardPoints(
+          user.profileViews, 
+          user.purchasedItems, 
+          user.verifications, 
+          user.profileNFT, 
+          user.nfd, 
+          user.reverifyCount, 
+          user.baseVerifyPoints
+        ),
+        verified: true,
+        lastVerified: user.verifications[user.verifications.length - 1].timestamp,
+        totalUsdSpent: parseFloat(totalUsdSpent.toFixed(2))
+      };
+    });
 
     // Sort the leaderboard data by reward points in descending order
     leaderboardData.sort((a, b) => b.rewardPoints - a.rewardPoints);

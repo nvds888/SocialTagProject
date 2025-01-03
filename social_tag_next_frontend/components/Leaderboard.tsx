@@ -12,6 +12,7 @@ interface LeaderboardEntry {
   rewardPoints: number;
   verified: boolean;
   lastVerified: string;
+  totalUsdSpent: number; 
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -119,6 +120,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
                             <TableHead className="text-white font-bold text-sm py-2">USERNAME</TableHead>
                             <TableHead className="text-white font-bold text-sm py-2">NFDOMAIN</TableHead>
                             <TableHead className="text-white font-bold text-sm py-2 text-right">POINTS</TableHead>
+                            <TableHead className="text-white font-bold text-sm py-2 text-right">USD SPENT</TableHead>
                             <TableHead className="text-white font-bold text-sm py-2 text-center">PROFILE</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -170,6 +172,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
                                   </span>
                                 </div>
                               </TableCell>
+
+                              <TableCell className="text-right">
+  <div className="inline-flex items-center bg-[#40E0D0]/90 rounded-md px-2 py-1 border border-black text-sm">
+    <span className="font-bold text-black">
+      ${entry.totalUsdSpent?.toLocaleString() || '0'}
+    </span>
+  </div>
+</TableCell>
 
                               {/* Profile Link Cell */}
                               <TableCell className="text-center">
