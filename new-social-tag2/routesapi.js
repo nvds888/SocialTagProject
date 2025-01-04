@@ -602,7 +602,7 @@ router.get('/user/:username', sessionCheck, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const { twitter, facebook, linkedin, github, spotify, verifications, theme, bio, profileNFT, purchasedItems, profileViews, reverifyCount, baseVerifyPoints, nfd } = user;
+    const { twitter, facebook, linkedin, github, spotify, verifications, theme, cardStyle, bio, profileNFT, purchasedItems, profileViews, reverifyCount, baseVerifyPoints, nfd } = user;
 
     const latestVerification = verifications && verifications.length > 0 ? verifications[verifications.length - 1] : null;
 
@@ -616,6 +616,7 @@ router.get('/user/:username', sessionCheck, async (req, res) => {
       spotify: spotify ? { id: spotify.id, username: spotify.username } : null,
       verifications: verifications || [],
       theme,
+      cardStyle,
       bio,
       profileNFT,
       nfd,
