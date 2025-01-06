@@ -20,7 +20,6 @@ import LavaEffect from '@/components/LavaEffect'
 import VerificationDialog from '@/components/VerificationDialog'
 import ReVerificationDialog from '@/components/ReVerificationDialog'
 import Leaderboard from '@/components/Leaderboard'
-import NFDSelectionModal from '@/components/NFDSelectionModal'
 import { NFT, Verification } from '@/types/User'
 import Image from 'next/image';
 
@@ -34,12 +33,6 @@ const apiClient = axios.create({
     'Content-Type': 'application/json'
   }
 });
-
-interface NFD {
-  id: string;
-  name: string;
-  assetId?: string; // Add this line
-}
 
 interface ImmersveReward {
   assetId: number;
@@ -135,10 +128,6 @@ const Dashboard: React.FC<Partial<{ username: string }>> = (props) => {
   const [usdcBalance, setUsdcBalance] = useState<string>('0');
   const [recentTransactions, setRecentTransactions] = useState<ImmersveTransaction[]>([]);
   const [showLeaderboard, setShowLeaderboard] = useState(false)
-  const [showNFDModal, setShowNFDModal] = useState(false)
-const [nfds, setNfds] = useState<NFD[]>([])
-const [selectedNFD, setSelectedNFD] = useState<NFD | null>(null)
-const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
   const peraWallet = useMemo(() => {
     return typeof window !== 'undefined' ? new PeraWalletConnect() : null;
   }, []);
@@ -177,85 +166,6 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
       fetchUser();
     }
   }, [router.isReady, username, fetchUser]);
-
-  const handleFetchNFDs = async () => {
-    if (!connectedAccount) {
-      // Check if peraWallet exists
-      if (!peraWallet) {
-        toast({
-          title: "Error",
-          description: "Pera Wallet is not available.",
-          variant: "destructive",
-        });
-        return;
-      }
-  
-      try {
-        const newAccounts = await peraWallet.connect();
-        setConnectedAccount(newAccounts[0]);
-        
-        // After successful connection, fetch NFDs
-        const response = await axios.get(`${API_BASE_URL}/peraWalletRoutes/fetch-wallet-nfds/${newAccounts[0]}`);
-        setNfds(response.data);
-        setShowNFDModal(true);
-      } catch (error) {
-        console.error('Error connecting wallet or fetching NFDs:', error);
-        toast({
-          title: "Connection Failed",
-          description: "Please connect your Pera Wallet to fetch NFDs.",
-          variant: "destructive",
-        });
-      }
-    } else {
-      // Wallet already connected, just fetch NFDs
-      try {
-        setIsLoadingNFDs(true);
-        const response = await axios.get(`${API_BASE_URL}/peraWalletRoutes/fetch-wallet-nfds/${connectedAccount}`);
-        setNfds(response.data);
-        setShowNFDModal(true);
-      } catch (error) {
-        console.error('Error fetching NFDs:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch NFDs. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingNFDs(false);
-      }
-    }
-  };
-  
-  const handleSelectNFD = async (nfd: NFD) => {
-    if (!nfd || typeof nfd !== 'object') {
-      setSelectedNFD(null);
-      return;
-    }
-    
-    const nfdData = {
-      id: nfd.id?.toString() || 'unknown',
-      name: nfd.name?.toString() || 'Unnamed NFD',
-      assetId: nfd.assetId?.toString()
-    };
-    
-    setSelectedNFD(nfdData);
-    setShowNFDModal(false);
-  
-    // Update the user settings with NFD data
-    try {
-      await apiClient.post('/api/user/settings', {
-        nfd: nfdData
-      });
-      fetchUser(); // Refresh user data
-    } catch (error) {
-      console.error('Error updating NFD settings:', error);
-      toast({
-        title: "NFD Update Failed",
-        description: "Failed to save NFD selection",
-        variant: "destructive",
-      });
-    }
-  };
 
   const fetchRecentTransactions = useCallback(async () => {
     if (!user?.immersveAddress) return;
@@ -580,8 +490,7 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
   const isLinkedInConnected = !!user?.linkedin?.name;
   const isGitHubConnected = !!user?.github?.username;
   const isSpotifyConnected = !!user?.spotify?.username;
-  const isNFDConnected = !!selectedNFD?.name;
-  const connectedAccountsCount = [isTwitterConnected, isFacebookConnected, isLinkedInConnected, isGitHubConnected, isSpotifyConnected, isNFDConnected].filter(Boolean).length;
+  const connectedAccountsCount = [isTwitterConnected, isFacebookConnected, isLinkedInConnected, isGitHubConnected, isSpotifyConnected].filter(Boolean).length;
   const canVerify = connectedAccountsCount >= 2;
 
   return (
@@ -691,14 +600,6 @@ disabled
                 username={user?.twitter?.username}
                 isVerified={isVerified}
               />
-              <SocialCard
-    platform="NFD"
-    icon={<Hash size={24} className="text-black" />}
-    isConnected={!!selectedNFD?.name}
-    onConnect={handleFetchNFDs}
-    username={user?.nfd}
-    isVerified={isVerified}
-  />
               <SocialCard
                 platform="Facebook"
                 icon={<Facebook size={24} className="text-black" />}
@@ -878,14 +779,6 @@ disabled
         onClose={() => setIsReVerificationDialogOpen(false)}
         onConfirm={handleReVerify}
       />
-      <NFDSelectionModal
-  isOpen={showNFDModal}
-  onClose={() => setShowNFDModal(false)}
-  nfds={nfds}
-  selectedNFD={selectedNFD}
-  onSelectNFD={handleSelectNFD}
-  isLoading={isLoadingNFDs}
-/>
       <Leaderboard isOpen={showLeaderboard} onClose={handleCloseLeaderboard} />
       {user && (
   <ImmersveRewardsModal

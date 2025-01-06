@@ -37,6 +37,7 @@ import FrostedGlassCard from '@/components/frosted-glass-card'
 import HolographicCard from '@/components/holographic-card'
 import Confetti from 'react-confetti'
 import NFTSelectionModal from '@/components/NFTSelectionModal'
+import NFDSelectionModal from '@/components/NFDSelectionModal'
 import { User } from '@/types/User';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
@@ -63,6 +64,11 @@ interface NFT {
   name?: string;
 }
 
+interface NFD {
+  id: string;
+  name: string;
+  assetId?: string; // Add this line
+}
 
 
 interface ComponentProps {
@@ -166,6 +172,10 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
   const [showNFTModal, setShowNFTModal] = useState(false)
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null)
   const [isLoadingNFTs] = useState(false)
+  const [showNFDModal, setShowNFDModal] = useState(false)
+  const [nfds, setNfds] = useState<NFD[]>([])
+  const [selectedNFD, setSelectedNFD] = useState<NFD | null>(null)
+  const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
   const { toast } = useToast()
   const [profileViews, setProfileViews] = useState(user.profileViews || 0)
   const [rewardPoints, setRewardPoints] = useState(0)
@@ -182,6 +192,7 @@ const CustomizePanel: React.FC<CustomizePanelProps> = ({
         setBio(data.bio || '');
         setProfileViews(data.profileViews || 0);
         setSelectedNFT(data.profileNFT || null);
+        setSelectedNFD(data.nfd || null);
         setPurchasedItems(data.purchasedItems || []);
         setRewardPoints(data.rewardPoints || 0);
   
@@ -375,6 +386,43 @@ if (data.nfd) {
     setShowNFTModal(false);
   };
 
+  const handleFetchNFDs = async () => {
+    if (!connectedWalletAddress) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your Pera Wallet to fetch NFDs.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsLoadingNFDs(true)
+    setError(null)
+    try {
+      const response = await axios.get(`${API_BASE_URL}/peraWalletRoutes/fetch-wallet-nfds/${connectedWalletAddress}`)
+      setNfds(response.data)
+      setShowNFDModal(true)
+    } catch (error) {
+      console.error('Error fetching NFDs:', error)
+      setError('Failed to fetch NFDs. Please try again.')
+    } finally {
+      setIsLoadingNFDs(false)
+    }
+  }
+
+  const handleSelectNFD = (nfd: NFD) => {
+    if (!nfd || typeof nfd !== 'object') {
+      setSelectedNFD(null);
+      return;
+    }
+    
+    setSelectedNFD({
+      id: nfd.id?.toString() || 'unknown',
+      name: nfd.name?.toString() || 'Unnamed NFD',
+      assetId: nfd.assetId?.toString()
+    });
+    setShowNFDModal(false);
+  };
 
   const handleCreateNFT = () => {
     window.open('https://www.wen.tools/simple-mint', '_blank');
@@ -409,6 +457,13 @@ if (data.nfd) {
         cardStyle, 
         bio,
         profileNFT: selectedNFT || null,
+        nfd: selectedNFD && selectedNFD.name && typeof selectedNFD.name === 'string' && selectedNFD.name.trim() !== ''
+          ? {
+              id: selectedNFD.id,
+              name: selectedNFD.name,
+              assetId: selectedNFD.assetId
+            }
+          : null
       };
   
       const response = await axios.post(
@@ -431,6 +486,19 @@ if (data.nfd) {
           localStorage.removeItem(`profileNFT_${user.twitter?.username}`)
         }
   
+        // Handle NFD updates - only if there's valid data
+        if (response.data.nfd && response.data.nfd.name && typeof response.data.nfd.name === 'string' && response.data.nfd.name.trim() !== '') {
+          const nfdData = {
+            id: response.data.nfd.id,
+            name: response.data.nfd.name,
+            assetId: response.data.nfd.assetId
+          };
+          setSelectedNFD(nfdData)
+          localStorage.setItem(`nfd_${user.twitter?.username}`, JSON.stringify(nfdData))
+        } else {
+          setSelectedNFD(null)
+          localStorage.removeItem(`nfd_${user.twitter?.username}`)
+        }
   
         localStorage.setItem(`theme_${user.twitter?.username}`, response.data.theme)
         localStorage.setItem(`cardStyle_${user.twitter?.username}`, response.data.cardStyle)
@@ -851,7 +919,13 @@ if (data.nfd) {
       <ExternalLink size={16} className="mr-2" />
       Create NFT
     </Button>
-
+    <Button 
+      onClick={handleFetchNFDs} 
+      disabled={isLoadingNFDs} 
+      className={`w-full bg-[#FF6B6B] text-black px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:bg-[#FF6B6B]/90 transition-all border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed`}
+    >
+      {isLoadingNFDs ? 'Loading...' : 'Select NFD'}
+    </Button>
   </div>
     <div className="flex space-x-4">
       <div className="w-2/3">
@@ -876,6 +950,15 @@ if (data.nfd) {
   </div>
 )}
       </div>
+      <div className="w-1/3">
+  {selectedNFD && selectedNFD.name && (
+    <div className="flex items-center space-x-2">
+      <span className="text-sm text-black">
+        {typeof selectedNFD.name === 'string' ? selectedNFD.name : ''}
+      </span>
+    </div>
+  )}
+</div>
     </div>
   </div>
 </div>
@@ -1068,6 +1151,14 @@ if (data.nfd) {
   onSelectNFT={handleSelectNFT}
 />
 
+            <NFDSelectionModal
+              isOpen={showNFDModal}
+              onClose={() => setShowNFDModal(false)}
+              nfds={nfds}
+              selectedNFD={selectedNFD}
+              onSelectNFD={handleSelectNFD}
+              isLoading={isLoadingNFDs}
+            />
           </motion.div>
         </motion.div>
       )}

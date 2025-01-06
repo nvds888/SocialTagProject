@@ -56,16 +56,17 @@ const initAlgorandClient = () => {
 };
 
 // Updated function to calculate reward points
-const calculateRewardPoints = (profileViews, purchasedItems, verifications, profileNFT, reverifyCount, baseVerifyPoints) => {
+const calculateRewardPoints = (profileViews, purchasedItems, verifications, profileNFT, nfd, reverifyCount, baseVerifyPoints) => {
   const viewPoints = profileViews * 5;
   const purchasePoints = (purchasedItems?.length || 0) * 50;
   const nftPoints = profileNFT && profileNFT.id ? 75 : 0;
+  const nfdPoints = nfd && nfd.id ? 75 : 0;
   
   let verificationPoints = 0;
   if (verifications && verifications.length > 0) {
     verificationPoints += 100;
     const latestVerification = verifications[verifications.length - 1];
-    const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin', 'nfd'];
+    const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin'];
     connectedAccounts.forEach(account => {
       if (latestVerification[account]) {
         verificationPoints += 50;
@@ -73,7 +74,7 @@ const calculateRewardPoints = (profileViews, purchasedItems, verifications, prof
     });
   }
   
-  const totalPoints = viewPoints + purchasePoints + verificationPoints + nftPoints + baseVerifyPoints;
+  const totalPoints = viewPoints + purchasePoints + verificationPoints + nftPoints + nfdPoints + baseVerifyPoints;
   const reverifyDeduction = reverifyCount * 500;
   
   return Math.max(totalPoints - reverifyDeduction, 0);
@@ -88,7 +89,7 @@ router.get('/user', sessionCheck, async (req, res) => {
 
   const latestVerification = verifications && verifications.length > 0 ? verifications[verifications.length - 1] : null;
 
-  const rewardPoints = calculateRewardPoints(profileViews, purchasedItems, verifications, profileNFT, reverifyCount, baseVerifyPoints);
+  const rewardPoints = calculateRewardPoints(profileViews, purchasedItems, verifications, profileNFT, req.user.nfd, reverifyCount, baseVerifyPoints);
 
   res.json({
     twitter: twitter ? { username: twitter.username } : null,
@@ -449,7 +450,7 @@ router.post('/verify', sessionCheck, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     
-    const connectedAccounts = [user.twitter, user.facebook, user.linkedin, user.github, user.spotify, user.nfd].filter(Boolean).length;
+    const connectedAccounts = [user.twitter, user.facebook, user.linkedin, user.github, user.spotify].filter(Boolean).length;
     if (connectedAccounts < 2) {
       return res.status(400).json({ error: 'At least two social accounts must be connected to verify' });
     }
@@ -461,12 +462,7 @@ router.post('/verify', sessionCheck, async (req, res) => {
       facebook: user.facebook ? user.facebook.name : null,
       linkedin: user.linkedin ? user.linkedin.name : null,
       github: user.github ? user.github.username : null,
-      spotify: user.spotify ? user.spotify.username : null,
-      nfd: user.nfd ? { 
-        id: user.nfd.id,
-        name: user.nfd.name,
-        assetId: user.nfd.assetId
-      } : null
+      spotify: user.spotify ? user.spotify.username : null
     };
 
     const { stellar: stellarTransactionHash, algorand: algorandTransactionId } = 
@@ -556,7 +552,7 @@ router.post('/re-verify', sessionCheck, async (req, res) => {
     let baseVerifyPoints = 100; // Base points for verification
     if (user.verifications && user.verifications.length > 0) {
       const latestVerification = user.verifications[user.verifications.length - 1];
-      const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin', 'nfd'];
+      const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin'];
       connectedAccounts.forEach(account => {
         if (latestVerification[account]) {
           baseVerifyPoints += 25;
@@ -576,7 +572,6 @@ router.post('/re-verify', sessionCheck, async (req, res) => {
     user.linkedin = null;
     user.github = null;
     user.spotify = null;
-    user.nfd = null;
 
     await user.save();
 
