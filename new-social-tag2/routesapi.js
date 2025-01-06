@@ -450,7 +450,7 @@ router.post('/verify', sessionCheck, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     
-    const connectedAccounts = [user.twitter, user.facebook, user.linkedin, user.github, user.spotify].filter(Boolean).length;
+    const connectedAccounts = [user.twitter, user.facebook, user.linkedin, user.github, user.spotify, user.nfd].filter(Boolean).length;
     if (connectedAccounts < 2) {
       return res.status(400).json({ error: 'At least two social accounts must be connected to verify' });
     }
@@ -462,7 +462,12 @@ router.post('/verify', sessionCheck, async (req, res) => {
       facebook: user.facebook ? user.facebook.name : null,
       linkedin: user.linkedin ? user.linkedin.name : null,
       github: user.github ? user.github.username : null,
-      spotify: user.spotify ? user.spotify.username : null
+      spotify: user.spotify ? user.spotify.username : null,
+      nfd: user.nfd ? { 
+        id: user.nfd.id,
+        name: user.nfd.name,
+        assetId: user.nfd.assetId
+      } : null
     };
 
     const { stellar: stellarTransactionHash, algorand: algorandTransactionId } = 
@@ -552,7 +557,7 @@ router.post('/re-verify', sessionCheck, async (req, res) => {
     let baseVerifyPoints = 100; // Base points for verification
     if (user.verifications && user.verifications.length > 0) {
       const latestVerification = user.verifications[user.verifications.length - 1];
-      const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin'];
+      const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin', 'nfd'];
       connectedAccounts.forEach(account => {
         if (latestVerification[account]) {
           baseVerifyPoints += 25;
@@ -572,6 +577,7 @@ router.post('/re-verify', sessionCheck, async (req, res) => {
     user.linkedin = null;
     user.github = null;
     user.spotify = null;
+    user.nfd = null;
 
     await user.save();
 
