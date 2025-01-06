@@ -822,16 +822,21 @@ router.post('/user/settings', sessionCheck, async (req, res) => {
   try {
     const { theme, cardStyle, bio, profileNFT } = req.body;
     
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        theme,
-        cardStyle,
-        bio,
-        profileNFT,
-      },
-      { new: true }
-    );
+    const updateFields = {
+      theme,
+      cardStyle,
+      bio,
+      profileNFT
+    };
+
+      if ('nfd' in req.body) {
+        updateFields.nfd = nfd;
+      }
+      const updatedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        updateFields,
+        { new: true }
+      );
 
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found' });
