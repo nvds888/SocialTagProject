@@ -563,7 +563,8 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
   const isLinkedInConnected = !!user?.linkedin?.name;
   const isGitHubConnected = !!user?.github?.username;
   const isSpotifyConnected = !!user?.spotify?.username;
-  const connectedAccountsCount = [isTwitterConnected, isFacebookConnected, isLinkedInConnected, isGitHubConnected, isSpotifyConnected].filter(Boolean).length;
+  const isNFDConnected = !!selectedNFD?.name;
+  const connectedAccountsCount = [isTwitterConnected, isFacebookConnected, isLinkedInConnected, isGitHubConnected, isSpotifyConnected, isNFDConnected].filter(Boolean).length;
   const canVerify = connectedAccountsCount >= 2;
 
   return (
@@ -674,14 +675,6 @@ disabled
                 isVerified={isVerified}
               />
               <SocialCard
-                platform="Facebook"
-                icon={<Facebook size={24} className="text-black" />}
-                isConnected={isFacebookConnected}
-                onConnect={() => handleConnect('facebook')}
-                username={user?.facebook?.name}
-                isVerified={isVerified}
-              />
-              <SocialCard
     platform="NFD"
     icon={<Hash size={24} className="text-black" />}
     isConnected={!!selectedNFD?.name}
@@ -689,6 +682,14 @@ disabled
     username={selectedNFD?.name}
     isVerified={isVerified}
   />
+              <SocialCard
+                platform="Facebook"
+                icon={<Facebook size={24} className="text-black" />}
+                isConnected={isFacebookConnected}
+                onConnect={() => handleConnect('facebook')}
+                username={user?.facebook?.name}
+                isVerified={isVerified}
+              />
               <SocialCard
                 platform="LinkedIn"
                 icon={<Linkedin size={24} className="text-black" />}
