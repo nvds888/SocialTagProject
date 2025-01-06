@@ -696,7 +696,7 @@ disabled
     icon={<Hash size={24} className="text-black" />}
     isConnected={!!selectedNFD?.name}
     onConnect={handleFetchNFDs}
-    username={selectedNFD?.name}
+    username={user?.nfd}
     isVerified={isVerified}
   />
               <SocialCard
