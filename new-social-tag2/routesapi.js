@@ -577,6 +577,7 @@ router.post('/re-verify', sessionCheck, async (req, res) => {
     user.linkedin = null;
     user.github = null;
     user.spotify = null;
+    user.nfd = null;
 
     await user.save();
 
