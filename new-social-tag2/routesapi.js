@@ -56,17 +56,16 @@ const initAlgorandClient = () => {
 };
 
 // Updated function to calculate reward points
-const calculateRewardPoints = (profileViews, purchasedItems, verifications, profileNFT, nfd, reverifyCount, baseVerifyPoints) => {
+const calculateRewardPoints = (profileViews, purchasedItems, verifications, profileNFT, reverifyCount, baseVerifyPoints) => {
   const viewPoints = profileViews * 5;
   const purchasePoints = (purchasedItems?.length || 0) * 50;
   const nftPoints = profileNFT && profileNFT.id ? 75 : 0;
-  const nfdPoints = nfd && nfd.id ? 75 : 0;
   
   let verificationPoints = 0;
   if (verifications && verifications.length > 0) {
     verificationPoints += 100;
     const latestVerification = verifications[verifications.length - 1];
-    const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin'];
+    const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin', 'nfd'];
     connectedAccounts.forEach(account => {
       if (latestVerification[account]) {
         verificationPoints += 50;
@@ -74,7 +73,7 @@ const calculateRewardPoints = (profileViews, purchasedItems, verifications, prof
     });
   }
   
-  const totalPoints = viewPoints + purchasePoints + verificationPoints + nftPoints + nfdPoints + baseVerifyPoints;
+  const totalPoints = viewPoints + purchasePoints + verificationPoints + nftPoints + baseVerifyPoints;
   const reverifyDeduction = reverifyCount * 500;
   
   return Math.max(totalPoints - reverifyDeduction, 0);
@@ -89,7 +88,7 @@ router.get('/user', sessionCheck, async (req, res) => {
 
   const latestVerification = verifications && verifications.length > 0 ? verifications[verifications.length - 1] : null;
 
-  const rewardPoints = calculateRewardPoints(profileViews, purchasedItems, verifications, profileNFT, req.user.nfd, reverifyCount, baseVerifyPoints);
+  const rewardPoints = calculateRewardPoints(profileViews, purchasedItems, verifications, profileNFT, reverifyCount, baseVerifyPoints);
 
   res.json({
     twitter: twitter ? { username: twitter.username } : null,

@@ -226,18 +226,35 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
     }
   };
   
-  const handleSelectNFD = (nfd: NFD) => {
+  const handleSelectNFD = async (nfd: NFD) => {
     if (!nfd || typeof nfd !== 'object') {
       setSelectedNFD(null);
       return;
     }
     
-    setSelectedNFD({
+    const nfdData = {
       id: nfd.id?.toString() || 'unknown',
       name: nfd.name?.toString() || 'Unnamed NFD',
       assetId: nfd.assetId?.toString()
-    });
+    };
+    
+    setSelectedNFD(nfdData);
     setShowNFDModal(false);
+  
+    // Update the user settings with NFD data
+    try {
+      await apiClient.post('/api/user/settings', {
+        nfd: nfdData
+      });
+      fetchUser(); // Refresh user data
+    } catch (error) {
+      console.error('Error updating NFD settings:', error);
+      toast({
+        title: "NFD Update Failed",
+        description: "Failed to save NFD selection",
+        variant: "destructive",
+      });
+    }
   };
 
   const fetchRecentTransactions = useCallback(async () => {

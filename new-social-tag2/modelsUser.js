@@ -77,7 +77,7 @@ const UserSchema = new mongoose.Schema({
     linkedin: String,
     github: String,
     spotify: String,
-    nfd: {  // Add this new field for NFD
+    nfd: {  
       id: String,
       name: String,
       assetId: String
