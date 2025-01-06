@@ -820,7 +820,7 @@ router.post('/user/settings', sessionCheck, async (req, res) => {
   }
 
   try {
-    const { theme, cardStyle, bio, profileNFT, nfd } = req.body;
+    const { theme, cardStyle, bio, profileNFT } = req.body;
     
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
@@ -829,11 +829,6 @@ router.post('/user/settings', sessionCheck, async (req, res) => {
         cardStyle,
         bio,
         profileNFT,
-        nfd: nfd ? {
-          id: nfd.id,
-          name: nfd.name,
-          assetId: nfd.assetId
-        } : null
       },
       { new: true }
     );
