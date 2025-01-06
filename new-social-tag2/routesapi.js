@@ -814,29 +814,45 @@ router.post('/update-hardcoded-status', sessionCheck, async (req, res) => {
   }
 });
 
+router.post('/user/nfd', sessionCheck, async (req, res) => {
+  try {
+    const { nfd } = req.body;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { nfd },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ nfd: updatedUser.nfd });
+  } catch (error) {
+    console.error('Error updating NFD:', error);
+    res.status(500).json({ error: 'Failed to update NFD' });
+  }
+});
+
 router.post('/user/settings', sessionCheck, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
   try {
-    const { theme, cardStyle, bio, profileNFT } = req.body;
+    const { theme, cardStyle, bio, profileNFT, nfd } = req.body;
     
-    const updateFields = {
-      theme,
-      cardStyle,
-      bio,
-      profileNFT
-    };
-
-      if ('nfd' in req.body) {
-        updateFields.nfd = nfd;
-      }
-      const updatedUser = await User.findByIdAndUpdate(
-        req.user._id,
-        updateFields,
-        { new: true }
-      );
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        theme,
+        cardStyle,
+        bio,
+        profileNFT,
+      },
+      { new: true }
+    );
 
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found' });

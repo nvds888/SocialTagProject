@@ -245,11 +245,8 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
     setSelectedNFD(nfdData);
     setShowNFDModal(false);
   
-    // Update the user settings with NFD data
     try {
-      await apiClient.post('/api/user/settings', {
-        nfd: nfdData
-      });
+      await apiClient.post('/api/user/nfd', { nfd: nfdData });
       fetchUser(); // Refresh user data
     } catch (error) {
       console.error('Error updating NFD settings:', error);
