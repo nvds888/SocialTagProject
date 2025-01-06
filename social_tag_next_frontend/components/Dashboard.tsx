@@ -696,13 +696,21 @@ disabled
                 isVerified={isVerified}
               />
               <SocialCard
-    platform="NFD"
-    icon={<Hash size={24} className="text-black" />}
-    isConnected={isNFDConnected}
-    onConnect={handleFetchNFDs}
-    username={user?.nfd?.name || ''}
-    isVerified={isVerified}
-  />
+  platform="NFD"
+  icon={
+    <Image 
+      src="/nfdomain.png" 
+      alt="NFDomain"
+      width={24}
+      height={24}
+      className="dark:invert"
+    />
+  }
+  isConnected={isNFDConnected}
+  onConnect={handleFetchNFDs}
+  username={user?.nfd?.name || ''}
+  isVerified={isVerified}
+/>
               <SocialCard
                 platform="Facebook"
                 icon={<Facebook size={24} className="text-black" />}
