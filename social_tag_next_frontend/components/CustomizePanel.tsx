@@ -138,11 +138,6 @@ interface SaveSettingsPayload {
   cardStyle: string;
   bio: string;
   profileNFT: NFT | null;
-  nfd?: {
-    id: string;
-    name: string;
-    assetId?: string;
-  } | null;
 }
 
 const CustomizePanel: React.FC<CustomizePanelProps> = ({ 
@@ -194,9 +189,6 @@ localStorage.setItem(`purchasedItems_${user?.twitter?.username}`, JSON.stringify
 
 if (data.profileNFT) {
   localStorage.setItem(`profileNFT_${user?.twitter?.username}`, JSON.stringify(data.profileNFT));
-}
-if (data.nfd) {
-  localStorage.setItem(`nfd_${user?.twitter?.username}`, JSON.stringify(data.nfd));
 }
       })
       .catch(error => {
@@ -835,7 +827,7 @@ if (data.nfd) {
   </div>
                         <div>
   <Label className="text-lg font-medium text-black mb-2 block">
-    Profile NFT & NFDomains
+    Profile NFT
   </Label>
   <div className="space-y-4">
   <div className="grid grid-cols-3 gap-4">
@@ -937,7 +929,7 @@ if (data.nfd) {
       </li>
       <li className="flex items-center bg-[#40E0D0] p-2 rounded-lg border-2 border-black">
         <CheckCircle size={16} className="mr-2 text-black" />
-        <span>Add NFT or NFD to profile: <strong>+75 points</strong></span>
+        <span>Add NFT to profile: <strong>+75 points</strong></span>
       </li>
     </ul>
   </div>
