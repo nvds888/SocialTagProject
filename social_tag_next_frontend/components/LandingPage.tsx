@@ -126,7 +126,7 @@ const LandingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              Shaping authentic online social experiences. Deploy your immutable Social Profile, compete on the leaderboard, and reap rewards!
+              What are you waiting for? Deploy your authentic Social Profile, compete on the leaderboard, and earn rewards!
              
             </motion.p>
             <motion.button
