@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import axios from 'axios'
-import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, User, Coins, CreditCard, ArrowRight } from 'lucide-react'
+import { CheckCircle, ChevronDown, Twitter, Github, Linkedin, Facebook, Instagram, User, Coins, CreditCard, ArrowRight, BarChart3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SpotifyIcon from '@/components/SpotifyIcon' 
 import Leaderboard from '@/components/Leaderboard'
@@ -280,10 +280,28 @@ const LandingPage: React.FC = () => {
         <footer className="landing-footer text-center p-6 bg-black text-white">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">About Us</h3>
-                <p className="text-sm">SocialTag: Authentic You, That&apos;s The Play. Built on Algorand.</p>
-              </div>
+            <div>
+  <h3 className="text-lg font-semibold mb-4">About Us</h3>
+  <p className="text-sm">SocialTag: Authentic You, That&apos;s The Play. Built on Algorand.</p>
+  <div className="flex items-center justify-center mt-4 space-x-4">
+    <a 
+      href="https://x.com/SocialT_ag" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="text-white hover:text-gray-300 transition-colors"
+    >
+      <Twitter size={20} />
+    </a>
+    <a 
+      href="https://vestige.fi/asset/2607097066" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="text-white hover:text-gray-300 transition-colors"
+    >
+      <BarChart3 size={20} />
+    </a>
+  </div>
+</div>
               <div>
                 <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
                 <ul className="text-sm">
