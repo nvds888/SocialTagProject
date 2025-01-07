@@ -146,7 +146,7 @@ const LandingPage: React.FC = () => {
     alt="NFDomain"
     width={24}
     height={24}
-    className="dark:invert"
+    className="brightness-0"
   />
               <SpotifyIcon size={24} />
               <Linkedin size={24} className="text-black" />
