@@ -146,7 +146,7 @@ const LandingPage: React.FC = () => {
     alt="NFDomain"
     width={24}
     height={24}
-    className="grayscale"
+    className="brightness-0 contrast-200" // This will make gray black while keeping white parts white
   />
               <SpotifyIcon size={24} />
               <Linkedin size={24} className="text-black" />
