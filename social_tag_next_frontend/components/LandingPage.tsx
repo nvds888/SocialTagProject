@@ -141,6 +141,13 @@ const LandingPage: React.FC = () => {
             <div className="social-icons flex justify-center space-x-4 mb-4">
               <Twitter size={24} className="text-black" />
               <Github size={24} className="text-black" />
+              <Image 
+    src="/nfdomain.png" 
+    alt="NFDomain"
+    width={24}
+    height={24}
+    className="dark:invert"
+  />
               <SpotifyIcon size={24} />
               <Linkedin size={24} className="text-black" />
               <Facebook size={24} className="text-black" />
