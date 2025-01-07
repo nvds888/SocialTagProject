@@ -96,7 +96,7 @@ interface User {
 
 const SocialCard: React.FC<SocialCardProps> = ({ platform, icon, isConnected, onConnect, username, isVerified }) => (
   <motion.div 
-  className={`social-card ${isConnected ? 'connected' : ''} bg-white p-3 sm:p-4 rounded-lg flex items-center justify-between ${platform === 'NFD' ? 'shadow-[0_0_15px_rgba(139,122,180,0.3)]' : 'shadow-md'} w-full`}
+  className={`social-card ${isConnected ? 'connected' : ''} bg-white p-3 sm:p-4 rounded-lg flex items-center justify-between ${platform === 'NFD' ? 'shadow-[0_0_25px_rgba(139,122,180,0.6)]' : 'shadow-md'} w-full`}
     whileHover={{ scale: 1.02 }}
     transition={{ type: "spring", stiffness: 300 }}
   >
