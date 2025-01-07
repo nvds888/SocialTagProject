@@ -138,11 +138,6 @@ interface SaveSettingsPayload {
   cardStyle: string;
   bio: string;
   profileNFT: NFT | null;
-  nfd?: {
-    id: string;
-    name: string;
-    assetId?: string;
-  } | null; 
 }
 
 const CustomizePanel: React.FC<CustomizePanelProps> = ({ 
@@ -408,7 +403,6 @@ if (data.profileNFT) {
         cardStyle, 
         bio,
         profileNFT: selectedNFT || null,
-        nfd: user.nfd || null,
       };
   
       const response = await axios.post(

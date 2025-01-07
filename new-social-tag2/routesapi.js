@@ -549,8 +549,8 @@ router.post('/re-verify', sessionCheck, async (req, res) => {
     
     const currentPoints = calculateRewardPoints(user.profileViews, user.purchasedItems, user.verifications, user.profileNFT, user.nfd, user.reverifyCount, user.baseVerifyPoints);
     
-    if (currentPoints < 500) {
-      return res.status(400).json({ success: false, message: 'Insufficient reward points. 500 points required for re-verification.' });
+    if (currentPoints < 200) {
+      return res.status(400).json({ success: false, message: 'Insufficient reward points. 200 points required for re-verification.' });
     }
 
     // Calculate baseVerifyPoints before clearing verifications
