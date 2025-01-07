@@ -693,7 +693,7 @@ disabled
                 isVerified={isVerified}
               />
               <SocialCard
-  platform="NFD"
+  platform="NFDomain"
   icon={
     <Image 
       src="/nfdomain.png" 
