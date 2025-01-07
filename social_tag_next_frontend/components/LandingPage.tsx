@@ -148,8 +148,8 @@ const LandingPage: React.FC = () => {
     height={24}
     className="dark:invert"
   />
+  <Linkedin size={24} className="text-black" />
               <SpotifyIcon size={24} />
-              <Linkedin size={24} className="text-black" />
               <Facebook size={24} className="text-black" />
               <Instagram size={24} className="text-black" />
             </div>
