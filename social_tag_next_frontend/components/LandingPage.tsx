@@ -126,7 +126,7 @@ const LandingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              What are you waiting for? Deploy your authentic Social Profile, compete on the leaderboard, and earn rewards!
+              Deploy your personalised Social Profile, compete on the leaderboard, and earn rewards!
              
             </motion.p>
             <motion.button
@@ -142,7 +142,7 @@ const LandingPage: React.FC = () => {
               <Twitter size={24} className="text-black" />
               <Github size={24} className="text-black" />
               <Image 
-    src="/nfdomain.png" 
+    src="/nfdomaindark.png" 
     alt="NFDomain"
     width={24}
     height={24}
@@ -202,7 +202,7 @@ const LandingPage: React.FC = () => {
 >
   <FeatureIcon Icon={CheckCircle} color="#FFB951" />
   <h3 className="text-xl font-semibold mb-4 text-black mt-6">Authentic You</h3>
-  <p className="text-gray-600 mb-4">Immutable, blockchain-verified profiles with API authentication. No blockchain expertise required to get started.</p>
+  <p className="text-gray-600 mb-4">Personalised, blockchain-verified profiles with API authentication. No blockchain know-how required to get started.</p>
   
   <button 
     onClick={() => setShowVideoModal(true)}
