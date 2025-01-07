@@ -138,7 +138,7 @@ const LandingPage: React.FC = () => {
             >
               Sign Up / In
             </motion.button>
-            <div className="social-icons flex justify-center gap-6 mb-4">
+            <div className="social-icons flex justify-center gap-4 mb-4">
               <Twitter size={24} className="text-black" />
               <Github size={24} className="text-black" />
               <Image 
