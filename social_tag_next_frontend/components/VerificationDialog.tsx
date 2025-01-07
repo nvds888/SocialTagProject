@@ -31,7 +31,7 @@ const VerificationDialog: React.FC<VerificationDialogProps> = ({ isOpen, onClose
           >
             <h2 className="text-black text-2xl font-bold mb-4">Confirm Verification</h2>
             <p className="text-gray-700 mb-6">
-            Are you sure you want to proceed with these social accounts? Note: Re-verification will cost 500 Reward Points and can only be done once.
+            Are you sure you want to proceed with these social accounts? Note: Re-verification will cost 200 Reward Points and can only be done once.
 
             </p>
             <div className="flex justify-end space-x-4">
