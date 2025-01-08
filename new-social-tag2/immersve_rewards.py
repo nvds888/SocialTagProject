@@ -67,7 +67,7 @@ def send_rewards(transaction_data):
         algod_client, _ = init_clients()
         
         # Get mnemonic from environment
-        mnemonic_phrase = os.getenv('REWARD_WALLET_MNEMONIC')
+        mnemonic_phrase = os.getenv('ALGORAND_MNEMONIC')
         if not mnemonic_phrase:
             raise ValueError("Mnemonic not found in environment")
         
