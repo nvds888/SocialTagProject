@@ -1,5 +1,17 @@
 const mongoose = require('mongoose');
 
+const RewardTransactionSchema = new mongoose.Schema({
+  txId: String,
+  amount: Number,
+  assetId: Number,
+  token: String,
+  recipientAddress: String,
+  timestamp: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const StatisticsSchema = new mongoose.Schema({
   type: {
     type: String,
@@ -9,7 +21,8 @@ const StatisticsSchema = new mongoose.Schema({
   socials_distributed: {
     type: Number,
     default: 0
-  }
+  },
+  rewardTransactions: [RewardTransactionSchema]
 }, { 
   timestamps: true 
 });

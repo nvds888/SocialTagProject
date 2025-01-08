@@ -176,12 +176,22 @@ async function distributeRewards(rewardAddress, transaction, rewards) {
   });
 }
 
-async function updateStats(rewards) {
+async function updateStats(rewards, rewardAddress, rewardTxIds) {
   const stats = await Statistics.findOne({ type: 'reward_pool' }) || new Statistics({ type: 'reward_pool' });
   
-  for (const reward of rewards) {
+  for (const [index, reward] of rewards.entries()) {
     if (reward.token === 'SOCIALS') {
       stats.socials_distributed = (stats.socials_distributed || 0) + reward.amount;
+      
+      // Add transaction to history
+      stats.rewardTransactions.push({
+        txId: rewardTxIds[index],
+        amount: reward.amount,
+        assetId: reward.assetId,
+        token: reward.token,
+        recipientAddress: rewardAddress,
+        timestamp: new Date()
+      });
     }
   }
   
@@ -232,7 +242,7 @@ async function processUserRewards(user) {
         });
 
         // Update pool statistics
-        await updateStats(rewards);
+        await updateStats(rewards, user.immersveRewardAddress, rewardTxIds);
       }
     }
 

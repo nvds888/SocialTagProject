@@ -38,18 +38,23 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/api/leaderboard`);
-      const sortedData = response.data.sort((a: LeaderboardEntry, b: LeaderboardEntry) => 
-        sortBy === 'points' 
-          ? b.rewardPoints - a.rewardPoints 
-          : b.totalUsdSpent - a.totalUsdSpent
-      );
-      setLeaderboard(sortedData);
+      setLeaderboard(response.data);
     } catch (err) {
       console.error('Error fetching leaderboard data:', err);
       setError('Failed to load leaderboard data');
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleSort = (newSortBy: 'points' | 'spent') => {
+    setSortBy(newSortBy);
+    const sortedData = [...leaderboard].sort((a: LeaderboardEntry, b: LeaderboardEntry) => 
+      newSortBy === 'points' 
+        ? b.rewardPoints - a.rewardPoints 
+        : b.totalUsdSpent - a.totalUsdSpent
+    );
+    setLeaderboard(sortedData);
   };
 
   // Reduced max height for better UI when scrolling
@@ -86,14 +91,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose }) => {
 <div className="flex gap-2 mt-2">
   <Button
     variant="ghost" 
-    onClick={() => setSortBy('points')}
+    onClick={() => toggleSort('points')}
     className={`text-xs border ${sortBy === 'points' ? 'bg-white text-black' : 'text-white border-white'} rounded-lg transition-all`}
   >
     Sort by Points
   </Button>
   <Button
     variant="ghost"
-    onClick={() => setSortBy('spent')}
+    onClick={() => toggleSort('spent')}
     className={`text-xs border ${sortBy === 'spent' ? 'bg-white text-black' : 'text-white border-white'} rounded-lg transition-all`}
   >
     Sort by USD Spent
