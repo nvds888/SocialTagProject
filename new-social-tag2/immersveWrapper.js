@@ -93,7 +93,7 @@ async function processRewards(transaction, optedInAssets) {
 async function distributeRewards(rewardAddress, transaction, rewards) {
   return new Promise((resolve, reject) => {
     const pythonProcess = spawn('python', [
-      path.join(__dirname, 'token_distribution.py')
+      path.join(__dirname, 'immersve_rewards.py')
     ]);
 
     const data = {
