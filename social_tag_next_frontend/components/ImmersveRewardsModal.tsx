@@ -301,7 +301,7 @@ const [, setIsVerified] = useState(false);
                           {tx.rewards.map((reward, rewardIndex) => (
                             <a
                               key={rewardIndex}
-                              href={`https://algoexplorer.io/tx/${reward.txId}`}
+                              href={`https://explorer.perawallet.app/tx/${reward.txId}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-[#40E0D0] hover:underline text-sm"
@@ -310,7 +310,7 @@ const [, setIsVerified] = useState(false);
                             </a>
                           ))}
                           <a
-                            href={`https://algoexplorer.io/tx/${tx.txId}`}
+                            href={`https://explorer.perawallet.app/tx/${tx.txId}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-[#FF6B6B] hover:underline text-sm"
