@@ -18,39 +18,62 @@ const REWARD_POOLS = {
 };
 
 async function fetchUserTransactions(address, lastProcessedTime) {
-  const now = new Date();
-  const thirtyMinutesAgo = new Date(now - 30 * 60 * 1000);
-  
-  console.log('Checking transactions for address:', address);
-  console.log('Last processed time:', lastProcessedTime);
-  console.log('Thirty minutes ago:', thirtyMinutesAgo);
-  console.log('Should generate test transactions:', lastProcessedTime < thirtyMinutesAgo);
-  
-  // Only return test transactions if the lastProcessedTime is within our 30-minute window
-  if (lastProcessedTime < thirtyMinutesAgo) {
-    console.log('Generating test transactions for address:', address);
+  try {
+    console.log('Fetching transactions for address:', address);
+    console.log('Last processed time:', lastProcessedTime);
     
-    // Create two test transactions
-    const testTransactions = [
-      {
-        amount: 5, // 5 USDC
-        timestamp: new Date(now - 20 * 60 * 1000), // 20 minutes ago
-        txId: `test_tx_5usdc_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-        isInnerTx: false
-      },
-      {
-        amount: 2, // 2 USDC
-        timestamp: new Date(now - 10 * 60 * 1000), // 10 minutes ago
-        txId: `test_tx_2usdc_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-        isInnerTx: false
+    const response = await fetch(
+      `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}/transactions?address=${IMMERSVE_MASTER_CONTRACT}&after-time=${lastProcessedTime.toISOString()}`
+    );
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch from indexer');
+    }
+    
+    const data = await response.json();
+    const transactions = [];
+
+    // Process both main and inner transactions
+    for (const tx of data.transactions || []) {
+      // Check main transaction
+      if (
+        tx['tx-type'] === 'axfer' &&
+        tx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
+        tx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
+      ) {
+        transactions.push({
+          amount: tx['asset-transfer-transaction'].amount / 1000000, // Convert to USDC units
+          timestamp: new Date(tx['round-time'] * 1000),
+          txId: tx.id,
+          isInnerTx: false
+        });
       }
-    ];
 
-    console.log('Generated test transactions:', testTransactions);
-    return testTransactions;
+      // Check inner transactions
+      if (tx['inner-txns']) {
+        for (const innerTx of tx['inner-txns']) {
+          if (
+            innerTx['tx-type'] === 'axfer' &&
+            innerTx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
+            innerTx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
+          ) {
+            transactions.push({
+              amount: innerTx['asset-transfer-transaction'].amount / 1000000, // Convert to USDC units
+              timestamp: new Date(tx['round-time'] * 1000),
+              txId: tx.id,
+              isInnerTx: true
+            });
+          }
+        }
+      }
+    }
+
+    console.log('Found transactions:', transactions.length);
+    return transactions;
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    return [];
   }
-
-  return []; // Return empty array if we've already processed these test transactions
 }
 
 // Rest of the functions remain exactly the same
