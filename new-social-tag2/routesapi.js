@@ -305,6 +305,43 @@ router.post('/immersveRegister', sessionCheck, async (req, res) => {
   }
 });
 
+router.post('/immersveRegister/delete', sessionCheck, async (req, res) => {
+  try {
+    const { twitterUsername } = req.body;
+    
+    // Find and update user
+    const user = await User.findOneAndUpdate(
+      { 'twitter.username': twitterUsername },
+      { 
+        $unset: { 
+          immersveAddress: "",
+          immersveRewardAddress: "",
+          lastProcessedTimestamp: ""
+        },
+        $set: { 
+          immersveTransactions: [] 
+        }
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Immersve registration deleted successfully' 
+    });
+    
+  } catch (error) {
+    console.error('Error deleting Immersve registration:', error);
+    res.status(500).json({ 
+      error: 'Failed to delete Immersve registration' 
+    });
+  }
+});
+
 router.get('/user-assets/:address', async (req, res) => {
   try {
     const { address } = req.params;

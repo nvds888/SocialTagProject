@@ -186,6 +186,41 @@ const [, setIsVerified] = useState(false);
     }
   };
 
+  const handleDeleteRegistration = async () => {
+    try {
+      setLoading(true);
+      await axios.post(`${API_BASE_URL}/api/immersveRegister/delete`, {
+        twitterUsername: user.twitter?.username
+      }, {
+        withCredentials: true
+      });
+      
+      // Reset local state
+      setIsRegistered(false);
+      setFundAddress('');
+      setRewardAddress('');
+      setTransactions([]);
+      setPools([]);
+      
+      toast({
+        title: "Registration Deleted",
+        description: "Your Immersve registration has been removed",
+        duration: 3000
+      });
+      
+      setActivePanel('register');
+    } catch (error) {
+      console.error('Error deleting registration:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete registration",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const togglePanel = (panel: string) => {
     setActivePanel(activePanel === panel ? null : panel);
   };
@@ -253,13 +288,21 @@ const [, setIsVerified] = useState(false);
         readOnly={isRegistered}
       />
     </div>
-    {!isRegistered && (
+    {!isRegistered ? (
       <Button 
         onClick={handleRegistration} 
         className="w-full bg-[#FF6B6B] text-black hover:bg-[#FF6B6B]/90 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
         disabled={loading}
       >
         {loading ? 'Processing...' : 'Register'}
+      </Button>
+    ) : (
+      <Button 
+        onClick={handleDeleteRegistration} 
+        className="w-full bg-red-500 text-white hover:bg-red-600 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
+        disabled={loading}
+      >
+        {loading ? 'Processing...' : 'Delete Registration'}
       </Button>
     )}
   </div>
