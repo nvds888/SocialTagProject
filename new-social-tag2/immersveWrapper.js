@@ -14,68 +14,42 @@ const REWARD_POOLS = {
     assetId: 2607097066,
     rewardRate: 1000000, // 1M tokens per 1 USDC
     totalPool: 8000000000000000
-  },
-  MEEP: {
-    assetId: 1234567, // Replace with actual MEEP asset ID
-    rewardRate: 100000, // 100K tokens per 1 USDC
-    totalPool: 1000000000000
   }
 };
 
 async function fetchUserTransactions(address, lastProcessedTime) {
-  try {
-    const response = await fetch(
-      `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}/transactions?address=${IMMERSVE_MASTER_CONTRACT}&after-time=${lastProcessedTime.toISOString()}`
-    );
+  // Generate test transactions for the last 30 minutes
+  const now = new Date();
+  const thirtyMinutesAgo = new Date(now - 30 * 60 * 1000);
+  
+  // Only return test transactions if the lastProcessedTime is within our 30-minute window
+  if (lastProcessedTime < thirtyMinutesAgo) {
+    console.log('Generating test transactions for address:', address);
     
-    if (!response.ok) {
-      throw new Error('Failed to fetch from indexer');
-    }
-    
-    const data = await response.json();
-    const transactions = [];
-
-    // Process both main and inner transactions
-    for (const tx of data.transactions || []) {
-      // Check main transaction
-      if (
-        tx['tx-type'] === 'axfer' &&
-        tx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
-        tx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
-      ) {
-        transactions.push({
-          amount: tx['asset-transfer-transaction'].amount / 1000000,
-          timestamp: new Date(tx['round-time'] * 1000),
-          txId: tx.id
-        });
+    // Create two test transactions
+    const testTransactions = [
+      {
+        amount: 5, // 5 USDC
+        timestamp: new Date(now - 20 * 60 * 1000), // 20 minutes ago
+        txId: `test_tx_5usdc_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        isInnerTx: false
+      },
+      {
+        amount: 2, // 2 USDC
+        timestamp: new Date(now - 10 * 60 * 1000), // 10 minutes ago
+        txId: `test_tx_2usdc_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        isInnerTx: false
       }
+    ];
 
-      // Check inner transactions
-      if (tx['inner-txns']) {
-        for (const innerTx of tx['inner-txns']) {
-          if (
-            innerTx['tx-type'] === 'axfer' &&
-            innerTx['asset-transfer-transaction']?.['asset-id'] === USDC_ASSET_ID &&
-            innerTx['asset-transfer-transaction']?.receiver === IMMERSVE_MASTER_CONTRACT
-          ) {
-            transactions.push({
-              amount: innerTx['asset-transfer-transaction'].amount / 1000000,
-              timestamp: new Date(tx['round-time'] * 1000),
-              txId: tx.id,
-              isInnerTx: true
-            });
-          }
-        }
-      }
-    }
-
-    return transactions;
-  } catch (error) {
-    console.error('Error fetching transactions:', error);
-    return [];
+    console.log('Generated test transactions:', testTransactions);
+    return testTransactions;
   }
+
+  return []; // Return empty array if we've already processed these test transactions
 }
 
+// Rest of the functions remain exactly the same
 async function getUserOptedInAssets(address) {
   try {
     const response = await fetch(
@@ -87,7 +61,10 @@ async function getUserOptedInAssets(address) {
     }
     
     const data = await response.json();
-    return data.assets.map(asset => asset['asset-id']);
+    console.log('Fetched opted-in assets for address:', address);
+    const optedInAssets = data.assets.map(asset => asset['asset-id']);
+    console.log('User opted-in assets:', optedInAssets);
+    return optedInAssets;
   } catch (error) {
     console.error('Error fetching user assets:', error);
     return [];
@@ -112,6 +89,7 @@ async function processRewards(transaction, optedInAssets) {
   return rewards;
 }
 
+// Keep the rest of the file exactly the same
 async function distributeRewards(rewardAddress, transaction, rewards) {
   return new Promise((resolve, reject) => {
     const pythonProcess = spawn('python', [
@@ -163,8 +141,6 @@ async function updateStats(rewards) {
   for (const reward of rewards) {
     if (reward.token === 'SOCIALS') {
       stats.socials_distributed = (stats.socials_distributed || 0) + reward.amount;
-    } else if (reward.token === 'MEEP') {
-      stats.meep_distributed = (stats.meep_distributed || 0) + reward.amount;
     }
   }
   
@@ -173,22 +149,29 @@ async function updateStats(rewards) {
 
 async function processUserRewards(user) {
   try {
+    console.log('Processing rewards for user:', user.twitter?.username);
     const lastProcessedTime = user.lastProcessedTimestamp || new Date(0);
     const transactions = await fetchUserTransactions(user.immersveAddress, lastProcessedTime);
+    
+    console.log('Found transactions:', transactions.length);
     
     if (transactions.length === 0) {
       return;
     }
 
     const optedInAssets = await getUserOptedInAssets(user.immersveRewardAddress);
+    console.log('User opted in assets:', optedInAssets);
     
     for (const transaction of transactions) {
+      console.log('Processing transaction:', transaction);
       // Calculate rewards for all pools user is opted into
       const rewards = await processRewards(transaction, optedInAssets);
+      console.log('Calculated rewards:', rewards);
       
       if (rewards.length > 0) {
         // Distribute rewards using Python script
         const rewardTxIds = await distributeRewards(user.immersveRewardAddress, transaction, rewards);
+        console.log('Reward distribution txIds:', rewardTxIds);
         
         // Update user's transaction record
         const rewardRecords = rewards.map((reward, index) => ({
@@ -215,6 +198,7 @@ async function processUserRewards(user) {
     // Update last processed timestamp
     user.lastProcessedTimestamp = new Date();
     await user.save();
+    console.log('Updated user record with new transactions and timestamp');
     
   } catch (error) {
     console.error(`Error processing rewards for user ${user.twitter?.username}:`, error);
@@ -244,15 +228,13 @@ async function runRewardProcessor() {
   }
 }
 
-//function initializeRewardProcessor() {
-  // Run every 30 minutes
-  const job = schedule.scheduleJob('*/30 * * * *', runRewardProcessor);
-  
-  console.log('Reward processor initialized - will run every 30 minutes');
-  console.log('Next scheduled run:', job.nextInvocation().toString());
-//}
+// Run every 30 minutes
+const job = schedule.scheduleJob('*/30 * * * *', runRewardProcessor);
+
+console.log('Reward processor initialized - will run every 30 minutes');
+console.log('Next scheduled run:', job.nextInvocation().toString());
 
 module.exports = {
   runRewardProcessor,
-  initializeRewardProcessor
+  initializeRewardProcessor: () => {} // Empty function since we're running directly
 };
