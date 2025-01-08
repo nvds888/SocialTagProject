@@ -96,6 +96,7 @@ async function processRewards(transaction, optedInAssets) {
 // Keep the rest of the file exactly the same
 async function distributeRewards(rewardAddress, transaction, rewards) {
   return new Promise((resolve, reject) => {
+    console.log('Starting Python process for reward distribution');
     const pythonProcess = spawn('python', [
       path.join(__dirname, 'immersve_rewards.py')
     ]);
@@ -110,6 +111,8 @@ async function distributeRewards(rewardAddress, transaction, rewards) {
       }))
     };
 
+    console.log('Sending data to Python script:', JSON.stringify(data, null, 2));
+
     pythonProcess.stdin.write(JSON.stringify(data));
     pythonProcess.stdin.end();
 
@@ -117,22 +120,33 @@ async function distributeRewards(rewardAddress, transaction, rewards) {
     let error = '';
 
     pythonProcess.stdout.on('data', (data) => {
-      result += data.toString();
+      const chunk = data.toString();
+      console.log('Python script output:', chunk);
+      result += chunk;
     });
 
     pythonProcess.stderr.on('data', (data) => {
-      error += data.toString();
+      const chunk = data.toString();
+      console.log('Python script error:', chunk);
+      error += chunk;
     });
 
     pythonProcess.on('close', (code) => {
+      console.log('Python process closed with code:', code);
+      console.log('Final result:', result);
+      console.log('Final error:', error);
+
       if (code !== 0) {
         reject(new Error(`Distribution failed: ${error}`));
       } else {
         try {
           const response = JSON.parse(result);
+          console.log('Parsed response:', response);
           resolve(response.tx_ids);
         } catch (e) {
-          reject(new Error('Failed to parse Python script response'));
+          console.log('JSON parse error:', e);
+          console.log('Failed to parse result:', result);
+          reject(new Error(`Failed to parse Python script response: ${e.message}`));
         }
       }
     });

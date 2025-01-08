@@ -106,10 +106,23 @@ def send_rewards(transaction_data):
         return None
 
 if __name__ == "__main__":
+    print("Python script starting", file=sys.stderr)
     # Read transaction data from stdin
     try:
-        transaction_data = json.loads(sys.stdin.read())
+        stdin_data = sys.stdin.read()
+        print(f"Received stdin data: {stdin_data}", file=sys.stderr)
+        
+        transaction_data = json.loads(stdin_data)
+        print(f"Parsed transaction data: {json.dumps(transaction_data, indent=2)}", file=sys.stderr)
+        
         tx_ids = send_rewards(transaction_data)
-        print(json.dumps({"success": bool(tx_ids), "tx_ids": tx_ids}))
+        print(f"Generated tx_ids: {tx_ids}", file=sys.stderr)
+        
+        response = {"success": bool(tx_ids), "tx_ids": tx_ids}
+        print(f"Sending response: {json.dumps(response)}", file=sys.stderr)
+        print(json.dumps(response))  # This is the actual response
+        
     except Exception as e:
-        print(json.dumps({"success": False, "error": str(e)}))
+        print(f"Error in main: {str(e)}", file=sys.stderr)
+        error_response = {"success": False, "error": str(e)}
+        print(json.dumps(error_response))  # This is the actual response
