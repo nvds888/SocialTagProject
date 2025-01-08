@@ -683,68 +683,64 @@ disabled
               </div>
             </div>
             )}
-            <div className="social-cards grid gap-1 mb-6">
-  {(!isVerified || isTwitterConnected) && (
-    <SocialCard
-      platform="X"
-      icon={<Twitter size={24} className="text-black" />}
-      isConnected={isTwitterConnected}
-      onConnect={() => handleConnect('twitter')}
-      username={user?.twitter?.username}
-      isVerified={isVerified}
+             <div className="social-cards grid gap-1 mb-6">
+              <SocialCard
+                platform="X"
+                icon={<Twitter size={24} className="text-black" />}
+                isConnected={isTwitterConnected}
+                onConnect={() => handleConnect('twitter')}
+                username={user?.twitter?.username}
+                isVerified={isVerified}
+              />
+              <SocialCard
+  platform="NFDomain"
+  icon={
+    <Image 
+      src="/nfdomain.png" 
+      alt="NFDomain"
+      width={24}
+      height={24}
+      className="dark:invert"
     />
-  )}
-  {(!isVerified || isNFDConnected) && (
-    <SocialCard
-      platform="NFDomain"
-      icon={<Image src="/nfdomain.png" alt="NFDomain" width={24} height={24} className="dark:invert" />}
-      isConnected={isNFDConnected}
-      onConnect={handleFetchNFDs}
-      username={user?.nfd?.name || ''}
-      isVerified={isVerified}
-    />
-  )}
-  {(!isVerified || isFacebookConnected) && (
-    <SocialCard
-      platform="Facebook"
-      icon={<Facebook size={24} className="text-black" />}
-      isConnected={isFacebookConnected}
-      onConnect={() => handleConnect('facebook')}
-      username={user?.facebook?.name}
-      isVerified={isVerified}
-    />
-  )}
-  {(!isVerified || isLinkedInConnected) && (
-    <SocialCard
-      platform="LinkedIn"
-      icon={<Linkedin size={24} className="text-black" />}
-      isConnected={isLinkedInConnected}
-      onConnect={() => handleConnect('linkedin')}
-      username={user?.linkedin?.name}
-      isVerified={isVerified}
-    />
-  )}
-  {(!isVerified || isGitHubConnected) && (
-    <SocialCard
-      platform="GitHub"
-      icon={<Github size={24} className="text-black" />}
-      isConnected={isGitHubConnected}
-      onConnect={() => handleConnect('github')}
-      username={user?.github?.username}
-      isVerified={isVerified}
-    />
-  )}
-  {(!isVerified || isSpotifyConnected) && (
-    <SocialCard
-      platform="Spotify"
-      icon={<SpotifyIcon size={24} />}
-      isConnected={isSpotifyConnected}
-      onConnect={() => handleConnect('spotify')}
-      username={user?.spotify?.username}
-      isVerified={isVerified}
-    />
-  )}
-</div>
+  }
+  isConnected={isNFDConnected}
+  onConnect={handleFetchNFDs}
+  username={user?.nfd?.name || ''}
+  isVerified={isVerified}
+/>
+              <SocialCard
+                platform="Facebook"
+                icon={<Facebook size={24} className="text-black" />}
+                isConnected={isFacebookConnected}
+                onConnect={() => handleConnect('facebook')}
+                username={user?.facebook?.name}
+                isVerified={isVerified}
+              />
+              <SocialCard
+                platform="LinkedIn"
+                icon={<Linkedin size={24} className="text-black" />}
+                isConnected={isLinkedInConnected}
+                onConnect={() => handleConnect('linkedin')}
+                username={user?.linkedin?.name}
+                isVerified={isVerified}
+              />
+              <SocialCard
+                platform="GitHub"
+                icon={<Github size={24} className="text-black" />}
+                isConnected={isGitHubConnected}
+                onConnect={() => handleConnect('github')}
+                username={user?.github?.username}
+                isVerified={isVerified}
+              />
+              <SocialCard
+                platform="Spotify"
+                icon={<SpotifyIcon size={24} />}
+                isConnected={isSpotifyConnected}
+                onConnect={() => handleConnect('spotify')}
+                username={user?.spotify?.username}
+                isVerified={isVerified}
+              />
+            </div>
             {!isVerified && (
   <div className="flex justify-center w-full">
   <motion.button
