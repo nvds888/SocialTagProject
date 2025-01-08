@@ -18,9 +18,13 @@ const REWARD_POOLS = {
 };
 
 async function fetchUserTransactions(address, lastProcessedTime) {
-  // Generate test transactions for the last 30 minutes
   const now = new Date();
   const thirtyMinutesAgo = new Date(now - 30 * 60 * 1000);
+  
+  console.log('Checking transactions for address:', address);
+  console.log('Last processed time:', lastProcessedTime);
+  console.log('Thirty minutes ago:', thirtyMinutesAgo);
+  console.log('Should generate test transactions:', lastProcessedTime < thirtyMinutesAgo);
   
   // Only return test transactions if the lastProcessedTime is within our 30-minute window
   if (lastProcessedTime < thirtyMinutesAgo) {
