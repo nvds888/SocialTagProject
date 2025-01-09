@@ -60,13 +60,12 @@ const calculateRewardPoints = (profileViews, purchasedItems, verifications, prof
   const viewPoints = profileViews * 5;
   const purchasePoints = (purchasedItems?.length || 0) * 50;
   const nftPoints = profileNFT && profileNFT.id ? 75 : 0;
-  const nfdPoints = nfd && nfd.id ? 75 : 0;
   
   let verificationPoints = 0;
   if (verifications && verifications.length > 0) {
     verificationPoints += 100;
     const latestVerification = verifications[verifications.length - 1];
-    const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin'];
+    const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin', 'nfd' ];
     connectedAccounts.forEach(account => {
       if (latestVerification[account]) {
         verificationPoints += 50;
@@ -74,7 +73,7 @@ const calculateRewardPoints = (profileViews, purchasedItems, verifications, prof
     });
   }
   
-  const totalPoints = viewPoints + purchasePoints + verificationPoints + nftPoints + nfdPoints + baseVerifyPoints;
+  const totalPoints = viewPoints + purchasePoints + verificationPoints + nftPoints + baseVerifyPoints;
   const reverifyDeduction = reverifyCount * 500;
   
   return Math.max(totalPoints - reverifyDeduction, 0);
