@@ -596,7 +596,7 @@ router.post('/re-verify', sessionCheck, async (req, res) => {
       const connectedAccounts = ['twitter', 'facebook', 'spotify', 'github', 'linkedin', 'nfd'];
       connectedAccounts.forEach(account => {
         if (latestVerification[account]) {
-          baseVerifyPoints += 25;
+          baseVerifyPoints += 50;
         }
       });
     }
