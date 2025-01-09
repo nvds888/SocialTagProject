@@ -250,7 +250,7 @@ const [, setIsVerified] = useState(false);
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <CreditCard className="h-6 w-6" />
-            Immersve Payment Rewards
+            Cashback Rewards
           </h2>
         </div>
 

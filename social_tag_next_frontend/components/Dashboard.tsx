@@ -607,12 +607,11 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
 </Button>
 
 <Button
-disabled
   onClick={() => setShowImmersveModal(true)}
   className="bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-black/10 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
 >
   <Wallet size={18} className="mr-2" />
-  Card Rewards
+  Cashback Rewards
 </Button>
 
 <Button
@@ -841,7 +840,7 @@ disabled
               </div>
               <div className="flex flex-col gap-1">
                 <a
-                  href={`https://algoexplorer.io/tx/${tx.txId}`}
+                  href={`https://explorer.perawallet.app/tx/${tx.txId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-[#FF6B6B] hover:underline"
@@ -851,7 +850,7 @@ disabled
                 {tx.rewards.map((reward, rIndex) => (
                   <a
                     key={rIndex}
-                    href={`https://algoexplorer.io/tx/${reward.txId}`}
+                    href={`https://explorer.perawallet.app/tx/${reward.txId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-[#40E0D0] hover:underline"
