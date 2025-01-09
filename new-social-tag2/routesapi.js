@@ -56,7 +56,7 @@ const initAlgorandClient = () => {
 };
 
 // Updated function to calculate reward points
-const calculateRewardPoints = (profileViews, purchasedItems, verifications, profileNFT, reverifyCount, baseVerifyPoints) => {
+const calculateRewardPoints = (profileViews, purchasedItems, verifications, profileNFT, nfd, reverifyCount, baseVerifyPoints) => {
   const viewPoints = profileViews * 5;
   const purchasePoints = (purchasedItems?.length || 0) * 50;
   const nftPoints = profileNFT && profileNFT.id ? 75 : 0;
