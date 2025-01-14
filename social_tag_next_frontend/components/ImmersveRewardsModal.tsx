@@ -406,9 +406,20 @@ const [, setIsVerified] = useState(false);
               />
               <div>
                 <p className="font-bold text-lg">{pool.token}</p>
-                <p className={`text-sm ${pool.isOptedIn ? 'text-green-600' : 'text-red-500'} font-medium`}>
-                  {pool.isOptedIn ? '✓ Active' : '✗ Not Opted In'}
-                </p>
+                {pool.isOptedIn ? (
+  <p className="text-sm text-green-600 font-medium">
+    ✓ Active
+  </p>
+) : (
+  <div>
+    <p className="text-sm text-red-500 font-medium">
+      ✗ Not Opted In
+    </p>
+    <p className="text-xs text-gray-600">
+      Opt in to ASA ID: {pool.assetId} to earn rewards
+    </p>
+  </div>
+)}
               </div>
             </div>
             <div className="text-right">
