@@ -61,21 +61,17 @@ const ImmersveVerificationModal: React.FC<ImmersveVerificationModalProps> = ({
     fetchCreatorAddress();
   }, [fundAddress]);
 
+  // Start timer immediately when component mounts
   useEffect(() => {
-    if (verificationStatus === 'pending' && timeLeft > 0) {
+    if (timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft(prev => prev - 1);
       }, 1000);
       return () => clearInterval(timer);
-    }
-    if (timeLeft === 0) {
+    } else {
       setVerificationStatus('failed');
     }
-  }, [timeLeft, verificationStatus]);
-
-  const startVerification = () => {
-    setVerificationStatus('pending');
-  };
+  }, [timeLeft]);
 
   const checkVerification = async () => {
     try {
@@ -129,12 +125,15 @@ const ImmersveVerificationModal: React.FC<ImmersveVerificationModalProps> = ({
                   {verificationAddress}
                 </code>
               </div>
+              <div className="text-center text-gray-600">
+                Time remaining: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+              </div>
             </div>
-            <Button 
-              onClick={startVerification}
+            <Button
+              onClick={checkVerification}
               className="w-full bg-black text-white hover:bg-gray-800"
             >
-              Start Verification
+              Check Verification
             </Button>
           </>
         )}
@@ -143,15 +142,8 @@ const ImmersveVerificationModal: React.FC<ImmersveVerificationModalProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-center space-x-2">
               <Loader2 className="animate-spin" />
-              <span>Waiting for transaction...</span>
+              <span>Checking transaction...</span>
             </div>
-            <div className="text-center">Time remaining: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</div>
-            <Button
-              onClick={checkVerification}
-              className="w-full bg-black text-white hover:bg-gray-800"
-            >
-              Check Verification
-            </Button>
           </div>
         )}
 
