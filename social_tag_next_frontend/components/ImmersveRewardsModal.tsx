@@ -385,7 +385,7 @@ const [, setIsVerified] = useState(false);
           {activePanel === 'pools' && (
   <div className="space-y-6 p-4 border-2 border-black rounded-lg">
     <div className="text-sm text-gray-500 italic">
-      Current reward pools - more tokens coming soon!
+      Live reward pools
     </div>
     {pools.map((pool) => {
       const availableAmount = pool.totalPool - pool.distributed;
@@ -442,7 +442,7 @@ const [, setIsVerified] = useState(false);
     {/* Placeholder for future pools */}
     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
       <p className="text-gray-500 mb-1">More Reward Pools Coming Soon</p>
-      <p className="text-xs text-gray-400">Stay tuned for additional token rewards!</p>
+      <p className="text-xs text-gray-400">Stay tuned for more ASA reward pools!</p>
     </div>
   </div>
 )}
