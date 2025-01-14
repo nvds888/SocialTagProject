@@ -383,48 +383,70 @@ const [, setIsVerified] = useState(false);
           </Button>
 
           {activePanel === 'pools' && (
-            <div className="space-y-4 p-4 border-2 border-black rounded-lg">
-              {pools.map((pool) => (
-                <div 
-                  key={pool.token}
-                  className="flex items-center justify-between p-4 border-2 border-black rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Image 
-                      src={pool.icon} 
-                      alt={pool.token} 
-                      width={32} 
-                      height={32} 
-                      className="rounded-full"
-                    />
-                    <div>
-                      <p className="font-semibold">{pool.token}</p>
-                      <p className="text-sm text-gray-600">
-                        {((pool.totalPool - pool.distributed) / 1_000_000_000).toFixed(2)}B available
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Rate: {pool.rewardRate}
-                      </p>
-                      <p className={`text-xs ${pool.isOptedIn ? 'text-green-500' : 'text-red-500'}`}>
-                        {pool.isOptedIn ? 'Active' : 'Not Opted In'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="w-1/3">
-                    <div className="h-2 bg-gray-200 rounded-full">
-                      <div 
-                        className={`h-full rounded-full ${pool.isOptedIn ? 'bg-[#FF6B6B]' : 'bg-gray-400'}`}
-                        style={{ 
-                          width: `${((pool.totalPool - pool.distributed) / pool.totalPool) * 100}%` 
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+  <div className="space-y-6 p-4 border-2 border-black rounded-lg">
+    <div className="text-sm text-gray-500 italic">
+      Current reward pools - more tokens coming soon!
+    </div>
+    {pools.map((pool) => {
+      const availableAmount = pool.totalPool - pool.distributed;
+      const percentAvailable = ((availableAmount / pool.totalPool) * 100).toFixed(1);
+      return (
+        <div 
+          key={pool.token}
+          className="flex flex-col p-4 border-2 border-black rounded-lg bg-white"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <Image 
+                src={pool.icon} 
+                alt={pool.token} 
+                width={40} 
+                height={40} 
+                className="rounded-full"
+              />
+              <div>
+                <p className="font-bold text-lg">{pool.token}</p>
+                <p className={`text-sm ${pool.isOptedIn ? 'text-green-600' : 'text-red-500'} font-medium`}>
+                  {pool.isOptedIn ? '✓ Active' : '✗ Not Opted In'}
+                </p>
+              </div>
             </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold text-[#FF6B6B]">
+                {pool.rewardRate.split(' ')[0]}
+              </p>
+              <p className="text-sm text-gray-600">per 1 USDC spent</p>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Pool Available</span>
+              <span className="font-medium">
+                {(availableAmount / 1_000_000_000).toFixed(2)}B ({percentAvailable}%)
+              </span>
+            </div>
+            <div className="h-3 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+              <div 
+                className={`h-full rounded-full ${pool.isOptedIn ? 'bg-gradient-to-r from-[#FF6B6B] to-[#FF8E8E]' : 'bg-gray-300'}`}
+                style={{ 
+                  width: `${percentAvailable}%` 
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    })}
+    
+    {/* Placeholder for future pools */}
+    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+      <p className="text-gray-500 mb-1">More Reward Pools Coming Soon</p>
+      <p className="text-xs text-gray-400">Stay tuned for additional token rewards!</p>
+    </div>
+  </div>
+)}
             
-          )}
         </div>
         {/* Add Verification Modal */}
       {showVerificationModal && (
