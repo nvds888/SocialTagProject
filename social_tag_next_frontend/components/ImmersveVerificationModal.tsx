@@ -1,64 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 interface ImmersveVerificationModalProps {
     fundAddress: string;
     rewardAddress: string | null;
     onVerificationComplete: () => void;
     onClose: () => void;
-  }
-  
-  interface Transaction {
-    'tx-type': string;
-    'group'?: string;
-    'application-id'?: number;
-    sender: string;
-    'payment-transaction'?: {
-      amount: number;
-    };
-  }
-  
-  const ImmersveVerificationModal: React.FC<ImmersveVerificationModalProps> = ({
-    fundAddress,
-    rewardAddress, 
-    onVerificationComplete,
-    onClose
-  }) => {
+}
+
+interface Transaction {
+  'tx-type': string;
+  'group'?: string;
+  'application-id'?: number;
+  sender: string;
+  'payment-transaction'?: {
+    amount: number;
+  };
+}
+
+const ImmersveVerificationModal: React.FC<ImmersveVerificationModalProps> = ({
+  fundAddress,
+  onVerificationComplete,
+  onClose
+}) => {
   const [creatorAddress, setCreatorAddress] = useState('');
   const [verificationStatus, setVerificationStatus] = useState('waiting'); // waiting, pending, success, failed
   const [timeLeft, setTimeLeft] = useState(180); // 3 minutes in seconds
-  const verificationAddress = 'MQYGWBVAXQHTOFWTF4KZZ3EAP6L45NCGG7JQCBH3622FVEX57WGAR7DJEI'; // Replace with your verification address
+  const verificationAddress = 'MQYGWBVAXQHTOFWTF4KZZ3EAP6L45NCGG7JQCBH3622FVEX57WGAR7DJEI';
 
   useEffect(() => {
-    // Fetch the creator address when component mounts
     const fetchCreatorAddress = async () => {
-        try {
-          const response = await fetch(
-            `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/transactions?application-id=2174001591`
+      try {
+        const response = await fetch(
+          `https://mainnet-idx.4160.nodely.dev/v2/accounts/${fundAddress}/transactions?application-id=2174001591`
+        );
+        
+        const data = await response.json();
+        
+        if (data && data.transactions) {
+          const createTx = (data.transactions as Transaction[]).find(tx => 
+            tx['tx-type'] === 'appl' && 
+            tx['group']
           );
           
-          const data = await response.json();
-          
-          if (data && data.transactions) {
-            // Find the first group's app call from the group
-            const createTx = (data.transactions as Transaction[]).find(tx => 
-              tx['tx-type'] === 'appl' && 
-              tx['group'] // Make sure it's part of a group
-            );
-            
-            if (createTx) {
-              setCreatorAddress(createTx.sender);
-              console.log("Found creator:", createTx.sender);
-            } else {
-              throw new Error('Creator address not found');
-            }
+          if (createTx) {
+            setCreatorAddress(createTx.sender);
+            console.log("Found creator:", createTx.sender);
+          } else {
+            throw new Error('Creator address not found');
           }
-        } catch (error) {
-          console.error('Error fetching creator address:', error);
-          setVerificationStatus('failed');
         }
-      };
+      } catch (error) {
+        console.error('Error fetching creator address:', error);
+        setVerificationStatus('failed');
+      }
+    };
 
     fetchCreatorAddress();
   }, [fundAddress]);
@@ -104,9 +102,6 @@ interface ImmersveVerificationModalProps {
     }
   };
 
-  // Example usage of rewardAddress
-  console.log('Reward Address:', rewardAddress);
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg p-6 max-w-md w-full space-y-4">
@@ -114,17 +109,26 @@ interface ImmersveVerificationModalProps {
         
         {verificationStatus === 'waiting' && creatorAddress && (
           <>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
               <p className="text-gray-700">
-                Please send exactly 0.1 ALGO from address:<br/>
-                <code className="bg-gray-100 p-1 rounded text-sm break-all">
-                  {creatorAddress}
-                </code><br/>
-                to address:<br/>
-                <code className="bg-gray-100 p-1 rounded text-sm break-all">
+                Please send exactly 0.1 ALGO from address:
+              </p>
+              <code className="block bg-gray-100 p-2 rounded text-sm break-all">
+                {creatorAddress}
+              </code>
+              <p className="text-gray-700">to address (scan QR or copy):</p>
+              <div className="flex flex-col items-center space-y-2">
+                <Image
+                  src="/verificationqr.png"
+                  alt="Verification QR Code"
+                  width={200}
+                  height={200}
+                  className="rounded-lg"
+                />
+                <code className="block bg-gray-100 p-2 rounded text-sm break-all w-full text-center">
                   {verificationAddress}
                 </code>
-              </p>
+              </div>
             </div>
             <Button 
               onClick={startVerification}
