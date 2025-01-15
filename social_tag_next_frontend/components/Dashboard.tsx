@@ -817,7 +817,7 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="space-y-6 max-w-2xl mx-auto"
+              className="space-y-5"
             >
               {/* Cashback Stats */}
               <div className="bg-white p-6 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]">
