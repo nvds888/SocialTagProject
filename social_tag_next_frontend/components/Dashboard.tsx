@@ -5,7 +5,7 @@ import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Confetti from 'react-confetti'
-import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack} from 'lucide-react'
+import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack, CreditCard} from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -821,51 +821,69 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
             >
               {/* Cashback Stats */}
               <div className="bg-white p-6 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]">
-                <h3 className="text-xl font-bold mb-4">Cashback Stats</h3>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Total USD Spent</p>
-                    <p className="text-2xl font-bold text-[#FF6B6B]">
-                      ${recentTransactions.reduce((sum, tx) => sum + (tx.usdcAmount || 0), 0).toFixed(2)}
-                    </p>
+                <h3 className="text-xl font-bold mb-6">Cashback Stats</h3>
+                <div className="grid gap-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <CreditCard className="w-6 h-6 text-black" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600">Total USD Spent</p>
+                      <p className="text-2xl font-bold text-black">
+                        ${recentTransactions.reduce((sum, tx) => sum + (tx.usdcAmount || 0), 0).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
                   
-                  <div>
-                    <p className="text-sm text-gray-600">Highest Payment</p>
-                    <p className="text-2xl font-bold text-[#FF6B6B]">
-                      ${recentTransactions.length > 0 
-                        ? Math.max(...recentTransactions.map(tx => tx.usdcAmount || 0)).toFixed(2)
-                        : '0.00'}
-                    </p>
+                  <div className="flex items-start space-x-4">
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <SquareStack className="w-6 h-6 text-black" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600">Highest Payment</p>
+                      <p className="text-2xl font-bold text-black">
+                        ${recentTransactions.length > 0 
+                          ? Math.max(...recentTransactions.map(tx => tx.usdcAmount || 0)).toFixed(2)
+                          : '0.00'}
+                      </p>
+                    </div>
                   </div>
                   
-                  <div>
-                    <p className="text-sm text-gray-600">Total Rewards Earned</p>
-                    {(() => {
-                      const rewardsMap = recentTransactions.reduce((acc, tx) => {
-                        tx.rewards?.forEach(reward => {
-                          if (reward.assetId === 2607097066) {
-                            acc['SOCIALS'] = (acc['SOCIALS'] || 0) + (reward.amount || 0);
-                          }
-                        });
-                        return acc;
-                      }, {} as Record<string, number>);
+                  <div className="flex items-start space-x-4">
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <Image
+                        src="/SocialTag.png"
+                        alt="SOCIALS"
+                        width={24}
+                        height={24}
+                        className="rounded-full"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-600">Total Rewards Earned</p>
+                      {(() => {
+                        const rewardsMap = recentTransactions.reduce((acc, tx) => {
+                          tx.rewards?.forEach(reward => {
+                            if (reward.assetId === 2607097066) {
+                              acc['SOCIALS'] = (acc['SOCIALS'] || 0) + (reward.amount || 0);
+                            }
+                          });
+                          return acc;
+                        }, {} as Record<string, number>);
 
-                      return rewardsMap['SOCIALS'] !== undefined && (
-                        <div className="flex items-center space-x-2">
-                          <p className="text-2xl font-bold text-[#40E0D0]">
-                            {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
+                        return rewardsMap['SOCIALS'] !== undefined ? (
+                          <div className="flex items-center space-x-2">
+                            <p className="text-2xl font-bold text-[#40E0D0]">
+                              {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-lg text-gray-500 italic">
+                            Spend and earn your first rewards!
                           </p>
-                          <Image
-                            src="/SocialTag.png"
-                            alt="SOCIALS"
-                            width={24}
-                            height={24}
-                            className="rounded-full"
-                          />
-                        </div>
-                      );
-                    })()}
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
               </div>
