@@ -655,12 +655,12 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
           </nav>
         </header>
         <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className={`grid grid-cols-1 ${user?.immersveAddress ? 'lg:grid-cols-2 gap-8' : 'max-w-2xl mx-auto'}`}>
           <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: user?.immersveAddress ? -20 : 0, y: user?.immersveAddress ? 0 : 20 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="dashboard-card bg-[#8B7AB4] rounded-lg p-3 sm:p-6 shadow-lg w-full"
+              className="dashboard-card bg-[#8B7AB4] rounded-lg p-3 sm:p-6 shadow-lg w-full max-w-2xl mx-auto"
           >
             {user?.twitter?.username && (
             <div className="profile-operator mb-6 bg-black p-4 rounded-lg relative overflow-hidden">
@@ -817,7 +817,7 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="space-y-6"
+              className="space-y-6 max-w-2xl mx-auto"
             >
               {/* Cashback Stats */}
               <div className="bg-white p-6 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]">
