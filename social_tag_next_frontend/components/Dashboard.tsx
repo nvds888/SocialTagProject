@@ -655,11 +655,12 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
           </nav>
         </header>
         <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="dashboard-card bg-[#8B7AB4] rounded-lg p-3 sm:p-6 shadow-lg max-w-2xl mx-auto w-full"
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="dashboard-card bg-[#8B7AB4] rounded-lg p-3 sm:p-6 shadow-lg w-full"
           >
             {user?.twitter?.username && (
             <div className="profile-operator mb-6 bg-black p-4 rounded-lg relative overflow-hidden">
@@ -809,122 +810,126 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
               <h3 className="text-xl font-bold mb-4">Verification</h3>
               {renderVerificationHistory()}
             </div>
-            {/* Cashback Stats and Recent Payments Section */}
-            {user?.immersveAddress && (
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Cashback Stats */}
-                <div>
-                  <h3 className="text-xl font-bold mb-4">Cashback Stats</h3>
-                  <div className="bg-white p-4 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]">
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Total USD Spent</p>
-                        <p className="text-2xl font-bold text-[#FF6B6B]">
-                          ${recentTransactions.reduce((sum, tx) => sum + (tx.usdcAmount || 0), 0).toFixed(2)}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <p className="text-sm text-gray-600">Highest Payment</p>
-                        <p className="text-2xl font-bold text-[#FF6B6B]">
-                          ${recentTransactions.length > 0 
-                            ? Math.max(...recentTransactions.map(tx => tx.usdcAmount || 0)).toFixed(2)
-                            : '0.00'}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <p className="text-sm text-gray-600">Total Rewards Earned</p>
-                        {(() => {
-                          const rewardsMap = recentTransactions.reduce((acc, tx) => {
-                            tx.rewards?.forEach(reward => {
-                              if (reward.assetId === 2607097066) {
-                                acc['SOCIALS'] = (acc['SOCIALS'] || 0) + (reward.amount || 0);
-                              }
-                            });
-                            return acc;
-                          }, {} as Record<string, number>);
+            </motion.div>
+          {/* Right Column - Only shows if user has Immersve address */}
+          {user?.immersveAddress && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              {/* Cashback Stats */}
+              <div className="bg-white p-6 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]">
+                <h3 className="text-xl font-bold mb-4">Cashback Stats</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Total USD Spent</p>
+                    <p className="text-2xl font-bold text-[#FF6B6B]">
+                      ${recentTransactions.reduce((sum, tx) => sum + (tx.usdcAmount || 0), 0).toFixed(2)}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-600">Highest Payment</p>
+                    <p className="text-2xl font-bold text-[#FF6B6B]">
+                      ${recentTransactions.length > 0 
+                        ? Math.max(...recentTransactions.map(tx => tx.usdcAmount || 0)).toFixed(2)
+                        : '0.00'}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-600">Total Rewards Earned</p>
+                    {(() => {
+                      const rewardsMap = recentTransactions.reduce((acc, tx) => {
+                        tx.rewards?.forEach(reward => {
+                          if (reward.assetId === 2607097066) {
+                            acc['SOCIALS'] = (acc['SOCIALS'] || 0) + (reward.amount || 0);
+                          }
+                        });
+                        return acc;
+                      }, {} as Record<string, number>);
 
-                          return rewardsMap['SOCIALS'] !== undefined && (
-                            <div className="flex items-center space-x-2">
-                              <p className="text-2xl font-bold text-[#40E0D0]">
-                                {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
-                              </p>
-                              <Image
-                                src="/SocialTag.png"
-                                alt="SOCIALS"
-                                width={24}
-                                height={24}
-                                className="rounded-full"
-                              />
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
+                      return rewardsMap['SOCIALS'] !== undefined && (
+                        <div className="flex items-center space-x-2">
+                          <p className="text-2xl font-bold text-[#40E0D0]">
+                            {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
+                          </p>
+                          <Image
+                            src="/SocialTag.png"
+                            alt="SOCIALS"
+                            width={24}
+                            height={24}
+                            className="rounded-full"
+                          />
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
+              </div>
 
-                {/* Recent Payments */}
-                <div>
-                  <h3 className="text-xl font-bold mb-4">Recent Payments</h3>
-    <div className="space-y-2">
-      {recentTransactions.length > 0 ? (
-        recentTransactions
-          .slice(0, 5)  // Only show latest 5
-          .map((tx, index) => (
-          <div 
-            key={index}
-            className="bg-white p-3 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-medium">
-                  ${tx.usdcAmount.toFixed(2)} USDC
-                  {tx.isInnerTx && <span className="text-xs text-gray-500 ml-1">(Inner TX)</span>}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {new Date(tx.timestamp).toLocaleDateString()}
-                </p>
-                {tx.rewards.map((reward, rIndex) => (
-                  <p key={rIndex} className="text-xs text-[#40E0D0] mt-1">
-                    +{(reward.amount / 1_000_000_000).toFixed(2)}B {' '}
-                    {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
-                  </p>
-                ))}
+              {/* Recent Payments */}
+              <div className="bg-white p-6 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]">
+                <h3 className="text-xl font-bold mb-4">Recent Payments</h3>
+                <div className="space-y-2">
+                  {recentTransactions.length > 0 ? (
+                    recentTransactions
+                      .slice(0, 5)
+                      .map((tx, index) => (
+                        <div 
+                          key={index}
+                          className="bg-gray-50 p-3 rounded-lg border border-gray-200"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-sm font-medium">
+                                ${tx.usdcAmount.toFixed(2)} USDC
+                                {tx.isInnerTx && <span className="text-xs text-gray-500 ml-1">(Inner TX)</span>}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {new Date(tx.timestamp).toLocaleDateString()}
+                              </p>
+                              {tx.rewards.map((reward, rIndex) => (
+                                <p key={rIndex} className="text-xs text-[#40E0D0] mt-1">
+                                  +{(reward.amount / 1_000_000_000).toFixed(2)}B {' '}
+                                  {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
+                                </p>
+                              ))}
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <a
+                                href={`https://explorer.perawallet.app/tx/${tx.txId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-[#FF6B6B] hover:underline"
+                              >
+                                Payment
+                              </a>
+                              {tx.rewards.map((reward, rIndex) => (
+                                <a
+                                  key={rIndex}
+                                  href={`https://explorer.perawallet.app/tx/${reward.txId}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-[#40E0D0] hover:underline"
+                                >
+                                  Reward {rIndex + 1}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <p className="text-gray-500 text-center">No recent payments</p>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <a
-                  href={`https://explorer.perawallet.app/tx/${tx.txId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#FF6B6B] hover:underline"
-                >
-                  Payment
-                </a>
-                {tx.rewards.map((reward, rIndex) => (
-                  <a
-                    key={rIndex}
-                    href={`https://explorer.perawallet.app/tx/${reward.txId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-[#40E0D0] hover:underline"
-                  >
-                    Reward {rIndex + 1}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))
-      ) : (
-        <p className="text-gray-200 text-center">No recent payments</p>
-      )}
-    </div>
-    </div>
-            </div>
+            </motion.div>
           )}
-        </motion.div>
+        </div>
         </main>
       </div>
       {user && (
