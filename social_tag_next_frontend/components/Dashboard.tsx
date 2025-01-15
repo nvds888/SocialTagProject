@@ -5,7 +5,7 @@ import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Confetti from 'react-confetti'
-import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack, CreditCard} from 'lucide-react'
+import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack, CreditCard, Gift} from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -834,7 +834,7 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-4">
                     <div className="p-2 bg-gray-50 rounded-lg">
                       <SquareStack className="w-6 h-6 text-black" />
@@ -848,19 +848,13 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-4">
                     <div className="p-2 bg-gray-50 rounded-lg">
-                      <Image
-                        src="/SocialTag.png"
-                        alt="SOCIALS"
-                        width={24}
-                        height={24}
-                        className="rounded-full"
-                      />
+                      <Gift className="w-6 h-6 text-black" /> {/* Generic rewards icon */}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600">Total Rewards Earned</p>
+                      <p className="text-sm font-medium text-gray-600">SOCIALS Earned</p>
                       {(() => {
                         const rewardsMap = recentTransactions.reduce((acc, tx) => {
                           tx.rewards?.forEach(reward => {
@@ -872,15 +866,34 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
                         }, {} as Record<string, number>);
 
                         return rewardsMap['SOCIALS'] !== undefined ? (
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center gap-3">
                             <p className="text-2xl font-bold text-[#40E0D0]">
                               {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
                             </p>
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <Image
+                                src="/SocialTag.png"
+                                alt="SOCIALS"
+                                width={16}
+                                height={16}
+                                className="rounded-full"
+                              />
+                              <span>SOCIALS</span>
+                            </div>
                           </div>
                         ) : (
-                          <p className="text-lg text-gray-500 italic">
-                            Spend and earn your first rewards!
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-lg text-gray-500">
+                              Spend and earn SOCIALS rewards!
+                            </p>
+                            <Image
+                              src="/SocialTag.png"
+                              alt="SOCIALS"
+                              width={16}
+                              height={16}
+                              className="rounded-full"
+                            />
+                          </div>
                         );
                       })()}
                     </div>
