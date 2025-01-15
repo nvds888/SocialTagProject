@@ -607,7 +607,6 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
 </Button>
 
 <Button
-disabled
   onClick={() => setShowImmersveModal(true)}
   className="bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-black/10 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
 >
@@ -810,10 +809,65 @@ disabled
               <h3 className="text-xl font-bold mb-4">Verification</h3>
               {renderVerificationHistory()}
             </div>
-            {/* Recent Payments Section */}
+            {/* Cashback Stats and Recent Payments Section */}
             {user?.immersveAddress && (
-  <div className="mt-6">
-    <h3 className="text-xl font-bold mb-4">Recent Payments</h3>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Cashback Stats */}
+                <div>
+                  <h3 className="text-xl font-bold mb-4">Cashback Stats</h3>
+                  <div className="bg-white p-4 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-gray-600">Total USD Spent</p>
+                        <p className="text-2xl font-bold text-[#FF6B6B]">
+                          ${recentTransactions.reduce((sum, tx) => sum + (tx.usdcAmount || 0), 0).toFixed(2)}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-sm text-gray-600">Highest Payment</p>
+                        <p className="text-2xl font-bold text-[#FF6B6B]">
+                          ${recentTransactions.length > 0 
+                            ? Math.max(...recentTransactions.map(tx => tx.usdcAmount || 0)).toFixed(2)
+                            : '0.00'}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-sm text-gray-600">Total Rewards Earned</p>
+                        {(() => {
+                          const rewardsMap = recentTransactions.reduce((acc, tx) => {
+                            tx.rewards?.forEach(reward => {
+                              if (reward.assetId === 2607097066) {
+                                acc['SOCIALS'] = (acc['SOCIALS'] || 0) + (reward.amount || 0);
+                              }
+                            });
+                            return acc;
+                          }, {} as Record<string, number>);
+
+                          return rewardsMap['SOCIALS'] !== undefined && (
+                            <div className="flex items-center space-x-2">
+                              <p className="text-2xl font-bold text-[#40E0D0]">
+                                {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
+                              </p>
+                              <Image
+                                src="/SocialTag.png"
+                                alt="SOCIALS"
+                                width={24}
+                                height={24}
+                                className="rounded-full"
+                              />
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Payments */}
+                <div>
+                  <h3 className="text-xl font-bold mb-4">Recent Payments</h3>
     <div className="space-y-2">
       {recentTransactions.length > 0 ? (
         recentTransactions
@@ -867,9 +921,10 @@ disabled
         <p className="text-gray-200 text-center">No recent payments</p>
       )}
     </div>
-  </div>
-)}
-</motion.div>
+    </div>
+            </div>
+          )}
+        </motion.div>
         </main>
       </div>
       {user && (
