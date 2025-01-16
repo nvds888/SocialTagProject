@@ -12,7 +12,7 @@ const USDC_ASSET_ID = 31566704;
 const REWARD_POOLS = {
   SOCIALS: {
     assetId: 2607097066,
-    rewardRate: 1000000, // 1M tokens per 1 USDC
+    rewardRate: 1000000000000, // 1M tokens per 1 USDC
     totalPool: 8000000000000000
   }
 };
@@ -76,7 +76,6 @@ async function fetchUserTransactions(address, lastProcessedTime) {
   }
 }
 
-// Rest of the functions remain exactly the same
 async function getUserOptedInAssets(address) {
   try {
     const response = await fetch(
@@ -116,7 +115,6 @@ async function processRewards(transaction, optedInAssets) {
   return rewards;
 }
 
-// Keep the rest of the file exactly the same
 async function distributeRewards(rewardAddress, transaction, rewards) {
   return new Promise((resolve, reject) => {
     console.log('Starting Python process for reward distribution');
@@ -279,13 +277,98 @@ async function runRewardProcessor() {
   }
 }
 
+async function runTestTransactions() {
+  console.log('Starting test transaction simulation...');
+  
+  try {
+    // Find all users with Immersve addresses configured
+    const users = await User.find({
+      immersveAddress: { $ne: null },
+      immersveRewardAddress: { $ne: null }
+    });
+
+    console.log(`Found ${users.length} users for test transactions`);
+
+    // Test transaction data
+    const testTransactions = [
+      {
+        amount: 4.57,
+        timestamp: new Date(Date.now() - 15 * 60000), // 15 minutes ago
+        txId: 'TEST_TX_' + Date.now() + '_1',
+        isInnerTx: false
+      },
+      {
+        amount: 16.32,
+        timestamp: new Date(Date.now() - 5 * 60000), // 5 minutes ago
+        txId: 'TEST_TX_' + Date.now() + '_2',
+        isInnerTx: false
+      }
+    ];
+
+    for (const user of users) {
+      console.log(`Processing test transactions for user: ${user.twitter?.username}`);
+      
+      // Get user's opted-in assets
+      const optedInAssets = await getUserOptedInAssets(user.immersveRewardAddress);
+      console.log('User opted in assets:', optedInAssets);
+
+      // Process each test transaction
+      for (const transaction of testTransactions) {
+        console.log('Processing test transaction:', transaction);
+        
+        // Calculate rewards
+        const rewards = await processRewards(transaction, optedInAssets);
+        console.log('Calculated test rewards:', rewards);
+
+        if (rewards.length > 0) {
+          // Distribute rewards using Python script
+          const rewardTxIds = await distributeRewards(user.immersveRewardAddress, transaction, rewards);
+          console.log('Test reward distribution txIds:', rewardTxIds);
+
+          // Update user's transaction record
+          const rewardRecords = rewards.map((reward, index) => ({
+            assetId: reward.assetId,
+            amount: reward.amount,
+            txId: rewardTxIds[index],
+            timestamp: new Date()
+          }));
+
+          // Add to user's immersveTransactions array
+          user.immersveTransactions.push({
+            usdcAmount: transaction.amount,
+            timestamp: transaction.timestamp,
+            txId: transaction.txId,
+            rewards: rewardRecords,
+            processed: true
+          });
+
+          // Update pool statistics
+          await updateStats(rewards, user.immersveRewardAddress, rewardTxIds);
+        }
+      }
+
+      // Save user updates
+      await user.save();
+      console.log(`Completed test transactions for user: ${user.twitter?.username}`);
+    }
+
+    console.log('Test transaction simulation completed');
+  } catch (error) {
+    console.error('Error in test transaction simulation:', error);
+  }
+}
+
 // Run every 30 minutes
 const job = schedule.scheduleJob('*/30 * * * *', runRewardProcessor);
 
 console.log('Reward processor initialized - will run every 30 minutes');
 console.log('Next scheduled run:', job.nextInvocation().toString());
 
+// Call test transaction simulation
+runTestTransactions();
+
 module.exports = {
   runRewardProcessor,
-  initializeRewardProcessor: () => {} // Empty function since we're running directly
+  runTestTransactions,
+  initializeRewardProcessor: () => {}
 };
