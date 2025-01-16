@@ -822,14 +822,14 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
             >
               {/* Cashback Stats */}
               <div className="bg-white p-6 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0)]">
-                <h3 className="text-xl font-bold mb-6">Cashback Stats</h3>
+                <h3 className="text-xl font-bold mb-6">Payment Dashboard</h3>
                 <div className="grid gap-6">
                   <div className="flex items-start space-x-4">
                     <div className="p-2 bg-gray-50 rounded-lg">
                       <CreditCard className="w-6 h-6 text-black" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600">Total USD Spent</p>
+                      <p className="text-sm font-medium text-gray-600">Total USDC Spent</p>
                       <p className="text-2xl font-bold text-black">
                         ${recentTransactions.reduce((sum, tx) => sum + (tx.usdcAmount || 0), 0).toFixed(2)}
                       </p>
