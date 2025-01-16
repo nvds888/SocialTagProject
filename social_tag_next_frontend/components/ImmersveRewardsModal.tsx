@@ -46,7 +46,9 @@ interface ImmersveRewardsModalProps {
   onClose: () => void;
   user: User;
   connectedWalletAddress: string | null;
+  onRegistrationSuccess: () => Promise<void>;
 }
+
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
 
@@ -54,7 +56,8 @@ const ImmersveRewardsModal: React.FC<ImmersveRewardsModalProps> = ({
   isOpen,
   onClose,
   user,
-  connectedWalletAddress
+  connectedWalletAddress,
+  onRegistrationSuccess
 }) => {
   const [fundAddress, setFundAddress] = useState<string>('');
   const [rewardAddress, setRewardAddress] = useState<string>('');
@@ -157,6 +160,9 @@ const [, setIsVerified] = useState(false);
       
       setIsRegistered(true);
       await fetchUserRewardsData();
+
+      onRegistrationSuccess?.(); 
+
       
       toast({
         title: "Success",

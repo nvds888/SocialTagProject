@@ -41,6 +41,7 @@ interface NFD {
   assetId?: string; // Add this line
 }
 
+
 interface ImmersveReward {
   assetId: number;
   amount: number;
@@ -997,8 +998,12 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
     onClose={() => setShowImmersveModal(false)}
     user={user}
     connectedWalletAddress={connectedAccount}
-  />
-)}
+    onRegistrationSuccess={async () => {
+      await fetchUser();
+      await fetchRecentTransactions();
+    }} 
+    />
+  )}
       <Toaster />
     </div>
   )
