@@ -319,11 +319,11 @@ const [, setIsVerified] = useState(false);
             onClick={() => togglePanel('transactions')}
             className="w-full flex justify-between items-center py-2 px-4 bg-white text-black border-2 border-black hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0)] hover:translate-x-[1px] hover:translate-y-[1px]"
           >
-            <span>Transactions</span>
+            <span>Payments</span>
             {activePanel === 'transactions' ? <ChevronUp /> : <ChevronDown />}
           </Button>
 
-          {activePanel === 'Payments' && (
+          {activePanel === 'transactions' && (
             <div className="border-2 border-black rounded-lg">
               <div className="max-h-[400px] overflow-y-auto p-4 space-y-4">
                 {loading ? (
