@@ -851,54 +851,61 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
                   </div>
 
                   <div className="flex items-start space-x-4">
-                    <div className="p-2 bg-gray-50 rounded-lg">
-                      <Gift className="w-6 h-6 text-black" /> {/* Generic rewards icon */}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-600">SOCIALS Earned</p>
-                      {(() => {
-                        const rewardsMap = recentTransactions.reduce((acc, tx) => {
-                          tx.rewards?.forEach(reward => {
-                            if (reward.assetId === 2607097066) {
-                              acc['SOCIALS'] = (acc['SOCIALS'] || 0) + (reward.amount || 0);
-                            }
-                          });
-                          return acc;
-                        }, {} as Record<string, number>);
+  <div className="p-2 bg-gray-50 rounded-lg">
+    <Gift className="w-6 h-6 text-black" />
+  </div>
+  <div className="flex-1">
+    <p className="text-sm font-medium text-gray-600">Earned Cashback</p>
+    {(() => {
+      const rewardsMap = recentTransactions.reduce((acc, tx) => {
+        tx.rewards?.forEach(reward => {
+          const key = reward.assetId === 2607097066 ? 'SOCIALS' : `ASA-${reward.assetId}`;
+          acc[key] = (acc[key] || 0) + (reward.amount || 0);
+        });
+        return acc;
+      }, {} as Record<string, number>);
 
-                        return rewardsMap['SOCIALS'] !== undefined ? (
-                          <div className="flex items-center gap-3">
-                            <p className="text-2xl font-bold text-[#40E0D0]">
-                              {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
-                            </p>
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              <Image
-                                src="/SocialTag.png"
-                                alt="SOCIALS"
-                                width={16}
-                                height={16}
-                                className="rounded-full"
-                              />
-                              <span>SOCIALS</span>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <p className="text-lg text-gray-500">
-                              Spend and earn SOCIALS rewards!
-                            </p>
-                            <Image
-                              src="/SocialTag.png"
-                              alt="SOCIALS"
-                              width={16}
-                              height={16}
-                              className="rounded-full"
-                            />
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </div>
+      return Object.keys(rewardsMap).length > 0 ? (
+        <div className="flex flex-col gap-2 mt-1">
+          <div className="flex items-center gap-3">
+            <p className="text-2xl font-bold text-[#40E0D0]">
+              {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
+            </p>
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <Image
+                src="/SocialTag.png"
+                alt="SOCIALS"
+                width={16}
+                height={16}
+                className="rounded-full"
+              />
+              <span>SOCIALS</span>
+            </div>
+          </div>
+          {/* Future reward pools will be added here automatically */}
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2">
+            <p className="text-lg font-medium">
+              0B
+            </p>
+            <div className="flex items-center gap-1">
+              <Image
+                src="/SocialTag.png"
+                alt="SOCIALS"
+                width={16}
+                height={16}
+                className="rounded-full"
+              />
+              <span className="text-sm text-gray-500">SOCIALS</span>
+            </div>
+          </div>
+        </div>
+      );
+    })()}
+  </div>
+</div>
                 </div>
               </div>
 
