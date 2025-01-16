@@ -323,7 +323,7 @@ const [, setIsVerified] = useState(false);
             {activePanel === 'transactions' ? <ChevronUp /> : <ChevronDown />}
           </Button>
 
-          {activePanel === 'transactions' && (
+          {activePanel === 'Payments' && (
             <div className="border-2 border-black rounded-lg">
               <div className="max-h-[400px] overflow-y-auto p-4 space-y-4">
                 {loading ? (
@@ -342,7 +342,7 @@ const [, setIsVerified] = useState(false);
                           </p>
                           {tx.rewards.map((reward, rewardIndex) => (
                             <p key={rewardIndex} className="text-xs text-[#40E0D0] font-medium">
-                              +{(reward.amount / 1_000_000_000).toFixed(2)}B {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
+                              +{(reward.amount / 1_000_000).toFixed(2)}M {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
                             </p>
                           ))}
                         </div>

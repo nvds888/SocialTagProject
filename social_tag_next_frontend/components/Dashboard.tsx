@@ -869,7 +869,7 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
         <div className="flex flex-col gap-2 mt-1">
           <div className="flex items-center gap-3">
             <p className="text-2xl font-bold text-[#40E0D0]">
-              {(rewardsMap['SOCIALS'] / 1_000_000_000).toFixed(2)}B
+              {(rewardsMap['SOCIALS'] / 1_000_000).toFixed(2)}M
             </p>
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <Image
@@ -932,7 +932,7 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
                               </p>
                               {tx.rewards.map((reward, rIndex) => (
                                 <p key={rIndex} className="text-xs text-[#40E0D0] mt-1">
-                                  +{(reward.amount / 1_000_000_000).toFixed(2)}B {' '}
+                                  +{(reward.amount / 1_000_000).toFixed(2)}M {' '}
                                   {reward.assetId === 2607097066 ? 'SOCIALS' : 'MEEP'}
                                 </p>
                               ))}
