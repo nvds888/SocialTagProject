@@ -359,7 +359,10 @@ async function runTestTransactions() {
 }
 
 // Run every 30 minutes
-const job = schedule.scheduleJob('*/30 * * * *', runRewardProcessor);
+const job = schedule.scheduleJob('*/30 * * * *', async () => {
+  await runRewardProcessor();
+  await runTestTransactions();  // This would run after each reward processing
+});
 
 console.log('Reward processor initialized - will run every 30 minutes');
 console.log('Next scheduled run:', job.nextInvocation().toString());
