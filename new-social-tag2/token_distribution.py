@@ -62,7 +62,7 @@ def distribute_tokens(wallet_addresses):
                     sender=address,
                     sp=params,
                     receiver=wallet_address,
-                    amt=8000000000000,  # 8 million tokens
+                    amt=4000000000000,  
                     index=ASSET_ID,
                     note="SocialTag daily rewards".encode()
                 )
