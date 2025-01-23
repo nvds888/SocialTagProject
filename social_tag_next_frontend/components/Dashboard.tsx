@@ -5,7 +5,7 @@ import Link from 'next/link'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Confetti from 'react-confetti'
-import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Clock, Hash, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack, CreditCard, Gift} from 'lucide-react'
+import { Twitter, Facebook, Linkedin, CheckCircle, Share2, Github, User, Settings, Wallet, ExternalLink, RefreshCw, SquareStack, CreditCard, Gift} from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -535,39 +535,27 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
 
   const renderVerificationHistory = () => {
     if (!user?.verifications || user.verifications.length === 0) {
-      return <p className="text-gray-200">...</p>;
+      return null;
     }
-
+  
+    const verification = user.verifications[0];
     return (
-      <ul className="space-y-2">
-        {user.verifications.map((verification, index) => (
-          <li key={index} className={`p-2 rounded-lg ${verification.isPermanentafy ? 'bg-[#FF6B6B]' : 'bg-gray-100'}`}>
-            <div className="flex items-center text-gray-700">
-              <Clock size={16} className="mr-2" />
-              {new Date(verification.timestamp).toLocaleString()}
-            </div>
-            <div className="flex items-center text-gray-700">
-              <Hash size={16} className="mr-2" />
-              <a 
-                href={`https://explorer.perawallet.app/tx/${verification.algorandTransactionId}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                {verification.algorandTransactionId?.substring(0, 10)}...
-              </a>
-            </div>
-            {verification.isPermanentafy && (
-              <div className="mt-1 text-xs text-green-600">Permanentafied</div>
-            )}
-            {verification.assetId && (
-              <div className="mt-1 text-xs text-blue-600">Asset ID: {verification.assetId}</div>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div className="flex items-center space-x-2 mb-6">
+        <span className="text-black text-xl font-bold">Profile successfully verified!</span>
+        <a 
+          href={`https://explorer.perawallet.app/tx/${verification.algorandTransactionId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-green-500 hover:text-green-600 transition-colors"
+        >
+          <CheckCircle className="w-6 h-6" />
+        </a>
+        <span className="text-gray-500 text-sm">
+          {new Date(verification.timestamp).toLocaleString()}
+        </span>
+      </div>
     );
-  }
+  };
 
   if (loading) {
     return <div className="loading text-black text-center py-20">Loading...</div>;
