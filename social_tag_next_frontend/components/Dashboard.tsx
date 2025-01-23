@@ -608,7 +608,6 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
 </Button>
 
 <Button
-disabled
   onClick={() => setShowImmersveModal(true)}
   className="bg-white text-black px-4 py-2 rounded-lg border-2 border-black hover:bg-black/10 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0)]"
 >

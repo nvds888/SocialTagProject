@@ -198,58 +198,92 @@ async function updateStats(rewards, rewardAddress, rewardTxIds) {
   await stats.save();
 }
 
+// Function to simulate test transactions
+async function addTestTransactions() {
+  const testTransactions = [
+    { amount: 1.5, timestamp: new Date(Date.now() - 3600000) },
+    { amount: 10.60, timestamp: new Date(Date.now() - 7200000) },
+    { amount: 4.30, timestamp: new Date(Date.now() - 10800000) }
+  ];
+
+  const users = await User.find({
+    immersveAddress: { $ne: null },
+    immersveRewardAddress: { $ne: null }
+  });
+
+  for (const user of users) {
+    for (const tx of testTransactions) {
+      user.immersveTransactions.push({
+        usdcAmount: tx.amount,
+        timestamp: tx.timestamp,
+        txId: `test_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        isInnerTx: false,
+        processed: false
+      });
+    }
+    await user.save();
+  }
+  console.log(`Added test transactions for ${users.length} users`);
+}
+
 async function processUserRewards(user) {
   try {
     console.log('Processing rewards for user:', user.twitter?.username);
     const lastProcessedTime = user.lastProcessedTimestamp || new Date(0);
     const transactions = await fetchUserTransactions(user.immersveAddress, lastProcessedTime);
     
-    console.log('Found transactions:', transactions.length);
-    
-    if (transactions.length === 0) {
-      return;
-    }
+    if (transactions.length === 0) return;
 
     const optedInAssets = await getUserOptedInAssets(user.immersveRewardAddress);
     console.log('User opted in assets:', optedInAssets);
     
+    // Group rewards by asset ID
+    const rewardsByAsset = new Map();
+    const processedTxs = [];
+    
     for (const transaction of transactions) {
       console.log('Processing transaction:', transaction);
-      // Calculate rewards for all pools user is opted into
       const rewards = await processRewards(transaction, optedInAssets);
-      console.log('Calculated rewards:', rewards);
       
       if (rewards.length > 0) {
-        // Distribute rewards using Python script
-        const rewardTxIds = await distributeRewards(user.immersveRewardAddress, transaction, rewards);
-        console.log('Reward distribution txIds:', rewardTxIds);
-        
-        // Update user's transaction record
-        const rewardRecords = rewards.map((reward, index) => ({
-          assetId: reward.assetId,
-          amount: reward.amount,
-          txId: rewardTxIds[index],
-          timestamp: new Date()
-        }));
-
-        // Add to user's immersveTransactions array
-        user.immersveTransactions.push({
-          usdcAmount: transaction.amount,
-          timestamp: transaction.timestamp,
-          txId: transaction.txId,
-          rewards: rewardRecords,
-          processed: true
+        processedTxs.push(transaction);
+        rewards.forEach(reward => {
+          const existing = rewardsByAsset.get(reward.assetId) || { ...reward, amount: 0 };
+          existing.amount += reward.amount;
+          rewardsByAsset.set(reward.assetId, existing);
         });
-
-        // Update pool statistics
-        await updateStats(rewards, user.immersveRewardAddress, rewardTxIds);
       }
     }
+    
+    if (rewardsByAsset.size > 0) {
+      const combinedRewards = Array.from(rewardsByAsset.values());
+      const rewardTxIds = await distributeRewards(
+        user.immersveRewardAddress, 
+        { amount: processedTxs.reduce((sum, tx) => sum + tx.amount, 0) },
+        combinedRewards
+      );
+      
+      // Record transactions
+      for (const tx of processedTxs) {
+        user.immersveTransactions.push({
+          usdcAmount: tx.amount,
+          timestamp: tx.timestamp,
+          txId: tx.txId,
+          rewards: combinedRewards.map((reward, index) => ({
+            assetId: reward.assetId,
+            amount: Math.floor((tx.amount / processedTxs.reduce((sum, t) => sum + t.amount, 0)) * reward.amount),
+            txId: rewardTxIds[index],
+            timestamp: new Date()
+          })),
+          processed: true
+        });
+      }
 
-    // Update last processed timestamp
+      await updateStats(combinedRewards, user.immersveRewardAddress, rewardTxIds);
+    }
+
     user.lastProcessedTimestamp = new Date();
     await user.save();
-    console.log('Updated user record with new transactions and timestamp');
     
   } catch (error) {
     console.error(`Error processing rewards for user ${user.twitter?.username}:`, error);
@@ -287,5 +321,6 @@ console.log('Next scheduled run:', job.nextInvocation().toString());
 
 module.exports = {
   runRewardProcessor,
-  initializeRewardProcessor: () => {} // Empty function since we're running directly
+  addTestTransactions,
+  initializeRewardProcessor: () => {}
 };
