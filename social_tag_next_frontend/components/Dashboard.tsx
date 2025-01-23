@@ -551,7 +551,7 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
           >
             <CheckCircle className="w-6 h-6" />
           </a>
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
             TX ID: {verification.algorandTransactionId?.substring(0, 10)}...
           </div>
         </div>
