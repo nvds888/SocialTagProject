@@ -550,7 +550,7 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
         >
           <CheckCircle className="w-6 h-6" />
         </a>
-        <span className="text-gray-500 text-sm">
+        <span className="text-white text-sm">
           {new Date(verification.timestamp).toLocaleString()}
         </span>
       </div>
