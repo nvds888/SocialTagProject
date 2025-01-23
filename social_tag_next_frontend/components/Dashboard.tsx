@@ -537,25 +537,30 @@ const [isLoadingNFDs, setIsLoadingNFDs] = useState(false)
     if (!user?.verifications || user.verifications.length === 0) {
       return null;
     }
-  
+   
     const verification = user.verifications[0];
     return (
       <div className="flex items-center space-x-2 mb-6">
         <span className="text-black text-xl font-bold">Profile successfully verified!</span>
-        <a 
-          href={`https://explorer.perawallet.app/tx/${verification.algorandTransactionId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-green-500 hover:text-green-600 transition-colors"
-        >
-          <CheckCircle className="w-6 h-6" />
-        </a>
+        <div className="group relative">
+          <a 
+            href={`https://explorer.perawallet.app/tx/${verification.algorandTransactionId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-500 hover:text-green-600 transition-colors"
+          >
+            <CheckCircle className="w-6 h-6" />
+          </a>
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+            TX ID: {verification.algorandTransactionId?.substring(0, 10)}...
+          </div>
+        </div>
         <span className="text-white text-sm">
           {new Date(verification.timestamp).toLocaleString()}
         </span>
       </div>
     );
-  };
+   };
 
   if (loading) {
     return <div className="loading text-black text-center py-20">Loading...</div>;
