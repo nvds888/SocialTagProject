@@ -23,35 +23,35 @@ async function fetchUserTransactions(address, lastProcessedTime) {
     console.log('Last processed time:', lastProcessedTime);
 
     const testTransactions = [
-      { 
-        amount: 1.5,
-        timestamp: new Date(),
-        id: `test_${Date.now()}_1`,
+      {
         'tx-type': 'axfer',
         'asset-transfer-transaction': {
-          amount: 1500000,
-          receiver: IMMERSVE_MASTER_CONTRACT
-        }
+          'asset-id': USDC_ASSET_ID,
+          'amount': 1500000,
+          'receiver': IMMERSVE_MASTER_CONTRACT
+        },
+        'round-time': Math.floor(Date.now() / 1000),
+        'id': `test_${Date.now()}_1`
       },
       {
-        amount: 10.60,
-        timestamp: new Date(),
-        id: `test_${Date.now()}_2`,
         'tx-type': 'axfer',
         'asset-transfer-transaction': {
-          amount: 10600000,
-          receiver: IMMERSVE_MASTER_CONTRACT
-        }
+          'asset-id': USDC_ASSET_ID,
+          'amount': 10600000,
+          'receiver': IMMERSVE_MASTER_CONTRACT
+        },
+        'round-time': Math.floor(Date.now() / 1000),
+        'id': `test_${Date.now()}_2`
       },
       {
-        amount: 4.30,
-        timestamp: new Date(),
-        id: `test_${Date.now()}_3`,
         'tx-type': 'axfer',
         'asset-transfer-transaction': {
-          amount: 4300000,
-          receiver: IMMERSVE_MASTER_CONTRACT
-        }
+          'asset-id': USDC_ASSET_ID,
+          'amount': 4300000,
+          'receiver': IMMERSVE_MASTER_CONTRACT
+        },
+        'round-time': Math.floor(Date.now() / 1000),
+        'id': `test_${Date.now()}_3`
       }
     ];
     
@@ -64,7 +64,8 @@ async function fetchUserTransactions(address, lastProcessedTime) {
     }
     
     const data = await response.json();
-    const transactions = [];
+   data.transactions = [...(data.transactions || []), ...testTransactions];
+   const transactions = [];
 
     // Process both main and inner transactions
     for (const tx of data.transactions || []) {
