@@ -760,16 +760,26 @@ disabled
 {!canVerify && !isVerified && (
   <p className="mt-4 text-gray-200 text-center">Connect at least two accounts to verify your profile.</p>
 )}
-           {isVerified && (
+           {isVerified && user?.verifications?.[0] && (
   <motion.div 
     initial={{ opacity: 0, y: -10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.2 }}
     className="verification-success mt-6 p-4 rounded-lg relative overflow-hidden bg-white-100"
   >
-    <div className="success-message flex items-center mb-4 relative z-4">
-      <SquareStack size={30} className="text-[#40E0D0] mr-2" />
+    <div className="flex items-center space-x-2">
       <span className="text-black text-xl font-bold">Profile successfully verified!</span>
+      <a 
+        href={`https://explorer.perawallet.app/tx/${user.verifications[0].algorandTransactionId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-green-500 hover:text-green-600 transition-colors"
+      >
+        <CheckCircle className="w-6 h-6" />
+      </a>
+      <span className="text-gray-500 text-sm">
+        {new Date(user.verifications[0].timestamp).toLocaleString()}
+      </span>
     </div>
     <div className="action-buttons flex flex-col sm:flex-row gap-2 sm:space-x-4 relative z-10">
       <motion.button
