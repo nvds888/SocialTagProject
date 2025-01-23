@@ -10,7 +10,7 @@ const peraWalletRoutes = require('./peraWalletRoutes');
 const cors = require('cors');
 const themePurchaseRoutes = require('./themePurchaseRoutes');  
 const { initializeDistributionScheduler } = require('./token_distribution_wrapper');
-const { runRewardProcessor, addTestTransactions } = require('./immersveWrapper');
+const { runRewardProcessor} = require('./immersveWrapper');
 
 
 
@@ -22,7 +22,6 @@ const PORT = process.env.PORT || 5000;
 initializeDistributionScheduler();
 // Initialize Immersve reward processor
 runRewardProcessor();
-addTestTransactions();
 
 
 // MongoDB connection

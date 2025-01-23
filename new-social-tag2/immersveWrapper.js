@@ -21,6 +21,39 @@ async function fetchUserTransactions(address, lastProcessedTime) {
   try {
     console.log('Fetching transactions for address:', address);
     console.log('Last processed time:', lastProcessedTime);
+
+    const testTransactions = [
+      { 
+        amount: 1.5,
+        timestamp: new Date(),
+        id: `test_${Date.now()}_1`,
+        'tx-type': 'axfer',
+        'asset-transfer-transaction': {
+          amount: 1500000,
+          receiver: IMMERSVE_MASTER_CONTRACT
+        }
+      },
+      {
+        amount: 10.60,
+        timestamp: new Date(),
+        id: `test_${Date.now()}_2`,
+        'tx-type': 'axfer',
+        'asset-transfer-transaction': {
+          amount: 10600000,
+          receiver: IMMERSVE_MASTER_CONTRACT
+        }
+      },
+      {
+        amount: 4.30,
+        timestamp: new Date(),
+        id: `test_${Date.now()}_3`,
+        'tx-type': 'axfer',
+        'asset-transfer-transaction': {
+          amount: 4300000,
+          receiver: IMMERSVE_MASTER_CONTRACT
+        }
+      }
+    ];
     
     const response = await fetch(
       `https://mainnet-idx.4160.nodely.dev/v2/accounts/${address}/transactions?address=${IMMERSVE_MASTER_CONTRACT}&after-time=${lastProcessedTime.toISOString()}`
@@ -198,33 +231,6 @@ async function updateStats(rewards, rewardAddress, rewardTxIds) {
   await stats.save();
 }
 
-// Function to simulate test transactions
-async function addTestTransactions() {
-  const testTransactions = [
-    { amount: 1.5, timestamp: new Date(Date.now() - 3600000) },
-    { amount: 10.60, timestamp: new Date(Date.now() - 7200000) },
-    { amount: 4.30, timestamp: new Date(Date.now() - 10800000) }
-  ];
-
-  const users = await User.find({
-    immersveAddress: { $ne: null },
-    immersveRewardAddress: { $ne: null }
-  });
-
-  for (const user of users) {
-    for (const tx of testTransactions) {
-      user.immersveTransactions.push({
-        usdcAmount: tx.amount,
-        timestamp: tx.timestamp,
-        txId: `test_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-        isInnerTx: false,
-        processed: false
-      });
-    }
-    await user.save();
-  }
-  console.log(`Added test transactions for ${users.length} users`);
-}
 
 async function processUserRewards(user) {
   try {
@@ -321,6 +327,5 @@ console.log('Next scheduled run:', job.nextInvocation().toString());
 
 module.exports = {
   runRewardProcessor,
-  addTestTransactions,
   initializeRewardProcessor: () => {}
 };
