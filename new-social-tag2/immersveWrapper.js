@@ -12,7 +12,7 @@ const USDC_ASSET_ID = 31566704;
 const REWARD_POOLS = {
   SOCIALS: {
     assetId: 2607097066,
-    rewardRate: 1000000, // 1M tokens per 1 USDC
+    rewardRate: 1000000000000, // 1M tokens per 1 USDC
     totalPool: 8000000000000000
   }
 };
