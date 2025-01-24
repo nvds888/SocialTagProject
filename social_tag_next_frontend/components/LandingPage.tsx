@@ -43,10 +43,6 @@ const LandingPage: React.FC = () => {
       }
     }
     checkAuthStatus()
-
-    return () => {
-      // Cleanup logic if necessary
-    }
   }, [])
 
   const handleCreateProfileClick = () => setShowPopup(true)
@@ -105,7 +101,7 @@ const LandingPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-6xl font-bold mb-8"
             >
-              Social Rewards
+              The Social & Cashback
               <span className="text-[#4FFFD1]"> Protocol</span>
             </motion.h2>
 
@@ -115,7 +111,7 @@ const LandingPage: React.FC = () => {
               transition={{ delay: 0.2 }}
               className="text-xl mb-12 max-w-2xl mx-auto text-white/80"
             >
-              Connect your social profiles, earn rewards, and join the future of social engagement
+              Create your social profile, earn rewards, and join the future of social engagement
             </motion.p>
 
             <motion.button
@@ -168,7 +164,7 @@ const LandingPage: React.FC = () => {
               >
                 <FeatureIcon Icon={CreditCard} color="[#4FFFD1]" />
                 <h3 className="text-xl font-semibold mb-4 mt-6">Social Rewards</h3>
-                <p className="text-white/60">Earn rewards in multiple tokens through social engagement and spending</p>
+                <p className="text-white/60">Earn rewards through social engagement and spending</p>
               </motion.div>
 
               <motion.div 
@@ -185,30 +181,30 @@ const LandingPage: React.FC = () => {
           </section>
 
           <section className="rewards-section mb-20">
-            <div className="max-w-4xl mx-auto bg-white/5 rounded-3xl p-12 border border-white/10">
-              <div className="absolute -right-4 top-8 transform rotate-12 z-10">
-                <div className="bg-[#4FFFD1] text-black px-8 py-2 rounded-lg font-bold">
-                  Coming Soon
-                </div>
-              </div>
+          <div className="max-w-4xl mx-auto bg-white/5 rounded-3xl p-12 border border-white/10 relative">
+    <div className="absolute -right-4 top-8 transform rotate-12">
+      <div className="bg-[#4FFFD1] text-black px-8 py-2 rounded-lg font-bold shadow-lg">
+        Coming Soon
+      </div>
+    </div>
 
-              <h2 className="text-4xl font-bold mb-8 text-center">Enhanced Rewards System</h2>
+              <h2 className="text-4xl font-bold mb-8 text-center">Cashback for debit card purchases</h2>
               <p className="text-xl mb-12 text-center text-white/80">
-                Bridging social engagement with real-world rewards through blockchain technology
+                Bridging memes with the real-world through blockchain technology
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                  <h3 className="text-2xl font-bold mb-4">Social Rewards</h3>
-                  <p className="text-white/60">Earn rewards for social interactions and engagement</p>
+                  <h3 className="text-2xl font-bold mb-4">Ease of use</h3>
+                  <p className="text-white/60">Registration is completed under a minute</p>
                 </div>
                 <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                   <h3 className="text-2xl font-bold mb-4">Multiple Pools</h3>
-                  <p className="text-white/60">Access various reward pools with different token rewards</p>
+                  <p className="text-white/60">Access various ASAreward pools with different token rewards</p>
                 </div>
                 <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                   <h3 className="text-2xl font-bold mb-4">Spend & Earn</h3>
-                  <p className="text-white/60">Earn rewards on everyday purchases and transactions</p>
+                  <p className="text-white/60">Earn rewards on everyday purchases</p>
                 </div>
               </div>
             </div>
@@ -220,7 +216,7 @@ const LandingPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
                 <h3 className="text-lg font-semibold mb-4">About Us</h3>
-                <p className="text-white/60">Splash Protocol: Redefining social rewards on Algorand.</p>
+                <p className="text-white/60">Splash Protocol: Redefining rewards on Algorand.</p>
                 <div className="flex items-center mt-4 space-x-4">
                   <a href="https://x.com/SocialT_ag" target="_blank" rel="noopener noreferrer" 
                      className="text-white/60 hover:text-[#4FFFD1] transition-colors">
