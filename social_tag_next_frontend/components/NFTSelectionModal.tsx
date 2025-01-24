@@ -115,26 +115,18 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       const assets = response.data.assets;
       console.log("All assets:", assets);
 
-      // Filter for NFTs
-      const nftAssets = assets.filter((asset: Asset) => {
-        const hasMetadata = asset.params?.url || asset.params?.metadata;
-        const isNonFungible = asset.params?.total === 1 || asset.params?.decimals === 0;
-        return hasMetadata && isNonFungible;
-      });
-
-      console.log("NFT assets:", nftAssets);
-      setProgress(`Found ${nftAssets.length} potential NFTs`);
+      setProgress(`Found ${assets.length} assets`);
 
       const processedNfts: NFT[] = [];
 
-      for (let i = 0; i < nftAssets.length; i += 5) {
-        const batch = nftAssets.slice(i, i + 5);
-        setProgress(`Processing NFTs ${i + 1}-${Math.min(i + 5, nftAssets.length)} of ${nftAssets.length}`);
+      for (let i = 0; i < assets.length; i += 5) {
+        const batch = assets.slice(i, i + 5);
+        setProgress(`Processing assets ${i + 1}-${Math.min(i + 5, assets.length)} of ${assets.length}`);
 
         const batchPromises = batch.map(async (asset: Asset) => {
           try {
             let imageUrl = asset.params?.url;
-            let metadata: NFTMetadata = { name: asset.params?.name || asset.params?.['unit-name'] || 'Unnamed NFT' };
+            let metadata: NFTMetadata = { name: asset.params?.name || asset.params?.['unit-name'] || 'Unnamed Asset' };
 
             if (imageUrl) {
               imageUrl = await processIPFSUrl(imageUrl);
@@ -163,17 +155,17 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
         processedNfts.push(...validResults);
         setNfts([...processedNfts]);
 
-        if (i + 5 < nftAssets.length) {
+        if (i + 5 < assets.length) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
 
       if (processedNfts.length === 0) {
-        setError('No NFTs found in wallet');
+        setError('No assets found in wallet');
       }
     } catch (err) {
-      console.error('Error loading NFTs:', err);
-      setError('Failed to load NFTs. Please try again.');
+      console.error('Error loading assets:', err);
+      setError('Failed to load assets. Please try again.');
     } finally {
       setIsLoading(false);
       setProgress('');
@@ -185,7 +177,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       <div className="max-w-4xl w-full bg-white p-6 rounded-lg border-2 border-black">
         <DialogHeader>
           <div className="text-2xl font-bold text-black mb-4">
-            <DialogTitle>Select NFT</DialogTitle>
+            <DialogTitle>Select Asset</DialogTitle>
           </div>
         </DialogHeader>
         <DialogContent>
@@ -194,7 +186,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
             disabled={isLoading || !walletAddress}
             className="w-full bg-[#FFB951] text-black hover:bg-[#FFB951]/90 border-2 border-black mb-4"
           >
-            {isLoading ? 'Loading...' : 'Load NFTs'}
+            {isLoading ? 'Loading...' : 'Load Assets'}
           </Button>
 
           {error && <div className="text-red-500 mb-4">{error}</div>}
@@ -209,7 +201,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               <p className="text-gray-600">
                 {!walletAddress
                   ? 'Please connect your wallet first'
-                  : 'No NFTs found in wallet or click Load NFTs to fetch them.'}
+                  : 'No assets found in wallet or click Load Assets to fetch them.'}
               </p>
             </div>
           ) : (
