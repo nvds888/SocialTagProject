@@ -61,6 +61,16 @@ async function processIPFSUrl(url: string): Promise<string> {
   return url;
 }
 
+async function fetchMetadata(url: string): Promise<NFTMetadata> {
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching metadata:', error);
+    return { name: 'Unnamed NFT' };
+  }
+}
+
 const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   isOpen,
   onClose,
@@ -92,50 +102,55 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       console.log("Assets response:", response.data);
   
       const assets = response.data.assets;
-console.log("All assets:", assets);
+      console.log("All assets:", assets);
 
-const nftAssets = assets.filter((asset: Asset) => {
- return asset.amount > 0 && asset.params;
-});
+      const nftAssets = assets.filter((asset: Asset) => {
+        return asset.amount > 0 && asset.params;
+      });
 
-console.log("NFT assets:", nftAssets);
-  
-      console.log("Filtered assets:", assets);
-      setProgress(`Found ${assets.length} potential NFTs`);
+      console.log("NFT assets:", nftAssets);
+      setProgress(`Found ${nftAssets.length} potential NFTs`);
       const processedNfts: NFT[] = [];
 
-      for (let i = 0; i < assets.length; i += 5) {
-        const batch = assets.slice(i, i + 5);
-        setProgress(`Processing NFTs ${i + 1}-${Math.min(i + 5, assets.length)} of ${assets.length}`);
+      for (let i = 0; i < nftAssets.length; i += 5) {
+        const batch = nftAssets.slice(i, i + 5);
+        setProgress(`Processing NFTs ${i + 1}-${Math.min(i + 5, nftAssets.length)} of ${nftAssets.length}`);
 
         const batchPromises = batch.map(async (asset: Asset) => {
           try {
             let imageUrl = asset.params.url;
+            let metadata: NFTMetadata = { 
+              name: (asset.params.name || asset.params['unit-name'] || 'Unnamed NFT') as string 
+            };
+
             if (imageUrl) {
               imageUrl = await processIPFSUrl(imageUrl);
+
+              // Fetch metadata if the URL points to a JSON file
+              if (imageUrl.endsWith('.json')) {
+                metadata = await fetchMetadata(imageUrl);
+                imageUrl = metadata.image ? await processIPFSUrl(metadata.image) : imageUrl;
+              }
             }
-            
+
             return {
               assetId: asset['asset-id'],
-              metadata: {
-                name: asset.params.name || asset.params['unit-name'] || 'Unnamed NFT',
-                image: imageUrl
-              },
+              metadata,
               image: imageUrl,
-              name: asset.params.name || asset.params['unit-name'] || 'Unnamed NFT'
+              name: metadata.name
             };
           } catch (err) {
             console.log('Asset processing error:', asset, err);
             return null;
           }
-         });
+        });
 
         const batchResults = await Promise.all(batchPromises);
         const validResults = batchResults.filter((nft): nft is NFT => nft !== null);
         processedNfts.push(...validResults);
         setNfts([...processedNfts]);
 
-        if (i + 5 < assets.length) {
+        if (i + 5 < nftAssets.length) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
