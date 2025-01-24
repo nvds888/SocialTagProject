@@ -32,8 +32,11 @@ interface Asset {
   amount: number;
   params: {
     name?: string;
+    'unit-name'?: string;
     url?: string;
+    metadata?: string;
     total?: number;
+    decimals?: number;
     [key: string]: unknown;
   };
   [key: string]: unknown;
@@ -89,27 +92,31 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       setError('No wallet address provided');
       return;
     }
-  
+
     try {
       setIsLoading(true);
       setError(null);
       setNfts([]);
-  
+
       console.log("Fetching assets...");
       const response = await indexerAxios.get(
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
       console.log("Assets response:", response.data);
-  
+
       const assets = response.data.assets;
       console.log("All assets:", assets);
 
+      // Filter for NFTs
       const nftAssets = assets.filter((asset: Asset) => {
-        return asset.amount > 0 && asset.params;
+        const isNonFungible = asset.params?.total === 1 && asset.params?.decimals === 0;
+        const hasMetadata = asset.params?.url || asset.params?.metadata;
+        return isNonFungible && hasMetadata;
       });
 
       console.log("NFT assets:", nftAssets);
       setProgress(`Found ${nftAssets.length} potential NFTs`);
+
       const processedNfts: NFT[] = [];
 
       for (let i = 0; i < nftAssets.length; i += 5) {
@@ -118,10 +125,8 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
 
         const batchPromises = batch.map(async (asset: Asset) => {
           try {
-            let imageUrl = asset.params.url;
-            let metadata: NFTMetadata = { 
-              name: (asset.params.name || asset.params['unit-name'] || 'Unnamed NFT') as string 
-            };
+            let imageUrl = asset.params?.url;
+            let metadata: NFTMetadata = { name: asset.params?.name || asset.params?.['unit-name'] || 'Unnamed NFT' };
 
             if (imageUrl) {
               imageUrl = await processIPFSUrl(imageUrl);
@@ -137,7 +142,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               assetId: asset['asset-id'],
               metadata,
               image: imageUrl,
-              name: metadata.name
+              name: metadata.name,
             };
           } catch (err) {
             console.log('Asset processing error:', asset, err);
@@ -186,7 +191,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
 
           {error && <div className="text-red-500 mb-4">{error}</div>}
           {progress && <div className="text-blue-500 mb-4">{progress}</div>}
-          
+
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
