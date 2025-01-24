@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ const IPFS_GATEWAYS = [
 
 const indexerAxios = axios.create({
   withCredentials: false,
-  timeout: 10000
+  timeout: 15000
 });
 
 const getIndexerURL = (network: string): string =>
@@ -61,6 +61,16 @@ const getIndexerURL = (network: string): string =>
 async function processIPFSUrl(url: string): Promise<string> {
   if (url.startsWith('ipfs://')) {
     const cid = url.replace('ipfs://', '');
+    // Try all IPFS gateways sequentially
+    for (const gateway of IPFS_GATEWAYS) {
+      try {
+        const testUrl = `${gateway}${cid}`;
+        await axios.head(testUrl, { timeout: 3000 });
+        return testUrl;
+      } catch (error) {
+        continue;
+      }
+    }
     return `${IPFS_GATEWAYS[0]}${cid}`;
   }
   return url;
@@ -68,7 +78,7 @@ async function processIPFSUrl(url: string): Promise<string> {
 
 async function fetchMetadata(url: string): Promise<NFTMetadata> {
   try {
-    const response = await axios.get(url);
+    const response = await axios.get(url, { timeout: 5000 });
     return response.data;
   } catch (error) {
     console.error('Error fetching metadata:', error);
@@ -89,13 +99,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string>('');
 
-  useEffect(() => {
-    if (isOpen && walletAddress) {
-      loadNFTs();
-    }
-  }, [isOpen, walletAddress]);
-
-  async function loadNFTs(): Promise<void> {
+  const loadNFTs = useCallback(async () => {
     if (!walletAddress) {
       setError('No wallet address provided');
       return;
@@ -110,74 +114,101 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
       const response = await indexerAxios.get(
         `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
       );
-      console.log("Assets response:", response.data);
-
-      const assets = response.data.assets;
+      
+      const assets: Asset[] = response.data.assets;
       console.log("All assets:", assets);
 
-      setProgress(`Found ${assets.length} assets`);
+      // Filter for NFTs (ARC3, ARC19, ARC69)
+      const nftAssets = assets.filter((asset: Asset) => {
+        // Check for NFT characteristics
+        const isNonFungible = asset.params.total === 1 || asset.params.decimals === 0;
+        const hasMetadata = asset.params.url || asset.params.metadata;
+        return isNonFungible && hasMetadata;
+      });
+
+      console.log("Filtered NFT assets:", nftAssets);
+      setProgress(`Found ${nftAssets.length} potential NFTs`);
 
       const processedNfts: NFT[] = [];
 
-      for (let i = 0; i < assets.length; i += 5) {
-        const batch = assets.slice(i, i + 5);
-        setProgress(`Processing assets ${i + 1}-${Math.min(i + 5, assets.length)} of ${assets.length}`);
+      for (const asset of nftAssets) {
+        try {
+          let imageUrl: string | undefined;
+          let metadata: NFTMetadata = { 
+            name: asset.params?.name || asset.params?.['unit-name'] || `NFT #${asset['asset-id']}` 
+          };
 
-        const batchPromises = batch.map(async (asset: Asset) => {
-          try {
-            let imageUrl = asset.params?.url;
-            let metadata: NFTMetadata = { name: asset.params?.name || asset.params?.['unit-name'] || 'Unnamed Asset' };
-
-            if (imageUrl) {
-              imageUrl = await processIPFSUrl(imageUrl);
-
-              // Fetch metadata if the URL points to a JSON file
-              if (imageUrl.endsWith('.json')) {
-                metadata = await fetchMetadata(imageUrl);
-                imageUrl = metadata.image ? await processIPFSUrl(metadata.image) : imageUrl;
+          // Handle ARC3 (off-chain metadata)
+          if (asset.params.url) {
+            try {
+              const processedUrl = await processIPFSUrl(asset.params.url);
+              if (processedUrl.endsWith('.json')) {
+                metadata = await fetchMetadata(processedUrl);
+                if (metadata.image) {
+                  imageUrl = await processIPFSUrl(metadata.image);
+                }
+              } else {
+                imageUrl = processedUrl;
               }
+            } catch (error) {
+              console.error('Error processing ARC3 metadata:', error);
             }
+          }
 
-            return {
+          // Handle ARC19/ARC69 (on-chain metadata)
+          if (asset.params.metadata) {
+            try {
+              const onChainMetadata = JSON.parse(asset.params.metadata);
+              metadata = { ...metadata, ...onChainMetadata };
+              if (onChainMetadata.image) {
+                imageUrl = await processIPFSUrl(onChainMetadata.image);
+              }
+            } catch (error) {
+              console.error('Error parsing on-chain metadata:', error);
+            }
+          }
+
+          // Final validation
+          if (metadata.name || imageUrl) {
+            processedNfts.push({
               assetId: asset['asset-id'],
               metadata,
               image: imageUrl,
-              name: metadata.name,
-            };
-          } catch (err) {
-            console.log('Asset processing error:', asset, err);
-            return null;
+              name: metadata.name
+            });
           }
-        });
-
-        const batchResults = await Promise.all(batchPromises);
-        const validResults = batchResults.filter((nft): nft is NFT => nft !== null);
-        processedNfts.push(...validResults);
-        setNfts([...processedNfts]);
-
-        if (i + 5 < assets.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+          console.error('Error processing asset:', asset['asset-id'], error);
         }
       }
 
+      console.log("Processed NFTs:", processedNfts);
+      setNfts(processedNfts);
+
       if (processedNfts.length === 0) {
-        setError('No assets found in wallet');
+        setError('No valid NFTs found in wallet');
       }
     } catch (err) {
-      console.error('Error loading assets:', err);
-      setError('Failed to load assets. Please try again.');
+      console.error('Error loading NFTs:', err);
+      setError('Failed to load NFTs. Please try again.');
     } finally {
       setIsLoading(false);
       setProgress('');
     }
-  }
+  }, [walletAddress, network]);
+
+  useEffect(() => {
+    if (isOpen && walletAddress) {
+      loadNFTs();
+    }
+  }, [isOpen, walletAddress, loadNFTs]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <div className="max-w-4xl w-full bg-white p-6 rounded-lg border-2 border-black">
         <DialogHeader>
           <div className="text-2xl font-bold text-black mb-4">
-            <DialogTitle>Select Asset</DialogTitle>
+            <DialogTitle>Select NFT</DialogTitle>
           </div>
         </DialogHeader>
         <DialogContent>
@@ -186,7 +217,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
             disabled={isLoading || !walletAddress}
             className="w-full bg-[#FFB951] text-black hover:bg-[#FFB951]/90 border-2 border-black mb-4"
           >
-            {isLoading ? 'Loading...' : 'Load Assets'}
+            {isLoading ? 'Loading...' : 'Load NFTs'}
           </Button>
 
           {error && <div className="text-red-500 mb-4">{error}</div>}
@@ -201,7 +232,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
               <p className="text-gray-600">
                 {!walletAddress
                   ? 'Please connect your wallet first'
-                  : 'No assets found in wallet or click Load Assets to fetch them.'}
+                  : 'No NFTs found in wallet'}
               </p>
             </div>
           ) : (
