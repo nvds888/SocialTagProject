@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -109,9 +111,9 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
 
       // Filter for NFTs
       const nftAssets = assets.filter((asset: Asset) => {
-        const isNonFungible = asset.params?.total === 1 && asset.params?.decimals === 0;
         const hasMetadata = asset.params?.url || asset.params?.metadata;
-        return isNonFungible && hasMetadata;
+        const isNonFungible = asset.params?.total === 1 || asset.params?.decimals === 0;
+        return hasMetadata && isNonFungible;
       });
 
       console.log("NFT assets:", nftAssets);
