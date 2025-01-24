@@ -212,10 +212,10 @@ const LandingPage: React.FC = () => {
         </main>
 
         <footer className="border-t border-white/10 py-12">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">About Us</h3>
+  <div className="container mx-auto px-4 max-w-5xl">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 place-items-center text-center">
+      <div>
+        <h3 className="text-lg font-semibold mb-4">About Us</h3>
                 <p className="text-white/60">Splash Protocol: Redefining rewards on Algorand.</p>
                 <div className="flex items-center mt-4 space-x-4">
                   <a href="https://x.com/SocialT_ag" target="_blank" rel="noopener noreferrer" 
