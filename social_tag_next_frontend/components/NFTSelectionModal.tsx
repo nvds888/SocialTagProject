@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,7 @@ const indexerAxios = axios.create({
   timeout: 10000
 });
 
-const getIndexerURL = (network: string): string => 
+const getIndexerURL = (network: string): string =>
   network === 'mainnet' ? 'https://mainnet-idx.algonode.cloud' : 'https://testnet-idx.algonode.cloud';
 
 async function processIPFSUrl(url: string): Promise<string> {
@@ -88,6 +88,12 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string>('');
+
+  useEffect(() => {
+    if (isOpen && walletAddress) {
+      loadNFTs();
+    }
+  }, [isOpen, walletAddress]);
 
   async function loadNFTs(): Promise<void> {
     if (!walletAddress) {
@@ -201,7 +207,7 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
           ) : nfts.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-600">
-                {!walletAddress 
+                {!walletAddress
                   ? 'Please connect your wallet first'
                   : 'No NFTs found in wallet or click Load NFTs to fetch them.'}
               </p>
