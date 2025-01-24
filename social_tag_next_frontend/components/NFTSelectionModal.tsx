@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axios, { CancelTokenSource } from 'axios';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
@@ -51,7 +51,6 @@ const IPFS_GATEWAYS = [
 ];
 
 const indexerAxios = axios.create({
-  withCredentials: false,
   timeout: 15000
 });
 
@@ -61,7 +60,6 @@ const getIndexerURL = (network: string): string =>
 async function processIPFSUrl(url: string): Promise<string> {
   if (url.startsWith('ipfs://')) {
     const cid = url.replace('ipfs://', '');
-    // Try all IPFS gateways sequentially
     for (const gateway of IPFS_GATEWAYS) {
       try {
         const testUrl = `${gateway}${cid}`;
@@ -71,19 +69,8 @@ async function processIPFSUrl(url: string): Promise<string> {
         continue;
       }
     }
-    return `${IPFS_GATEWAYS[0]}${cid}`;
   }
   return url;
-}
-
-async function fetchMetadata(url: string): Promise<NFTMetadata> {
-  try {
-    const response = await axios.get(url, { timeout: 5000 });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching metadata:', error);
-    return { name: 'Unnamed NFT' };
-  }
 }
 
 const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
@@ -98,110 +85,118 @@ const NFTSelectionModal: React.FC<NFTSelectionModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string>('');
+  const [cancelToken, setCancelToken] = useState<CancelTokenSource | null>(null);
 
-  const loadNFTs = useCallback(async () => {
-    if (!walletAddress) {
-      setError('No wallet address provided');
-      return;
-    }
-
+  const processAsset = useCallback(async (asset: Asset, source: CancelTokenSource): Promise<NFT | null> => {
     try {
-      setIsLoading(true);
-      setError(null);
-      setNfts([]);
+      let imageUrl: string | undefined;
+      const baseMetadata: NFTMetadata = {
+        name: asset.params?.name || asset.params?.['unit-name'] || `NFT #${asset['asset-id']}`
+      };
 
-      console.log("Fetching assets...");
-      const response = await indexerAxios.get(
-        `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`
-      );
-      
-      const assets: Asset[] = response.data.assets;
-      console.log("All assets:", assets);
-
-      // Filter for NFTs (ARC3, ARC19, ARC69)
-      const nftAssets = assets.filter((asset: Asset) => {
-        // Check for NFT characteristics
-        const isNonFungible = asset.params.total === 1 || asset.params.decimals === 0;
-        const hasMetadata = asset.params.url || asset.params.metadata;
-        return isNonFungible && hasMetadata;
-      });
-
-      console.log("Filtered NFT assets:", nftAssets);
-      setProgress(`Found ${nftAssets.length} potential NFTs`);
-
-      const processedNfts: NFT[] = [];
-
-      for (const asset of nftAssets) {
+      // Handle ARC3 metadata
+      if (asset.params?.url) {
         try {
-          let imageUrl: string | undefined;
-          let metadata: NFTMetadata = { 
-            name: asset.params?.name || asset.params?.['unit-name'] || `NFT #${asset['asset-id']}` 
-          };
-
-          // Handle ARC3 (off-chain metadata)
-          if (asset.params.url) {
-            try {
-              const processedUrl = await processIPFSUrl(asset.params.url);
-              if (processedUrl.endsWith('.json')) {
-                metadata = await fetchMetadata(processedUrl);
-                if (metadata.image) {
-                  imageUrl = await processIPFSUrl(metadata.image);
-                }
-              } else {
-                imageUrl = processedUrl;
-              }
-            } catch (error) {
-              console.error('Error processing ARC3 metadata:', error);
-            }
-          }
-
-          // Handle ARC19/ARC69 (on-chain metadata)
-          if (asset.params.metadata) {
-            try {
-              const onChainMetadata = JSON.parse(asset.params.metadata);
-              metadata = { ...metadata, ...onChainMetadata };
-              if (onChainMetadata.image) {
-                imageUrl = await processIPFSUrl(onChainMetadata.image);
-              }
-            } catch (error) {
-              console.error('Error parsing on-chain metadata:', error);
-            }
-          }
-
-          // Final validation
-          if (metadata.name || imageUrl) {
-            processedNfts.push({
-              assetId: asset['asset-id'],
-              metadata,
-              image: imageUrl,
-              name: metadata.name
-            });
+          const processedUrl = await processIPFSUrl(asset.params.url);
+          const response = await axios.get<NFTMetadata>(processedUrl, {
+            cancelToken: source.token,
+            timeout: 5000
+          });
+          baseMetadata.name = response.data.name || baseMetadata.name;
+          if (response.data.image) {
+            imageUrl = await processIPFSUrl(response.data.image);
           }
         } catch (error) {
-          console.error('Error processing asset:', asset['asset-id'], error);
+          if (!axios.isCancel(error)) {
+            console.error('Error processing ARC3 metadata:', error);
+          }
         }
       }
 
-      console.log("Processed NFTs:", processedNfts);
-      setNfts(processedNfts);
-
-      if (processedNfts.length === 0) {
-        setError('No valid NFTs found in wallet');
+      // Handle ARC19/ARC69 metadata
+      if (asset.params?.metadata) {
+        try {
+          const onChainMetadata = JSON.parse(asset.params.metadata);
+          baseMetadata.name = onChainMetadata.name || baseMetadata.name;
+          if (onChainMetadata.image) {
+            imageUrl = await processIPFSUrl(onChainMetadata.image);
+          }
+        } catch (error) {
+          console.error('Error parsing on-chain metadata:', error);
+        }
       }
-    } catch (err) {
-      console.error('Error loading NFTs:', err);
-      setError('Failed to load NFTs. Please try again.');
+
+      return {
+        assetId: asset['asset-id'],
+        metadata: baseMetadata,
+        image: imageUrl,
+        name: baseMetadata.name
+      };
+    } catch (error) {
+      console.error('Error processing asset:', asset['asset-id'], error);
+      return null;
+    }
+  }, []);
+
+  const loadNFTs = useCallback(async () => {
+    if (!walletAddress) return;
+
+    const source = axios.CancelToken.source();
+    setCancelToken(source);
+    setIsLoading(true);
+    setError(null);
+    setNfts([]);
+
+    try {
+      setProgress('Fetching assets...');
+      const response = await indexerAxios.get(
+        `${getIndexerURL(network)}/v2/accounts/${walletAddress}/assets`,
+        { cancelToken: source.token }
+      );
+
+      const assets: Asset[] = response.data.assets;
+      const nftAssets = assets.filter(asset => 
+        (asset.params?.total === 1 || asset.params?.decimals === 0) &&
+        (asset.params?.url || asset.params?.metadata)
+      );
+
+      setProgress(`Processing ${nftAssets.length} NFTs...`);
+      const processed = await Promise.all(
+        nftAssets.map(asset => processAsset(asset, source))
+      );
+
+      // Type-safe filtering
+      const validNfts = processed.filter((nft): nft is NFT => {
+        return !!nft && 
+               typeof nft.assetId === 'number' &&
+               !!nft.metadata &&
+               typeof nft.metadata.name === 'string';
+      });
+
+      setNfts(validNfts);
+      
+      if (validNfts.length === 0) {
+        setError('No displayable NFTs found');
+      }
+    } catch (error) {
+      if (!axios.isCancel(error)) {
+        console.error('NFT load error:', error);
+        setError('Failed to load NFTs. Please try again.');
+      }
     } finally {
       setIsLoading(false);
       setProgress('');
     }
-  }, [walletAddress, network]);
+  }, [walletAddress, network, processAsset]);
 
   useEffect(() => {
     if (isOpen && walletAddress) {
       loadNFTs();
     }
-  }, [isOpen, walletAddress, loadNFTs]);
+    return () => {
+      cancelToken?.cancel('Component unmounted');
+    };
+  }, [isOpen, walletAddress, loadNFTs, cancelToken]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
